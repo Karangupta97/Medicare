@@ -4,7 +4,7 @@ import { useState } from "react";
 import SignupImage from "../assets/Sing.png";
 import { useAuthStore } from "../store/authStore";
 
-const Singup = () => {
+const Signup = () => {
   const [name, setName] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
@@ -141,4 +141,4 @@ const Singup = () => {
   );
 };
 
-export default Singup;
+export default Signup;
