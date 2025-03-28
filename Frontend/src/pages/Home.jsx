@@ -117,7 +117,7 @@ const Home = () => {
               alt="Health Records"
             />
             <span className="text-2xl font-bold text-[#252a61]">
-              Health Record
+              Health Records
             </span>
           </Link>
         </section>
