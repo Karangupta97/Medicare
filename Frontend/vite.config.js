@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     historyApiFallback: true,
     proxy: {
-      "/api": "http://localhost:4000",
+      "/api": "https://medicare-3c0t.onrender.com",
     },
   },
 })
