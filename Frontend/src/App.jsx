@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import Home from "./pages/Home";
-import Dashbord from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -57,10 +57,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
-          path="/dashbord"
+          path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashbord />
+              <Dashboard />
             </ProtectedRoute>
           }
         />
