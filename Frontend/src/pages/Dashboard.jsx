@@ -20,6 +20,7 @@ const Dashboard = () => {
           </h3>
           <p className="text-gray-600 mb-1 break-words">Name: {user.name}</p>
           <p className="text-gray-600 break-words">Email: {user.email}</p>
+          <p className="text-gray-600 break-words">UID: {user.uid}</p>
         </div>
 
         <div className="mb-6">
