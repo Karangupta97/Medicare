@@ -108,12 +108,6 @@ const Login = () => {
             >
               Create account
             </Link>
-            {/* <a
-              href="/Signup"
-              className="text-[#31303c] text-lg font-semibold font-['Montserrat'] hover:underline transition"
-            >
-              Create account
-            </a> */}
           </div>
         </form>
       </div>
