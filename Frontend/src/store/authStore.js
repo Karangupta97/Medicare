@@ -1,7 +1,7 @@
 import axios from "axios";
 import { create } from "zustand";
 
-const API_URL = "https://medicare-3c0t.onrender.com/api/auth";
+const API_URL = "https://medicare-3c0t.onrender.com";
 // const API_URL = "https://medicare-3c0t.onrender.com/api/auth";
 
 axios.defaults.withCredentials = true;
@@ -16,7 +16,7 @@ export const useAuthStore = create((set, get) => ({
   signup: async (name, lastname, email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/signup`, {
+      const response = await axios.post(`${API_URL}/api/auth/signup`, {
         name,
         lastname,
         email,
@@ -39,7 +39,7 @@ export const useAuthStore = create((set, get) => ({
   verifyEmail: async (code) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/verify-email`, {
+      const response = await axios.post(`${API_URL}/api/auth/verify-email`, {
         code,
       });
       set({
@@ -61,7 +61,7 @@ export const useAuthStore = create((set, get) => ({
   resendOtp: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/resend-otp`);
+      const response = await axios.post(`${API_URL}/api/auth/resend-otp`);
       set({ isLoading: false });
       return response.data;
     } catch (error) {
@@ -76,7 +76,7 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     set({ isCheckingAuth: true, error: null });
     try {
-      const response = await axios.get(`${API_URL}/check-auth`);
+      const response = await axios.get(`${API_URL}/api/auth/check-auth`);
       set({
         user: response.data.user,
         isAuthenticated: true,
@@ -90,7 +90,7 @@ export const useAuthStore = create((set, get) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/login`, {
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });
@@ -112,7 +112,7 @@ export const useAuthStore = create((set, get) => ({
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
-      await axios.post(`${API_URL}/logout`);
+      await axios.post(`${API_URL}/api/auth/logout`);
       set({
         user: null,
         isAuthenticated: false,
@@ -129,7 +129,7 @@ export const useAuthStore = create((set, get) => ({
   forgotPassword: async (email) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axios.post(`${API_URL}/forgot-password`, { email });
+			const response = await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
 			set({ message: response.data.message, isLoading: false });
 		} catch (error) {
 			set({
@@ -143,7 +143,7 @@ export const useAuthStore = create((set, get) => ({
   resetPassword: async (token, password) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axios.post(`${API_URL}/reset-password/${token}`, { password });
+			const response = await axios.post(`${API_URL}/api/auth/reset-password/${token}`, { password });
 			set({ message: response.data.message, isLoading: false });
 		} catch (error) {
 			set({
