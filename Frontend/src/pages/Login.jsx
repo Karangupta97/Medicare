@@ -102,12 +102,18 @@ const Login = () => {
             <div className="text-[#31303c] text-lg font-semibold font-['Montserrat']">
               Don’t have an account?
             </div>
-            <a
-              href="/signup"
+            <Link
+              to="/signup"
               className="text-[#31303c] text-lg font-semibold font-['Montserrat'] hover:underline transition"
             >
               Create account
-            </a>
+            </Link>
+            {/* <a
+              href="/Signup"
+              className="text-[#31303c] text-lg font-semibold font-['Montserrat'] hover:underline transition"
+            >
+              Create account
+            </a> */}
           </div>
         </form>
       </div>
