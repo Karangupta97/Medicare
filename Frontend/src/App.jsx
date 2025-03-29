@@ -105,9 +105,9 @@ const App = () => {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster position="top-center" />
       <Analytics />
       <SpeedInsights />
+      <Toaster position="top-center" />
     </div>
   );
 };
