@@ -21,95 +21,77 @@ const Login = () => {
     }
   };
   return (
-    <div className="relative flex h-screen items-center justify-center bg-gradient-to-b from-[#B8C5FD] to-[#E8C3D5]">
-      <div className="w-[1700px] h-[900px] left-[110px] top-[10px] absolute opacity-60 bg-[#f0f7ff] rounded-[72px] blur-[3px] backdrop-blur-[100px]" />
-      <div className="w-[1600px] h-[800px] absolute  rounded-[72px]  ">
-        {/*blur-[3px]*/}
-        <img
-          className="w-[686px] h-[800px]  left-5 top-5 absolute rounded-[75px]"
-          src={LoginImage}
-          alt="Login Image"
-        />
-      </div>
-      <div className="w-[511.03px] h-[521px] absolute left-[57%] top-50 ">
-        {/*change top left  */}
-        <form onSubmit={handleLogin}>
-          <div className="w-44 h-[67px] left-[166.94px] top-0 absolute text-[#252a61] text-4xl font-semibold font-['Montserrat']">
-            Login
-          </div>
-          {/* -----------Email--------------- */}
-          <div className="w-[511.03px] h-[106px] left-0 top-[125px] absolute">
-            <div className="w-[511px] h-[42px] px-4 py-2.5 left-0 top-0 absolute justify-start items-center gap-2.5 inline-flex">
-              <div className="text-[#252a61] text-base font-normal font-['Montserrat']">
-                Email
-              </div>
-            </div>
-            <div className="w-[511.03px] h-[64.06px] left-0 top-[41.94px] absolute">
+    <div className="relative flex h-screen items-center justify-center bg-gradient-to-b from-[#B8C5FD] to-[#E8C3D5] px-6 md:px-12 lg:px-20">
+      <div className="absolute w-[95%] md:w-[1700px] h-[85%] md:h-[900px] opacity-60 bg-[#f0f7ff] rounded-[50px] blur-[3px] backdrop-blur-[80px]" />
+
+      <div className="relative flex flex-col md:flex-row items-center w-full max-w-[1400px] space-y-10 md:space-y-0 md:space-x-16">
+        {/* Image Section - Hidden on Mobile */}
+        <div className="hidden md:flex w-[60%] lg:w-[55%] justify-center">
+          <img
+            className="w-full max-w-lg md:max-w-xl lg:max-w-2xl rounded-[50px] shadow-2xl"
+            src={LoginImage}
+            alt="Login"
+          />
+        </div>
+
+        {/* Form Section - Responsive */}
+        <div className="w-full md:w-[40%] lg:w-[45%] bg-white bg-opacity-60 p-8 md:p-12 rounded-[30px] shadow-lg flex flex-col items-center">
+          <h2 className="text-3xl md:text-4xl text-[#252A61] font-bold mb-2 text-center">Welcome Back!</h2>
+          <p className="text-md md:text-lg text-[#555] mb-6 text-center">Please log in to access your account.</p>
+          
+          <form onSubmit={handleLogin} className="flex flex-col space-y-6 w-full">
+            {/* Email Input */}
+            <div className="w-full">
+              <label className="text-[#252A61] text-base font-medium">Email</label>
               <input
-                type="Email"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-[511.03px] h-[64.06px]  left-0 top-[0.06] absolute rounded-[50px] border-2 border-[#252a61] gap-2.5 text-[#717171] text-base items-center font-semibold font-['Montserrat'] bg-[#f0f7ff] inline-flex px-4 py-2.5 "
+                className="w-full h-14 px-4 mt-2 rounded-[50px] border-2 border-[#252A61] bg-[#f0f7ff] text-[#717171] text-base font-semibold focus:ring-2 focus:ring-[#252A61] focus:outline-none"
                 placeholder="Enter Email"
               />
             </div>
-          </div>
-          {/* --------------------------------****************---------------------------- */}
 
-          {/* -----------Password--------------- */}
-          <div className="w-[511.03px] h-[139px] left-0 top-[248px] absolute">
-            <div className="w-[511px] h-10 px-4 py-2.5 left-0 top-0 absolute justify-start items-center gap-2.5 inline-flex">
-              <div className="text-[#252a61] text-base font-normal font-['Montserrat']">
-                Password
-              </div>
-            </div>
-            <div className="w-[511.03px] h-[63.60px] left-0 top-[41.59px] absolute">
+            {/* Password Input */}
+            <div className="w-full">
+              <label className="text-[#252A61] text-base font-medium">Password</label>
               <input
                 type="password"
                 value={password}
-                placeholder="Enter Password"
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-[511.03px] h-[64.06px]  left-0 top-[0.41px] 0.41px absolute rounded-[50px] border-2 border-[#252a61] gap-2.5 text-[#717171] text-base items-center font-semibold font-['Montserrat'] bg-[#f0f7ff] inline-flex px-4 py-2.5 "
-                min={8}
+                className="w-full h-14 px-4 mt-2 rounded-[50px] border-2 border-[#252A61] bg-[#f0f7ff] text-[#717171] text-base font-semibold focus:ring-2 focus:ring-[#252A61] focus:outline-none"
+                placeholder="Enter Password"
               />
-            </div>
-            <div className="w-[511px] h-[35px] px-4 py-2.5 left-0 top-[104px] absolute justify-start items-center gap-2.5 inline-flex">
-              <div className="text-[#31303c] text-xs font-bold font-['Montserrat']">
-                <Link
-                  to="/forgot-password"
-                  className="text-[#31303c] text-sm font-bold font-['Montserrat'] hover:underline transition"
-                >
+              <div className="text-right mt-2">
+                <Link to="/forgot-password" className="text-sm font-semibold text-[#252A61] hover:underline">
                   Forgot password?
                 </Link>
               </div>
             </div>
-          </div>
-          {error && <p className="text-red-500">{error}</p>}
 
-          {/* -----------Login Button--------------- */}
-          <div className="w-[200px] h-[60px] left-[156px] top-[405px] absolute">
+            {/* Error Message */}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            {/* Login Button */}
             <button
               type="submit"
-              className="gap-2.5 w-[200px] h-[60px] bg-[#252A61] text-white text-2xl font-semibold font-['Montserrat Alternates'] py-2 px-6 rounded-[50px]  hover:bg-[#252A81] transition"
+              className="w-full h-14 bg-[#252A61] text-white text-xl font-semibold rounded-[50px] hover:bg-[#1c204f] transition disabled:opacity-50"
+              disabled={isLoading}
             >
-              Log In
+              {isLoading ? "Logging in..." : "Log In"}
             </button>
-          </div>
-          {/* --------------------------------****************---------------------------- */}
-          <div className="w-[511px] h-14 p-2.5 left-0 top-[465px] absolute justify-center items-center gap-2.5 inline-flex">
-            <div className="text-[#31303c] text-lg font-semibold font-['Montserrat']">
-              Don’t have an account?
-            </div>
-            <Link
-              to="/signup"
-              className="text-[#31303c] text-lg font-semibold font-['Montserrat'] hover:underline transition"
-            >
+          </form>
+
+          {/* Signup Link */}
+          <div className="mt-6 text-center text-lg font-semibold text-[#31303c]">
+            Don’t have an account?&nbsp;
+            <Link to="/signup" className="text-[#252A61] hover:underline">
               Create account
             </Link>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
