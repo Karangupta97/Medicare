@@ -45,7 +45,7 @@ const Home = () => {
             <Link to="/about-us" className="text-black hover:scale-110">
               About Us
             </Link>
-            <Link to="/dashbord" className="text-black hover:scale-110">
+            <Link to="/dashboard" className="text-black hover:scale-110">
               Dashbord
             </Link>
           </nav>
