@@ -46,7 +46,7 @@ const Home = () => {
               About Us
             </Link>
             <Link to="/dashboard" className="text-black hover:scale-110">
-              Dashbord
+              Dashboard
             </Link>
           </nav>
 
