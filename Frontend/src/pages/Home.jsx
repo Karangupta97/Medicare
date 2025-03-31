@@ -38,48 +38,99 @@ const Home = () => {
       <div className="relative z-10 flex flex-col items-center px-4 py-8 space-y-8">
         {/* Header */}
         <header className="w-full max-w-[1700px] flex justify-between items-center py-4 px-4 md:px-8">
-          <img className="w-24 md:w-40 h-auto" src={Logo} alt="Logo" />
-          
-          {/* Mobile menu button */}
-          <button 
-            className="md:hidden p-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          {/* Mobile Controls */}
+          <div className="md:hidden flex justify-between items-center w-full">
+            {/* Mobile menu button */}
+            <button 
+              className="p-2 bg-white rounded-full shadow-md"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8 lg:space-x-12 text-base lg:text-lg font-[Montserrat Alternates] font-semibold">
-            <Link to="/" className="text-black hover:text-[#252A61] transition-colors duration-300">
-              Home
-            </Link>
-            <Link to="/health-records" className="text-black hover:text-[#252A61] transition-colors duration-300">
-              Health Records
-            </Link>
-            <Link to="/upload-reports" className="text-black hover:text-[#252A61] transition-colors duration-300">
-              Upload Reports
-            </Link>
-            <Link to="/about-us" className="text-black hover:text-[#252A61] transition-colors duration-300">
-              About Us
-            </Link>
-            <Link to="/dashboard" className="text-black hover:text-[#252A61] transition-colors duration-300">
-              Dashboard
-            </Link>
-          </nav>
-
-          {/* Login/User Icon - Desktop */}
-          <div className="hidden md:block">
+            {/* Mobile Login/User */}
             {user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="w-[50px] h-[50px] md:w-[60px] md:h-[60px] focus:outline-none"
+                  className="w-[45px] h-[45px] rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
+                >
+                  <img
+                    src={UserIcon}
+                    alt="User"
+                    className="w-8 h-8 rounded-full"
+                  />
+                </button>
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
+                    <div className="px-4 py-2 border-b">
+                      <p className="text-sm font-semibold text-gray-800">{user.name || 'User'}</p>
+                      <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
+                    </div>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="h-[45px] flex items-center justify-center px-6 py-2 bg-[#252A61] text-white rounded-full text-base hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+
+          {/* Desktop Navigation and Controls */}
+          <div className="hidden md:flex items-center justify-between w-full">
+            <img className="w-40 h-auto" src={Logo} alt="Logo" />
+            <nav className="flex space-x-8 lg:space-x-12 text-base lg:text-lg font-[Montserrat Alternates] font-semibold">
+              <Link to="/" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
+                Home
+              </Link>
+              <Link to="/health-records" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
+                Health Records
+              </Link>
+              <Link to="/upload-reports" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
+                Upload Reports
+              </Link>
+              <Link to="/about-us" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
+                About Us
+              </Link>
+              <Link to="/dashboard" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
+                Dashboard
+              </Link>
+            </nav>
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="w-[60px] h-[60px] focus:outline-none"
                 >
                   <img
                     src={UserIcon}
@@ -119,7 +170,7 @@ const Home = () => {
             ) : (
               <Link
                 to="/login"
-                className="w-[120px] md:w-[200px] h-[45px] md:h-[60px] flex items-center justify-center px-3 py-3 bg-[#252A61] text-white rounded-full text-base md:text-xl hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
+                className="w-[200px] h-[60px] flex items-center justify-center px-6 py-2 bg-[#252A61] text-white rounded-full text-xl hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
               >
                 Login
               </Link>
@@ -129,14 +180,52 @@ const Home = () => {
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="fixed inset-0 bg-white z-40 pt-20 md:hidden">
-            <nav className="flex flex-col space-y-4 p-4">
-              <Link to="/" className="text-[#252A61] text-lg font-medium">Home</Link>
-              <Link to="/health-records" className="text-[#252A61] text-lg font-medium">Health Records</Link>
-              <Link to="/upload-reports" className="text-[#252A61] text-lg font-medium">Upload Reports</Link>
-              <Link to="/about-us" className="text-[#252A61] text-lg font-medium">About Us</Link>
-              <Link to="/dashboard" className="text-[#252A61] text-lg font-medium">Dashboard</Link>
-            </nav>
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden">
+            <div className="absolute left-0 top-0 h-full w-[80%] bg-white rounded-r-[30px] shadow-xl">
+              <div className="flex justify-between items-center p-4 border-b">
+                <img className="w-32 h-auto" src={Logo} alt="Logo" />
+                <button 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <nav className="flex flex-col space-y-4 p-6">
+                <Link to="/" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  <span>Home</span>
+                </Link>
+                <Link to="/health-records" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <span>Health Records</span>
+                </Link>
+                <Link to="/upload-reports" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  <span>Upload Reports</span>
+                </Link>
+                <Link to="/about-us" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>About Us</span>
+                </Link>
+                <Link to="/dashboard" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  <span>Dashboard</span>
+                </Link>
+              </nav>
+            </div>
           </div>
         )}
 
@@ -219,71 +308,78 @@ const Home = () => {
         </section>
 
         {/* What We Do */}
-        <section className="w-full text-center py-4 md:py-8">
-          <h2 className="text-xl md:text-3xl lg:text-5xl font-normal text-Text">
+        <section className="w-full max-w-[1700px] text-center py-4 md:py-8">
+          <h2 className="text-xl md:text-3xl lg:text-5xl font-normal text-Text mb-8">
             What We Do
           </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-16 h-16 bg-[#CDEBF1] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Digital Health Records</h3>
+              <p className="text-gray-600">Securely store and manage your medical records in one place. Access your health information anytime, anywhere.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-16 h-16 bg-[#DEF1D0] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Report Management</h3>
+              <p className="text-gray-600">Upload and organize your medical reports, test results, and prescriptions in a structured format.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-16 h-16 bg-[#f8e5e5] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Hospital Locator</h3>
+              <p className="text-gray-600">Find nearby hospitals, clinics, and healthcare facilities with detailed information and ratings.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-16 h-16 bg-[#CDEBF1] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Appointment Scheduling</h3>
+              <p className="text-gray-600">Book appointments with healthcare providers, receive reminders, and manage your medical schedule.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-16 h-16 bg-[#DEF1D0] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Secure Data Storage</h3>
+              <p className="text-gray-600">Your health information is protected with advanced encryption and security measures.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-16 h-16 bg-[#f8e5e5] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Healthcare Network</h3>
+              <p className="text-gray-600">Connect with healthcare providers and share your medical information securely.</p>
+            </div>
+          </div>
         </section>
 
         {/* Footer */}
         <footer className="w-full bg-Primary rounded-tl-[20px] rounded-tr-[20px] py-8">
           {/* Footer content */}
         </footer>
-      </div>
-
-      {/* Mobile User Menu */}
-      <div className="fixed top-3 right-4 z-50 md:hidden">
-        {user ? (
-          <div className="relative">
-            <button
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
-            >
-              <img
-                src={UserIcon}
-                alt="User"
-                className="w-8 h-8 rounded-full"
-              />
-            </button>
-            {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
-                <div className="px-4 py-2 border-b">
-                  <p className="text-sm font-semibold text-gray-800">{user.name || 'User'}</p>
-                  <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
-                </div>
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  Profile
-                </Link>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <Link
-            to="/login"
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
-          >
-            <svg className="w-6 h-6 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </Link>
-        )}
       </div>
     </div>
   );
