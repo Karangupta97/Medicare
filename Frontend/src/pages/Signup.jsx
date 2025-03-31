@@ -1,8 +1,8 @@
-import React, { use } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import SignupImage from "../assets/Sing.png";
 import { useAuthStore } from "../store/authStore";
+import { FaUser, FaEnvelope, FaLock, FaStethoscope } from "react-icons/fa";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -10,12 +10,10 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { signup, error, isLoading } = useAuthStore();
 
-  const { signup, error, isLoding } = useAuthStore();
-
-  const handleSingup = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-
     try {
       await signup(name, lastname, email, password);
       navigate("/verify-email");
@@ -23,119 +21,169 @@ const Signup = () => {
       console.log(error);
     }
   };
+
   return (
-    <div className="relative flex h-screen items-center  justify-center bg-gradient-to-b from-[#B8C5FD] to-[#E8C3D5]">
-      <div className="w-[1700px] h-[900px] left-[110px] top-[10px] absolute opacity-60 bg-[#f0f7ff] rounded-[72px] blur-[3px] backdrop-blur-[100px]" />
-      <div className="w-[1431px] h-[800px] relative">
-        <img
-          className="w-[685px] h-[800px] left-[746px] top-0 absolute rounded-[50px]"
-          src={SignupImage}
-          alt="Login Image"
-        />
-        <form onSubmit={handleSingup}>
-          <div className="w-[511.03px] h-[643px] left-0 top-[83px] absolute">
-            <div className="w-[511.03px] h-[643px] left-0 top-0 absolute">
-              <h2 className="w-[385px] h-[67px] left-[63px] top-0 absolute text-[#252a61] text-5xl font-semibold font-['Montserrat']">
-                Create Account
-              </h2>
-
-              {/* -----------Name--------------- */}
-              <div className="w-[251px] h-[105.40px] left-0 top-[125px] absolute">
-                <div className="w-[251px] h-[42px] px-4 py-2.5 left-0 top-0 absolute justify-start items-center gap-2.5 inline-flex">
-                  <div className="text-[#252a61] text-base font-normal font-['Montserrat']">
-                    Firstname
-                  </div>
-                </div>
-                <input
-                  type="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-[250.50px] h-[63px]  left-0 top-[42.40px] absolute rounded-[50px] border-2 border-[#252a61] gap-2.5 text-[#717171] text-base items-center font-semibold font-['Montserrat'] bg-[#f0f7ff] inline-flex px-4 py-2.5"
-                  placeholder="Enter Firstname"
-                />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#B8C5FD] to-[#E8C3D5] p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-6xl flex flex-col lg:flex-row bg-white rounded-[40px] shadow-2xl overflow-hidden">
+        {/* Image Section */}
+        <div className="hidden lg:block lg:w-1/2 relative bg-gradient-to-br from-[#252A61] to-[#718CFB]">
+          <div className="absolute inset-0 flex flex-col justify-center p-12 text-white">
+            <div className="mb-12 flex flex-col items-center text-center">
+              <div className="p-4 bg-[#B8C5FD]/10 rounded-2xl mb-6">
+                <FaStethoscope className="w-16 h-16 text-[#B8C5FD]" />
               </div>
-              {/* -----------Lastname--------------- */}
-              <div className="w-[251px] h-[105.40px] left-[260px] top-[123px] absolute">
-                <div className="w-[251px] h-11 px-4 py-2.5 left-0 top-0 absolute justify-start items-center gap-2.5 inline-flex">
-                  <div className="text-[#252a61] text-base font-normal font-['Montserrat']">
-                    Lastname
-                  </div>
+              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-[#B8C5FD] to-white bg-clip-text text-transparent">
+                Join MedSecure+
+              </h1>
+              <p className="text-lg text-[#B8C5FD] font-medium">
+                Start Your Secure Medical Journey
+              </p>
+            </div>
+            
+            <div className="space-y-6 mt-8">
+              {[
+                { icon: FaUser, text: "HIPAA-Compliant Profiles" },
+                { icon: FaLock, text: "Military-Grade Encryption" },
+                { icon: FaEnvelope, text: "Secure Communications" }
+              ].map((item, index) => (
+                <div key={index} className="flex items-center gap-4 px-6 py-3.5 bg-white/5 rounded-xl backdrop-blur-sm">
+                  <item.icon className="w-7 h-7 text-[#B8C5FD]" />
+                  <span className="text-lg">{item.text}</span>
                 </div>
-                <input
-                  type="lastname"
-                  value={lastname}
-                  onChange={(e) => setLastname(e.target.value)}
-                  className="w-[250.50px] h-[63px]  left-0 top-[42.40px] absolute rounded-[50px] border-2 border-[#252a61] gap-2.5 text-[#717171] text-base items-center font-semibold font-['Montserrat'] bg-[#f0f7ff] inline-flex px-4 py-2.5"
-                  placeholder="Enter Lastname"
-                />
-              </div>
-
-              {/* -----------Email--------------- */}
-              <div className="w-[511.03px] h-[123px] left-0 top-[230px] absolute">
-                <div className="w-[511px] h-[59px] px-4 pt-6 pb-2 left-0 top-0 absolute justify-start items-center gap-2.5 inline-flex">
-                  <div className="text-[#252a61] text-base font-normal font-['Montserrat']">
-                    Email
-                  </div>
-                </div>
-                <div className="w-[511.03px] h-16 left-0 top-[59px] absolute">
-                  <input
-                    type="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-[511.03px] h-[64.06px]  left-0 top-[0.06] absolute rounded-[50px] border-2 border-[#252a61] gap-2.5 text-[#717171] text-base items-center font-semibold font-['Montserrat'] bg-[#f0f7ff] inline-flex px-4 py-2.5"
-                    placeholder="Enter Email"
-                  />
-                </div>
-              </div>
-
-              {/* -----------Password--------------- */}
-              <div className="w-[511.03px] h-[123px] left-0 top-[353px] absolute">
-                <div className="w-[511px] h-[59px] px-4 pt-6 pb-2 left-0 top-0 absolute justify-start items-center gap-2.5 inline-flex">
-                  <div className="text-[#252a61] text-base font-normal font-['Montserrat']">
-                    Password
-                  </div>
-                </div>
-                <div className="w-[511.03px] h-16 left-0 top-[58.99px] absolute">
-                  <input
-                    type="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-[511.03px] h-[63.60px]  left-0 top-[0] absolute rounded-[50px] border-2 border-[#252a61] gap-2.5 text-[#717171] text-base items-center font-semibold font-['Montserrat'] bg-[#f0f7ff] inline-flex px-4 py-2.5"
-                    placeholder="Enter Password"
-                  />
-                </div>
-              </div>
-            {error && <p className=" top-[380px] text-red-500 font-semibold ">{error}</p>}
-              {/* -----------Sing Up Button--------------- */}
-
-              <div className="w-[200px] h-[60.40px] left-[156px] top-[527px] absolute">
-                <button
-                  type="submit"
-                  className="gap-2.5 w-[200px] h-[61px] bg-[#252A61] text-white text-2xl font-semibold font-['Montserrat Alternates'] py-2 px-6 rounded-[50px]  hover:bg-[#252A81] transition"
-                >
-                  Sing Up
-                </button>
-              </div>
-
-              {/* -----------Already have an account? Login--------------- */}
-              <div className="w-[511px] h-14 p-2.5 left-0 top-[587px] absolute justify-center items-center gap-2.5 inline-flex">
-                <p className="text-[#31303c] text-lg font-semibold font-['Montserrat']">
-                  Already have an account?
-                </p>
-                <Link
-                  to="/login"
-                  className="text-[#31303c] text-lg font-semibold font-['Montserrat'] hover:text-[#252A81] hover:underline transition"
-                >
-                  {" "}
-                  Login
-                </Link>
-              </div>
+              ))}
             </div>
           </div>
-        </form>
+          <img
+            src={SignupImage}
+            alt="Medical professionals collaborating"
+            className="w-full h-full object-cover mix-blend-lighten opacity-90"
+          />
+        </div>
+
+        {/* Form Section */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 md:p-14 lg:p-16">
+          <form onSubmit={handleSignup} className="w-full max-w-[440px] space-y-6">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-[#252A61]">Create Account</h1>
+              <p className="text-[#718CFB] text-lg mt-2">Register for secure access</p>
+            </div>
+
+            {/* Name Inputs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-[#252A61] mb-2">
+                  First Name
+                </label>
+                <div className="relative">
+                  <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-[#718CFB]" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-[#B8C5FD] focus:border-[#718CFB] focus:ring-2 focus:ring-[#B8C5FD]/30 placeholder-[#718CFB]/80"
+                    placeholder="John"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-[#252A61] mb-2">
+                  Last Name
+                </label>
+                <div className="relative">
+                  <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-[#718CFB]" />
+                  <input
+                    type="text"
+                    value={lastname}
+                    onChange={(e) => setLastname(e.target.value)}
+                    required
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-[#B8C5FD] focus:border-[#718CFB] focus:ring-2 focus:ring-[#B8C5FD]/30 placeholder-[#718CFB]/80"
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Email Input */}
+            <div>
+              <label className="block text-sm font-semibold text-[#252A61] mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-[#718CFB]" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-[#B8C5FD] focus:border-[#718CFB] focus:ring-2 focus:ring-[#B8C5FD]/30 placeholder-[#718CFB]/80"
+                  placeholder="john.doe@healthcare.org"
+                />
+              </div>
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label className="block text-sm font-semibold text-[#252A61] mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#718CFB]" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={12}
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-[#B8C5FD] focus:border-[#718CFB] focus:ring-2 focus:ring-[#B8C5FD]/30 placeholder-[#718CFB]/80"
+                  placeholder="••••••••••••"
+                />
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-100 text-red-700 rounded-lg text-sm">
+                <strong>Registration Error:</strong> {error}
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-[#718CFB] to-[#252A61] hover:from-[#252A61] hover:to-[#718CFB] text-white font-semibold py-4 rounded-xl transition-all duration-300"
+            >
+              {isLoading ? "Creating Account..." : "Sign Up Now"}
+            </button>
+
+            {/* Login Link */}
+            <div className="text-center text-[#718CFB] text-sm">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="font-semibold text-[#252A61] hover:text-[#718CFB] underline hover:no-underline"
+              >
+                Login here
+              </Link>
+            </div>
+
+            {/* Security Assurance */}
+            <div className="pt-6 border-t border-[#B8C5FD]/20">
+              <div className="flex flex-col items-center gap-2 text-sm text-[#718CFB]">
+                <div className="flex items-center gap-2">
+                  <FaLock className="w-4 h-4 text-[#252A61]" />
+                  <span>256-bit AES Encryption</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FaUser className="w-4 h-4 text-[#252A61]" />
+                  <span>HIPAA Compliant Registration</span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

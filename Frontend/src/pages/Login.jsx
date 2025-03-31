@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import MedicalLoginImage from "../assets/Login.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { FaUserShield, FaLock, FaStethoscope, FaClinicMedical } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import medicalIllustration from "../assets/Login.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuthStore();
 
@@ -14,6 +17,11 @@ const Login = () => {
     e.preventDefault();
     try {
       await login(email, password);
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
@@ -21,170 +29,256 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFF] p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-6xl flex flex-col lg:flex-row bg-white rounded-[32px] shadow-2xl overflow-hidden border border-[#B8C5FD]/20">
-        {/* Medical Branding Section */}
-        <div className="hidden lg:block lg:w-1/2 relative bg-gradient-to-br from-[#252A61] to-[#5267D3]">
-          <div className="absolute inset-0 flex flex-col justify-center p-12 text-white">
-            <div className="mb-12 flex flex-col items-center text-center">
-              <div className="p-4 bg-[#B8C5FD]/10 rounded-2xl mb-6">
-                <FaClinicMedical className="w-16 h-16 text-[#B8C5FD]" />
-              </div>
-              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-[#B8C5FD] to-white bg-clip-text text-transparent">
-                MedSecure+
-              </h1>
-              <p className="text-lg text-[#B8C5FD] font-medium">
-                Next-Gen Healthcare Platform
-              </p>
-            </div>
-            
-            <div className="space-y-6 mt-8">
-              {[
-                { icon: FaUserShield, text: "HIPAA-Compliant Access" },
-                { icon: FaLock, text: "Bank-Level Encryption" },
-                { icon: FaStethoscope, text: "Real-Time Analytics" }
-              ].map((item, index) => (
-                <div key={index} className="flex items-center gap-4 px-6 py-3.5 bg-white/5 rounded-xl backdrop-blur-sm">
-                  <item.icon className="w-7 h-7 text-[#B8C5FD] flex-shrink-0" />
-                  <span className="text-lg">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <img
-            src={MedicalLoginImage}
-            alt="Medical professionals collaborating"
-            className="w-full h-full object-cover mix-blend-lighten opacity-90"
-          />
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F7FE] p-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234318FF' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
+      </div>
 
-        {/* Auth Form Section */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 md:p-14 lg:p-16">
-          <form onSubmit={handleLogin} className="w-full max-w-[440px] space-y-8">
-            <div className="text-center mb-10">
-              <div className="flex items-center justify-center gap-3 mb-5">
-                <div className="p-2.5 bg-[#718CFB]/10 rounded-xl">
-                  <FaClinicMedical className="w-10 h-10 text-[#718CFB]" />
-                </div>
-                <span className="text-[32px] font-bold text-[#252A61] tracking-tight">
-                  MEDSECURE+
-                </span>
-              </div>
-              <h1 className="text-2xl font-semibold text-[#252A61] mb-2">
-                Secure Provider Portal
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-[1400px] h-[900px] flex bg-white rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative z-10"
+      >
+        {/* Left Side - Login Form */}
+        <div className="w-full lg:w-[45%] p-20">
+          <div className="max-w-[460px] mx-auto">
+            {/* Welcome Text */}
+            <div className="mb-16">
+              <h1 className="text-[46px] font-bold text-[#2B3674] mb-4 tracking-tight">
+                Welcome to Medicare
               </h1>
-              <p className="text-[#718CFB] text-lg font-medium">
-                Authorized Access Only
+              <p className="text-[19px] text-[#707EAE] leading-relaxed">
+                Your trusted healthcare portal. Please sign in to access your secure medical dashboard.
               </p>
             </div>
 
-            {/* Credential Inputs */}
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <label className="block text-sm font-semibold text-[#252A61] uppercase tracking-wide">
-                  Institutional Email
-                </label>
-                <div className="relative">
-                  <FaUserShield className="absolute left-4 top-1/2 -translate-y-1/2 text-[#718CFB] text-lg" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full pl-12 pr-5 py-3.5 text-base rounded-xl border-2 border-[#B8C5FD] focus:border-[#718CFB] focus:ring-[3px] focus:ring-[#B8C5FD]/20 placeholder-[#718CFB]/80 bg-white/50"
-                    placeholder="provider@healthcare.org"
-                  />
-                </div>
+            <form onSubmit={handleLogin} className="space-y-8">
+              {/* Email Input */}
+              <div className="relative">
+                <FaUserMd className="absolute left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-14 pr-6 py-5 text-[17px] rounded-[16px] bg-[#F4F7FE] border-2 border-transparent focus:border-[#4318FF] focus:bg-white transition-all duration-300 text-[#2B3674] placeholder-[#707EAE]"
+                  placeholder="Enter your email"
+                  aria-label="Email address"
+                />
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-sm font-semibold text-[#252A61] uppercase tracking-wide">
-                  Access Credentials
-                </label>
+              {/* Password Input */}
+              <div>
                 <div className="relative">
-                  <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#718CFB] text-lg" />
+                  <FaLock className="absolute left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={12}
-                    className="w-full pl-12 pr-5 py-3.5 text-base rounded-xl border-2 border-[#B8C5FD] focus:border-[#718CFB] focus:ring-[3px] focus:ring-[#B8C5FD]/20 placeholder-[#718CFB]/80 bg-white/50"
-                    placeholder="Enter 12-character passphrase"
+                    className="w-full pl-14 pr-12 py-5 text-[17px] rounded-[16px] bg-[#F4F7FE] border-2 border-transparent focus:border-[#4318FF] focus:bg-white transition-all duration-300 text-[#2B3674] placeholder-[#707EAE]"
+                    placeholder="Enter your password"
+                    aria-label="Password"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-[#707EAE] hover:text-[#4318FF] transition-colors duration-300"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <FaEyeSlash size={22} /> : <FaEye size={22} />}
+                  </button>
                 </div>
-                <div className="flex justify-end pt-1">
+                <div className="mt-3 flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-[15px] text-[#707EAE] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-[#707EAE] text-[#4318FF] focus:ring-[#4318FF]"
+                    />
+                    Remember me
+                  </label>
                   <Link
                     to="/forgot-password"
-                    className="text-sm font-medium text-[#718CFB] hover:text-[#252A61] hover:underline transition-colors"
+                    className="text-[15px] text-[#707EAE] hover:text-[#4318FF] transition-colors duration-300"
                   >
-                    Credential Assistance
+                    Forgot password?
                   </Link>
                 </div>
               </div>
-            </div>
 
-            {/* Error Handling */}
-            {error && (
-              <div className="p-3.5 bg-red-50 border border-red-100 text-red-700 rounded-lg text-sm flex items-center gap-2">
-                <FaLock className="flex-shrink-0 text-red-600" />
-                <span><strong>Access Denied:</strong> {error}</span>
-              </div>
-            )}
+              {/* Error Message */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="p-4 bg-red-50 text-red-700 rounded-[16px] text-[15px] border border-red-100 flex items-center gap-2"
+                    role="alert"
+                  >
+                    <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            {/* Auth Action */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-[#718CFB] to-[#5267D3] hover:from-[#5267D3] hover:to-[#718CFB] text-white font-semibold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg hover:shadow-[#B8C5FD]/30 group"
-            >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Verifying Credentials...</span>
-                </>
-              ) : (
-                <>
-                  <FaStethoscope className="w-5 h-5 text-white/90 group-hover:animate-pulse" />
-                  <span>Secure Authentication</span>
-                </>
-              )}
-            </button>
-
-            {/* Security Assurance */}
-            <div className="pt-8 border-t border-[#B8C5FD]/20">
-              <div className="flex flex-col items-center gap-3 text-sm text-[#718CFB]">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 bg-[#252A61]/10 rounded-lg">
-                    <FaLock className="w-4 h-4 text-[#252A61]" />
-                  </div>
-                  <span>256-bit AES Encrypted Connection</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 bg-[#252A61]/10 rounded-lg">
-                    <FaClinicMedical className="w-4 h-4 text-[#252A61]" />
-                  </div>
-                  <span>HIPAA Certified Infrastructure</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Registration CTA */}
-            <div className="text-center text-[#718CFB] text-sm font-medium">
-              New institution?{" "}
-              <Link
-                to="/signup"
-                className="font-semibold text-[#252A61] hover:text-[#718CFB] underline hover:no-underline transition-colors"
+              {/* Login Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[#4318FF] text-white py-5 rounded-[16px] hover:bg-[#3311DB] transition-all duration-300 font-semibold text-[17px] mt-6 shadow-lg shadow-[#4318FF]/20 hover:shadow-xl hover:shadow-[#4318FF]/30 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Request System Access
-              </Link>
-            </div>
-          </form>
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Signing In...</span>
+                  </div>
+                ) : (
+                  "Sign In Securely"
+                )}
+              </button>
+
+              {/* Social Login */}
+              <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#707EAE]/20"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-[#707EAE]">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 py-3 px-4 border border-[#707EAE]/20 rounded-[16px] text-[#707EAE] hover:bg-[#F4F7FE] transition-all duration-300"
+                >
+                  <FaGoogle className="text-xl" />
+                  <span>Google</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center justify-center gap-2 py-3 px-4 border border-[#707EAE]/20 rounded-[16px] text-[#707EAE] hover:bg-[#F4F7FE] transition-all duration-300"
+                >
+                  <FaFacebook className="text-xl" />
+                  <span>Facebook</span>
+                </button>
+              </div>
+
+              {/* Sign Up Link */}
+              <div className="text-center pt-8">
+                <p className="text-[16px] text-[#707EAE]">
+                  New to Medicare?{" "}
+                  <Link to="/signup" className="text-[#4318FF] hover:text-[#3311DB] font-medium transition-colors duration-300 hover:underline">
+                    Create an Account
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+
+        {/* Right Side - Medical Illustration */}
+        <div className="hidden lg:flex lg:w-[55%] bg-white items-center justify-center relative">
+          <div className="w-full max-w-4xl p-20">
+            {/* Welcome Text */}
+            <div className="absolute top-20 left-20 right-20">
+              <h2 className="text-[36px] font-bold mb-4 text-[#2B3674]">Medicare Portal</h2>
+              <p className="text-[20px] text-[#707EAE] leading-relaxed">
+                Your comprehensive healthcare management system. Access records, schedule appointments, and manage your medical journey with confidence.
+              </p>
+            </div>
+
+            {/* Medical Illustration */}
+            <div className="relative w-full h-full">
+              <img
+                src={medicalIllustration}
+                alt="3D Medical Office"
+                className="w-full h-full object-contain mt-40"
+              />
+              <div className="absolute inset-0 flex items-center justify-center mt-40">
+                <div className="bg-gradient-to-b from-[#4318FF]/90 to-[#4318FF]/60 backdrop-blur-sm w-full py-12">
+                  <h2 className="text-[48px] font-bold text-white text-center tracking-tight">
+                    Medicare Portal
+                  </h2>
+                  <p className="text-[20px] text-white/90 text-center mt-4 max-w-2xl mx-auto">
+                    Your comprehensive healthcare management system
+                  </p>
+                  
+                  {/* Features Section */}
+                  <div className="mt-12 grid grid-cols-2 gap-8 px-12">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Secure Access</h3>
+                          <p className="text-white/80 text-sm mt-1">24/7 secure access to your medical records and appointments</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Appointment Management</h3>
+                          <p className="text-white/80 text-sm mt-1">Schedule and manage your medical appointments with ease</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Digital Records</h3>
+                          <p className="text-white/80 text-sm mt-1">Access your complete medical history and test results</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Prescription Management</h3>
+                          <p className="text-white/80 text-sm mt-1">View and manage your prescriptions and medications</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Billing & Insurance</h3>
+                          <p className="text-white/80 text-sm mt-1">Track your medical bills and insurance claims</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Health Tracking</h3>
+                          <p className="text-white/80 text-sm mt-1">Monitor your health metrics and wellness goals</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Call to Action */}
+                  <div className="mt-12 text-center">
+                    <p className="text-white/90 text-lg mb-4">Ready to take control of your healthcare journey?</p>
+                    <Link 
+                      to="/signup" 
+                      className="inline-block bg-white text-[#4318FF] px-8 py-3 rounded-full font-semibold hover:bg-white/90 transition-all duration-300"
+                    >
+                      Get Started Today
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

@@ -1,172 +1,102 @@
-import React, { useState, useRef, useEffect } from "react";
-import myVideo from "../assets/Email.mp4";
-import { useAuthStore } from "../store/authStore";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import React, { useState } from 'react';
+import { FaGoogle, FaApple, FaFacebook, FaEye, FaEyeSlash } from 'react-icons/fa';
 
-const VerifyEmail = () => {
-  const inputRefs = useRef([]);
-  const [otp, setOtp] = useState(new Array(6).fill(""));
-  const [timer, setTimer] = useState(0);
-  const [canResend, setCanResend] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const { error, isLoading, verifyEmail, resendOtp } = useAuthStore();
-
-  useEffect(() => {
-    let interval;
-    if (timer > 0) {
-      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
-    } else if (timer === 0) {
-      setCanResend(true);
-    }
-    return () => clearInterval(interval);
-  }, [timer]);
-
-  const handleResend = async () => {
-    setOtp(new Array(6).fill(""));
-    setTimer(60);
-    setCanResend(false);
-    inputRefs.current[0]?.focus();
-    try {
-      await resendOtp();
-      toast.success("OTP resent successfully!");
-    } catch (err) {
-      toast.error("Failed to send OTP. Please try again.");
-      console.error("resend OTP");
-    }
-  };
-
-  const handleChange = (index, e) => {
-    const value = e.target.value;
-    if (!isNaN(value) && value.length <= 1) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-      if (value && index < 5) inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace") {
-      if (!otp[index] && index > 0) inputRefs.current[index - 1]?.focus();
-      const newOtp = [...otp];
-      newOtp[index] = "";
-      setOtp(newOtp);
-    } else if (e.key === "Delete") {
-      const newOtp = [...otp];
-      newOtp[index] = "";
-      setOtp(newOtp);
-    }
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
-    if (pastedData.length === 6) {
-      setOtp(pastedData.split(""));
-      pastedData.split("").forEach((digit, idx) => {
-        inputRefs.current[idx].value = digit;
-      });
-      inputRefs.current[5]?.focus();
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    const verificationCode = otp.join("");
-    try {
-      await verifyEmail(verificationCode);
-      toast.success("Email verified successfully!");
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Auto submit when all fields filled
-  useEffect(() => {
-    if (otp.every((digit) => digit !== "")) {
-      handleSubmit(new Event("submit"));
-    }
-  }, [otp]);
+const Signup = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="relative flex h-screen items-center justify-center bg-gradient-to-b from-[#B8C5FD] to-[#E8C3D5] px-4">
-      {/* Background Blur */}
-      <div className="absolute w-[95%] md:w-[1700px] h-[80%] md:h-[900px] opacity-60 bg-[#f0f7ff] rounded-[50px] blur-[3px] backdrop-blur-[80px]" />
-
-      {/* Content */}
-      <div className="relative flex flex-col md:flex-row items-center w-full max-w-6xl bg-transparent md:space-x-10 space-y-10 md:space-y-0">
-        {/* Video */}
-        <div className="w-full md:w-1/2 flex justify-center">
-          <video
-            className="w-full max-w-md rounded-[40px] opacity-80 shadow-2xl"
-            autoPlay
-            loop
-            muted
-          >
-            <source src={myVideo} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
+      <div className="relative w-full max-w-6xl flex flex-col lg:flex-row items-center gap-12">
+        
+        {/* Space Background Section */}
+        <div className="w-full lg:w-1/2 h-[600px] rounded-[40px] overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent" />
+          <div className="relative h-full flex flex-col justify-end p-8 text-white">
+            <h1 className="text-5xl font-bold mb-4">Astro</h1>
+            <p className="text-xl text-cyan-400 mb-8">
+              Exploring new frontiers, one step at a time.
+            </p>
+            <button className="self-start px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-full transition-colors">
+              Browse Earth's View
+            </button>
+          </div>
         </div>
 
-        {/* Verification Box */}
-        <div className="w-full md:w-1/2 bg-white bg-opacity-60 p-8 rounded-[30px] shadow-lg flex flex-col items-center">
-          <h2 className="text-2xl md:text-3xl text-[#252A61] font-bold mb-4 text-center">
-            Verify Your Email
-          </h2>
-          <p className="text-center text-[#252A61] mb-4 text-sm md:text-base">
-            Enter the 6-digit code sent to your email address
-          </p>
+        {/* Signup Form Section */}
+        <div className="w-full lg:w-1/2 bg-gray-800/80 backdrop-blur-lg rounded-[40px] p-8 lg:p-12 shadow-xl">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
+            <p className="text-gray-400">Sign up to continue your space journey</p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-6 w-full">
-            <div className="flex space-x-2" onPaste={handlePaste}>
-              {otp.map((_, index) => (
-                <input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  maxLength="1"
-                  className="w-10 h-10 md:w-14 md:h-14 text-center text-xl border-2 border-gray-400 rounded-full focus:border-[#252A61] focus:outline-none text-[#252A61]"
-                  value={otp[index]}
-                  onChange={(e) => handleChange(index, e)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  required
-                />
-              ))}
+          <form className="space-y-6">
+            <div>
+              <label className="block text-gray-300 mb-2">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none text-white"
+                placeholder="astronaut@example.com"
+              />
             </div>
 
             <div>
-              {canResend ? (
+              <label className="block text-gray-300 mb-2">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-700 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:outline-none text-white pr-12"
+                  placeholder="••••••••"
+                />
                 <button
                   type="button"
-                  className="text-blue-700 underline"
-                  onClick={handleResend}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-3 text-gray-400 hover:text-cyan-500"
                 >
-                  Resend Code
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
-              ) : (
-                <p className="text-gray-600">Resend Code in {timer}s</p>
-              )}
+              </div>
             </div>
-
-            {error && <p className="text-red-500">{error}</p>}
 
             <button
               type="submit"
-              className="bg-[#252A61] w-full py-3 rounded-full text-white font-semibold hover:bg-[#1c204f] transition disabled:opacity-50"
-              disabled={isSubmitting}
+              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-3 rounded-lg transition-colors font-semibold"
             >
-              {isSubmitting ? "Verifying..." : "Verify Email"}
+              Create Account
             </button>
+
+            <div className="text-center text-gray-400">
+              Already have an account?{' '}
+              <a href="/login" className="text-cyan-500 hover:underline">
+                Login
+              </a>
+            </div>
+
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-600"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-gray-800 text-gray-400">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors">
+                <FaGoogle className="text-xl text-red-500" />
+              </button>
+              <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors">
+                <FaApple className="text-xl text-white" />
+              </button>
+              <button className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors">
+                <FaFacebook className="text-xl text-blue-500" />
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -174,4 +104,4 @@ const VerifyEmail = () => {
   );
 };
 
-export default VerifyEmail;
+export default Signup;
