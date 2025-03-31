@@ -277,7 +277,7 @@ const Home = () => {
         >
           {/* Mobile Hero */}
           <div className="md:hidden w-full h-[180px] bg-[#252a61] rounded-[30px] relative overflow-hidden">
-            <h1 className="absolute inset-0 flex items-center justify-center text-[80px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] -translate-y-12">
+            <h1 className="absolute inset-0 flex items-center justify-center text-[75px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] -translate-y-12">
               Medicare
             </h1>
             <div className="relative z-10 h-full flex items-end justify-center">
