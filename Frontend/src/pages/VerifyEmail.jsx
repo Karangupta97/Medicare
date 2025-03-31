@@ -3,7 +3,7 @@ import myVideo from "../assets/Email.mp4";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const VerifyEmail = () => {
   const inputRefs = useRef([]);
@@ -12,7 +12,6 @@ const VerifyEmail = () => {
   const [canResend, setCanResend] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shake, setShake] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const { error, isLoading, verifyEmail, resendOtp } = useAuthStore();
 
@@ -96,11 +95,8 @@ const VerifyEmail = () => {
     setIsSubmitting(true);
     try {
       await verifyEmail(verificationCode);
-      setShowSuccess(true);
-      // Wait for 3 seconds before redirecting
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
+      toast.success("Email verified successfully!");
+      navigate("/");
     } catch (error) {
       console.error("Verification error:", error);
       setShake(true);
@@ -127,46 +123,6 @@ const VerifyEmail = () => {
         transition={{ duration: 0.5 }}
         className="absolute w-[95%] md:w-[1700px] h-[80%] md:h-[900px] bg-[#f0f7ff] rounded-[50px] blur-[3px] backdrop-blur-[80px]" 
       />
-
-      {/* Success Overlay */}
-      {showSuccess && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white p-8 rounded-2xl flex flex-col items-center shadow-2xl"
-          >
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg
-                className="w-10 h-10 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <motion.path
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.5 }}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-[#252A61] mb-2">
-              Email Verified!
-            </h2>
-            <p className="text-gray-600">
-              Redirecting to home page...
-            </p>
-          </motion.div>
-        </motion.div>
-      )}
 
       {/* Content */}
       <motion.div 
