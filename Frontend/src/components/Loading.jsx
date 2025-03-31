@@ -106,7 +106,7 @@ const Loading = () => {
           transition={{ duration: 1.5, ease: "easeOut" }}
           className="mb-16 relative"
         >
-          <motion.img 
+          {/* <motion.img 
             src={logo} 
             alt="Logo" 
             className="w-80 h-auto mix-blend-multiply"
@@ -122,7 +122,7 @@ const Loading = () => {
             style={{
               filter: 'drop-shadow(0 20px 40px rgba(59, 130, 246, 0.2))'
             }}
-          />
+          /> */}
         </motion.div>
 
         {/* Welcome Text */}
@@ -138,7 +138,7 @@ const Loading = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8 }}
           >
-            Welcome to Healthcare
+            Welcome to Medicare
           </motion.h2>
           
           <motion.p

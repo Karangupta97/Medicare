@@ -29,7 +29,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F4F7FE] p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F7FE] p-2 sm:p-4 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -126,27 +126,27 @@ const Login = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-[1400px] h-[900px] flex bg-white rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative z-10"
+        className="w-full max-w-[1400px] min-h-screen sm:min-h-0 sm:h-[900px] flex bg-white rounded-none sm:rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative z-10"
       >
         {/* Left Side - Login Form */}
-        <div className="w-full lg:w-[45%] p-20">
+        <div className="w-full lg:w-[45%] p-6 sm:p-10 md:p-20">
           <div className="max-w-[460px] mx-auto">
             {/* Welcome Text */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mb-16"
+              className="mb-8 sm:mb-16"
             >
-              <h1 className="text-[46px] font-bold text-[#2B3674] mb-4 tracking-tight">
+              <h1 className="text-[32px] sm:text-[46px] font-bold text-[#2B3674] mb-4 tracking-tight">
                 Welcome to Medicare
               </h1>
-              <p className="text-[19px] text-[#707EAE] leading-relaxed">
+              <p className="text-[16px] sm:text-[19px] text-[#707EAE] leading-relaxed">
                 Your trusted healthcare portal. Please sign in to access your secure medical dashboard.
               </p>
             </motion.div>
 
-            <form onSubmit={handleLogin} className="space-y-8">
+            <form onSubmit={handleLogin} className="space-y-6 sm:space-y-8">
               {/* Email Input */}
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
@@ -154,13 +154,13 @@ const Login = () => {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="relative"
               >
-                <FaUserMd className="absolute left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
+                <FaUserMd className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-14 pr-6 py-5 text-[17px] rounded-[16px] bg-[#F4F7FE] border-2 border-transparent focus:border-[#4318FF] focus:bg-white transition-all duration-300 text-[#2B3674] placeholder-[#707EAE]"
+                  className="w-full pl-12 sm:pl-14 pr-4 sm:pr-6 py-4 sm:py-5 text-[16px] sm:text-[17px] rounded-[12px] sm:rounded-[16px] bg-[#F4F7FE] border-2 border-transparent focus:border-[#4318FF] focus:bg-white transition-all duration-300 text-[#2B3674] placeholder-[#707EAE]"
                   placeholder="Enter your email"
                   aria-label="Email address"
                 />
@@ -173,32 +173,32 @@ const Login = () => {
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <div className="relative">
-                  <FaLock className="absolute left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
+                  <FaLock className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full pl-14 pr-12 py-5 text-[17px] rounded-[16px] bg-[#F4F7FE] border-2 border-transparent focus:border-[#4318FF] focus:bg-white transition-all duration-300 text-[#2B3674] placeholder-[#707EAE]"
+                    className="w-full pl-12 sm:pl-14 pr-12 py-4 sm:py-5 text-[16px] sm:text-[17px] rounded-[12px] sm:rounded-[16px] bg-[#F4F7FE] border-2 border-transparent focus:border-[#4318FF] focus:bg-white transition-all duration-300 text-[#2B3674] placeholder-[#707EAE]"
                     placeholder="Enter your password"
                     aria-label="Password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-[#707EAE] hover:text-[#4318FF] transition-colors duration-300"
+                    className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-[#707EAE] hover:text-[#4318FF] transition-colors duration-300"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? <FaEyeSlash size={22} /> : <FaEye size={22} />}
+                    {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
                   </button>
                 </div>
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
-                  className="mt-3 flex items-center justify-between"
+                  className="mt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0"
                 >
-                  <label className="flex items-center gap-2 text-[15px] text-[#707EAE] cursor-pointer">
+                  <label className="flex items-center gap-2 text-[14px] sm:text-[15px] text-[#707EAE] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={rememberMe}
@@ -209,7 +209,7 @@ const Login = () => {
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-[15px] text-[#707EAE] hover:text-[#4318FF] transition-colors duration-300"
+                    className="text-[14px] sm:text-[15px] text-[#707EAE] hover:text-[#4318FF] transition-colors duration-300"
                   >
                     Forgot password?
                   </Link>
@@ -224,10 +224,10 @@ const Login = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="p-4 bg-red-50 text-red-700 rounded-[16px] text-[15px] border border-red-100 flex items-center gap-2"
+                    className="p-3 sm:p-4 bg-red-50 text-red-700 rounded-[12px] sm:rounded-[16px] text-[14px] sm:text-[15px] border border-red-100 flex items-center gap-2"
                     role="alert"
                   >
-                    <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
                     {error}
@@ -244,11 +244,11 @@ const Login = () => {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#4318FF] text-white py-5 rounded-[16px] hover:bg-[#3311DB] transition-all duration-300 font-semibold text-[17px] mt-6 shadow-lg shadow-[#4318FF]/20 hover:shadow-xl hover:shadow-[#4318FF]/30 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-[#4318FF] text-white py-4 sm:py-5 rounded-[12px] sm:rounded-[16px] hover:bg-[#3311DB] transition-all duration-300 font-semibold text-[16px] sm:text-[17px] mt-4 sm:mt-6 shadow-lg shadow-[#4318FF]/20 hover:shadow-xl hover:shadow-[#4318FF]/30 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>Signing In...</span>
                   </div>
                 ) : (
@@ -288,9 +288,9 @@ const Login = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                className="text-center pt-8"
+                className="text-center pt-6 sm:pt-8"
               >
-                <p className="text-[16px] text-[#707EAE]">
+                <p className="text-[14px] sm:text-[16px] text-[#707EAE]">
                   New to Medicare?{" "}
                   <Link to="/signup" className="text-[#4318FF] hover:text-[#3311DB] font-medium transition-colors duration-300 hover:underline">
                     Create an Account
