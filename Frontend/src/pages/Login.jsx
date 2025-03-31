@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook, FaStethoscope, FaHeartbeat } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook, FaStethoscope, FaHeartbeat, FaNotesMedical } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import medicalIllustration from "../assets/Login.png";
 
@@ -39,36 +39,86 @@ const Login = () => {
 
       {/* Mobile Medical Section */}
       <div className="lg:hidden fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#4318FF]/10 to-transparent"></div>
-        <div className="absolute top-4 right-4 w-24 h-24">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#4318FF]/5 via-[#4318FF]/10 to-transparent"></div>
+        
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 1.2 }}
+            animate={{ opacity: 0.1, scale: 1 }}
+            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#4318FF] rounded-full blur-3xl"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 1.2 }}
+            animate={{ opacity: 0.1, scale: 1 }}
+            transition={{ duration: 2, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#4318FF] rounded-full blur-3xl"
+          />
+        </div>
+
+        {/* Medical Icons Grid */}
+        <div className="absolute inset-0 grid grid-cols-2 gap-4 p-4">
+          {/* Top Left */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="w-full h-full bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center"
+            className="flex flex-col items-center justify-center"
           >
-            <FaUserMd className="text-4xl text-[#4318FF]" />
+            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaUserMd className="text-3xl text-[#4318FF]" />
+            </div>
+            <span className="mt-2 text-sm text-[#4318FF] font-medium">Medical Staff</span>
           </motion.div>
-        </div>
-        <div className="absolute bottom-4 left-4 w-20 h-20">
+
+          {/* Top Right */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full h-full bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center"
+            className="flex flex-col items-center justify-center"
           >
-            <FaStethoscope className="text-3xl text-[#4318FF]" />
+            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaStethoscope className="text-3xl text-[#4318FF]" />
+            </div>
+            <span className="mt-2 text-sm text-[#4318FF] font-medium">Health Check</span>
+          </motion.div>
+
+          {/* Bottom Left */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex flex-col items-center justify-center"
+          >
+            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaHeartbeat className="text-3xl text-[#4318FF]" />
+            </div>
+            <span className="mt-2 text-sm text-[#4318FF] font-medium">Vital Signs</span>
+          </motion.div>
+
+          {/* Bottom Right */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="flex flex-col items-center justify-center"
+          >
+            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaNotesMedical className="text-3xl text-[#4318FF]" />
+            </div>
+            <span className="mt-2 text-sm text-[#4318FF] font-medium">Medical Records</span>
           </motion.div>
         </div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="w-full h-full bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center"
-          >
-            <FaHeartbeat className="text-5xl text-[#4318FF]" />
-          </motion.div>
+
+        {/* Decorative Elements */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-4 left-4 w-2 h-2 bg-[#4318FF] rounded-full opacity-50"></div>
+          <div className="absolute top-4 right-4 w-2 h-2 bg-[#4318FF] rounded-full opacity-50"></div>
+          <div className="absolute bottom-4 left-4 w-2 h-2 bg-[#4318FF] rounded-full opacity-50"></div>
+          <div className="absolute bottom-4 right-4 w-2 h-2 bg-[#4318FF] rounded-full opacity-50"></div>
         </div>
       </div>
 
