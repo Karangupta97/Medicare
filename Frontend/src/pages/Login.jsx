@@ -22,7 +22,7 @@ const Login = () => {
       } else {
         localStorage.removeItem('rememberedEmail');
       }
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.log(error);
     }
