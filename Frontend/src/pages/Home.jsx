@@ -1,15 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, useScroll, useTransform } from "framer-motion";
 import nurse from "../assets/nurse.png";
 import Logo from "../assets/Medicare logo.jpg";
 import HealthRecordsimage from "../assets/HealthRecords.png";
 import FindHospitalimage from "../assets/FindHospital.png";
 import UserIcon from "../assets/user.png";
 
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
+
+const scaleIn = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  transition: { duration: 0.5 }
+};
+
+const slideIn = {
+  initial: { x: -50, opacity: 0 },
+  animate: { x: 0, opacity: 1 },
+  transition: { duration: 0.5 }
+};
+
 const Home = () => {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -27,17 +57,25 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-Background overflow-hidden">
       {/* Background gradients and blurs - only show on desktop */}
-      <div className="hidden md:block absolute inset-0">
+      <motion.div 
+        style={{ opacity }}
+        className="hidden md:block absolute inset-0"
+      >
         <div className="w-[80%] h-[80%] max-w-[800px] max-h-[800px] absolute top-[50%] left-[90%] transform -translate-x-1/2 -translate-y-1/2 rotate-[51.71deg] opacity-60 bg-gradient-to-br from-[#b8c5fd] to-[#e8c3d5] blur-[100px]" />
         <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[-15%] left-[60%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-3 rounded-full blur-[75px]" />
         <div className="w-[50%] h-[50%] max-w-[500px] max-h-[500px] absolute top-[40%] left-[70%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-1 rounded-full blur-[75px]" />
         <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[65%] left-[-5%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-3 rounded-full blur-[75px]" />
-      </div>
+      </motion.div>
 
       {/* Main content container */}
       <div className="relative z-10 flex flex-col items-center px-4 py-8 space-y-8">
         {/* Header */}
-        <header className="w-full max-w-[1700px] flex justify-between items-center py-4 px-4 md:px-8">
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-[1700px] flex justify-between items-center py-4 px-4 md:px-8"
+        >
           {/* Mobile Controls */}
           <div className="md:hidden flex justify-between items-center w-full">
             {/* Mobile menu button */}
@@ -176,7 +214,7 @@ const Home = () => {
               </Link>
             )}
           </div>
-        </header>
+        </motion.header>
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
@@ -230,7 +268,13 @@ const Home = () => {
         )}
 
         {/* Hero Section */}
-        <div className="w-full max-w-[1703px] relative">
+        <motion.div 
+          style={{ scale }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="w-full max-w-[1703px] relative"
+        >
           {/* Mobile Hero */}
           <div className="md:hidden w-full h-[180px] bg-[#252a61] rounded-[30px] relative overflow-hidden">
             <h1 className="absolute inset-0 flex items-center justify-center text-[80px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] -translate-y-12">
@@ -262,124 +306,206 @@ const Home = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Services Section */}
-        <section className="w-full max-w-[1700px] grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-10 py-4 md:py-8 px-4">
-          <Link
-            to="/find-hospital"
-            className="w-full flex items-center space-x-4 md:justify-center bg-[#CDEBF1] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+        <motion.section 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-[1700px] grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-10 py-4 md:py-8 px-4"
+        >
+          <motion.div
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <img
-              className="w-12 h-12 md:w-16 md:h-16"
-              src={FindHospitalimage}
-              alt="Find Hospital"
-            />
-            <span className="text-lg md:text-2xl font-bold text-[#252a61]">
-              Find Hospital
-            </span>
-          </Link>
+            <Link
+              to="/find-hospital"
+              className="w-full flex items-center space-x-4 md:justify-center bg-[#CDEBF1] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+            >
+              <motion.img
+                whileHover={{ rotate: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="w-12 h-12 md:w-16 md:h-16"
+                src={FindHospitalimage}
+                alt="Find Hospital"
+              />
+              <span className="text-lg md:text-2xl font-bold text-[#252a61]">
+                Find Hospital
+              </span>
+            </Link>
+          </motion.div>
 
-          <Link
-            to="/upload-reports"
-            className="w-full flex items-center space-x-4 md:justify-center bg-[#DEF1D0] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+          <motion.div
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <svg className="w-12 h-12 md:w-16 md:h-16 text-[#252a61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            <span className="text-lg md:text-2xl font-bold text-[#252a61]">
-              Upload Reports
-            </span>
-          </Link>
+            <Link
+              to="/upload-reports"
+              className="w-full flex items-center space-x-4 md:justify-center bg-[#DEF1D0] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+            >
+              <svg className="w-12 h-12 md:w-16 md:h-16 text-[#252a61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              <span className="text-lg md:text-2xl font-bold text-[#252a61]">
+                Upload Reports
+              </span>
+            </Link>
+          </motion.div>
 
-          <Link
-            to="/health-records"
-            className="w-full flex items-center space-x-4 md:justify-center bg-[#f8e5e5] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+          <motion.div
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <img
-              className="w-12 h-12 md:w-16 md:h-16"
-              src={HealthRecordsimage}
-              alt="Health Records"
-            />
-            <span className="text-lg md:text-2xl font-bold text-[#252a61]">
-              Health Records
-            </span>
-          </Link>
-        </section>
+            <Link
+              to="/health-records"
+              className="w-full flex items-center space-x-4 md:justify-center bg-[#f8e5e5] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+            >
+              <img
+                className="w-12 h-12 md:w-16 md:h-16"
+                src={HealthRecordsimage}
+                alt="Health Records"
+              />
+              <span className="text-lg md:text-2xl font-bold text-[#252a61]">
+                Health Records
+              </span>
+            </Link>
+          </motion.div>
+        </motion.section>
 
         {/* What We Do */}
-        <section className="w-full max-w-[1700px] text-center py-4 md:py-8">
-          <h2 className="text-xl md:text-3xl lg:text-5xl font-normal text-Text mb-8">
+        <motion.section 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-[1700px] text-center py-4 md:py-8"
+        >
+          <motion.h2 
+            variants={fadeInUp}
+            className="text-xl md:text-3xl lg:text-5xl font-normal text-Text mb-8"
+          >
             What We Do
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-[#CDEBF1] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Digital Health Records</h3>
-              <p className="text-gray-600">Securely store and manage your medical records in one place. Access your health information anytime, anywhere.</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-[#DEF1D0] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Report Management</h3>
-              <p className="text-gray-600">Upload and organize your medical reports, test results, and prescriptions in a structured format.</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-[#f8e5e5] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Hospital Locator</h3>
-              <p className="text-gray-600">Find nearby hospitals, clinics, and healthcare facilities with detailed information and ratings.</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-[#CDEBF1] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Appointment Scheduling</h3>
-              <p className="text-gray-600">Book appointments with healthcare providers, receive reminders, and manage your medical schedule.</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-[#DEF1D0] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Secure Data Storage</h3>
-              <p className="text-gray-600">Your health information is protected with advanced encryption and security measures.</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-[#f8e5e5] rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-[#252A61] mb-2">Healthcare Network</h3>
-              <p className="text-gray-600">Connect with healthcare providers and share your medical information securely.</p>
-            </div>
-          </div>
-        </section>
+          </motion.h2>
+          <motion.div 
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4"
+          >
+            {[
+              {
+                icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+                title: "Digital Health Records",
+                description: "Securely store and manage your medical records in one place. Access your health information anytime, anywhere.",
+                bgColor: "bg-[#CDEBF1]"
+              },
+              {
+                icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+                title: "Report Management",
+                description: "Upload and organize your medical reports, test results, and prescriptions in a structured format.",
+                bgColor: "bg-[#DEF1D0]"
+              },
+              {
+                icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z",
+                title: "Hospital Locator",
+                description: "Find nearby hospitals, clinics, and healthcare facilities with detailed information and ratings.",
+                bgColor: "bg-[#f8e5e5]"
+              },
+              {
+                icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+                title: "Appointment Scheduling",
+                description: "Book appointments with healthcare providers, receive reminders, and manage your medical schedule.",
+                bgColor: "bg-[#CDEBF1]"
+              },
+              {
+                icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+                title: "Secure Data Storage",
+                description: "Your health information is protected with advanced encryption and security measures.",
+                bgColor: "bg-[#DEF1D0]"
+              },
+              {
+                icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+                title: "Healthcare Network",
+                description: "Connect with healthcare providers and share your medical information securely.",
+                bgColor: "bg-[#f8e5e5]"
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                variants={fadeInUp}
+                whileHover={{ 
+                  scale: 1.05,
+                  y: -5,
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  transition: { duration: 0.1 }
+                }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <motion.div 
+                  whileHover={{ 
+                    rotate: 360,
+                    scale: 1.1,
+                    transition: { duration: 0.2 }
+                  }}
+                  className={`w-16 h-16 ${feature.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}
+                >
+                  <motion.svg 
+                    whileHover={{ 
+                      scale: 1.2,
+                      rotate: 180,
+                      transition: { duration: 0.2 }
+                    }}
+                    className="w-8 h-8 text-[#252A61]" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={feature.icon} />
+                  </motion.svg>
+                </motion.div>
+                <motion.h3 
+                  whileHover={{ 
+                    color: "#252A61",
+                    scale: 1.05,
+                    transition: { duration: 0.1 }
+                  }}
+                  className="text-xl font-semibold text-[#252A61] mb-2"
+                >
+                  {feature.title}
+                </motion.h3>
+                <motion.p 
+                  whileHover={{ 
+                    color: "#4a5568",
+                    scale: 1.02,
+                    transition: { duration: 0.1 }
+                  }}
+                  className="text-gray-600"
+                >
+                  {feature.description}
+                </motion.p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.section>
 
         {/* Footer */}
-        <footer className="w-full bg-Primary rounded-tl-[20px] rounded-tr-[20px] py-8">
+        <motion.footer 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="w-full bg-Primary rounded-tl-[20px] rounded-tr-[20px] py-8"
+        >
           {/* Footer content */}
-        </footer>
+        </motion.footer>
       </div>
     </div>
   );
