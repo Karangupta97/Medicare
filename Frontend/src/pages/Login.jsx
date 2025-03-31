@@ -40,26 +40,26 @@ const Login = () => {
       {/* Mobile Medical Section */}
       <div className="lg:hidden fixed top-0 left-0 w-full h-full pointer-events-none z-0">
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4318FF]/5 via-[#4318FF]/10 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#4318FF]/3 via-[#4318FF]/5 to-transparent"></div>
         
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
             initial={{ opacity: 0, scale: 1.2 }}
-            animate={{ opacity: 0.1, scale: 1 }}
+            animate={{ opacity: 0.05, scale: 1 }}
             transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#4318FF] rounded-full blur-3xl"
+            className="absolute top-1/4 left-1/4 w-48 h-48 bg-[#4318FF] rounded-full blur-3xl"
           />
           <motion.div
             initial={{ opacity: 0, scale: 1.2 }}
-            animate={{ opacity: 0.1, scale: 1 }}
+            animate={{ opacity: 0.05, scale: 1 }}
             transition={{ duration: 2, delay: 0.5, repeat: Infinity, repeatType: "reverse" }}
-            className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#4318FF] rounded-full blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-[#4318FF] rounded-full blur-3xl"
           />
         </div>
 
         {/* Medical Icons Grid */}
-        <div className="absolute inset-0 grid grid-cols-2 gap-4 p-4">
+        <div className="absolute inset-0 grid grid-cols-2 gap-3 p-4">
           {/* Top Left */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -67,10 +67,10 @@ const Login = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center justify-center"
           >
-            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
-              <FaUserMd className="text-3xl text-[#4318FF]" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaUserMd className="text-2xl sm:text-3xl text-[#4318FF]" />
             </div>
-            <span className="mt-2 text-sm text-[#4318FF] font-medium">Medical Staff</span>
+            <span className="mt-2 text-xs sm:text-sm text-[#4318FF] font-medium">Medical Staff</span>
           </motion.div>
 
           {/* Top Right */}
@@ -80,10 +80,10 @@ const Login = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex flex-col items-center justify-center"
           >
-            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
-              <FaStethoscope className="text-3xl text-[#4318FF]" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaStethoscope className="text-2xl sm:text-3xl text-[#4318FF]" />
             </div>
-            <span className="mt-2 text-sm text-[#4318FF] font-medium">Health Check</span>
+            <span className="mt-2 text-xs sm:text-sm text-[#4318FF] font-medium">Health Check</span>
           </motion.div>
 
           {/* Bottom Left */}
@@ -93,10 +93,10 @@ const Login = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex flex-col items-center justify-center"
           >
-            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
-              <FaHeartbeat className="text-3xl text-[#4318FF]" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaHeartbeat className="text-2xl sm:text-3xl text-[#4318FF]" />
             </div>
-            <span className="mt-2 text-sm text-[#4318FF] font-medium">Vital Signs</span>
+            <span className="mt-2 text-xs sm:text-sm text-[#4318FF] font-medium">Vital Signs</span>
           </motion.div>
 
           {/* Bottom Right */}
@@ -106,10 +106,10 @@ const Login = () => {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="flex flex-col items-center justify-center"
           >
-            <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
-              <FaNotesMedical className="text-3xl text-[#4318FF]" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
+              <FaNotesMedical className="text-2xl sm:text-3xl text-[#4318FF]" />
             </div>
-            <span className="mt-2 text-sm text-[#4318FF] font-medium">Medical Records</span>
+            <span className="mt-2 text-xs sm:text-sm text-[#4318FF] font-medium">Medical Records</span>
           </motion.div>
         </div>
 

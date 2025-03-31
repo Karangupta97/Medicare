@@ -28,10 +28,10 @@ const Home = () => {
     <div className="min-h-screen bg-Background overflow-hidden">
       {/* Background gradients and blurs */}
       <div className="absolute inset-0">
-        <div className="w-[80%] h-[80%] max-w-[800px] max-h-[800px] absolute top-[50%] left-[90%] transform -translate-x-1/2 -translate-y-1/2 rotate-[51.71deg] opacity-60 bg-gradient-to-br from-[#b8c5fd] to-[#e8c3d5] blur-[100px]" />
-        <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[-15%] left-[60%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-3 rounded-full blur-[75px]" />
-        <div className="w-[50%] h-[50%] max-w-[500px] max-h-[500px] absolute top-[40%] left-[70%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-1 rounded-full blur-[75px]" />
-        <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[65%] left-[-5%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-3 rounded-full blur-[75px]" />
+        <div className="w-[80%] h-[80%] max-w-[800px] max-h-[800px] absolute top-[50%] left-[90%] transform -translate-x-1/2 -translate-y-1/2 rotate-[51.71deg] opacity-40 md:opacity-60 bg-gradient-to-br from-[#b8c5fd] to-[#e8c3d5] blur-[50px] md:blur-[100px]" />
+        <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[-15%] left-[60%] transform -translate-x-1/2 -translate-y-1/2 opacity-40 md:opacity-60 bg-b-3 rounded-full blur-[40px] md:blur-[75px]" />
+        <div className="w-[50%] h-[50%] max-w-[500px] max-h-[500px] absolute top-[40%] left-[70%] transform -translate-x-1/2 -translate-y-1/2 opacity-40 md:opacity-60 bg-b-1 rounded-full blur-[40px] md:blur-[75px]" />
+        <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[65%] left-[-5%] transform -translate-x-1/2 -translate-y-1/2 opacity-40 md:opacity-60 bg-b-3 rounded-full blur-[40px] md:blur-[75px]" />
       </div>
 
       {/* Main content container */}
@@ -141,15 +141,15 @@ const Home = () => {
         </header>
 
         {/* Hero Section */}
-        <div className="w-full max-w-[1703px] h-[500px] md:h-[725px] relative">
-          <div className="w-full h-full bg-[#252a61] rounded-[30px] md:rounded-[50px] relative overflow-hidden">
+        <div className="w-full max-w-[1703px] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[725px] relative">
+          <div className="w-full h-full bg-[#252a61] rounded-[20px] sm:rounded-[30px] md:rounded-[50px] relative overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
-              <h1 className="text-[200px] md:text-[350px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] text-center">
+              <h1 className="text-[80px] sm:text-[120px] md:text-[200px] lg:text-[350px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] text-center">
                 Medicare
               </h1>
             </div>
             <img
-              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[429px] h-auto"
+              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200px] sm:w-[250px] md:w-[300px] lg:w-[429px] h-auto"
               src={nurse}
               alt="nurse"
             />
@@ -157,46 +157,46 @@ const Home = () => {
         </div>
 
         {/* Services Section */}
-        <section className="w-full max-w-[1700px] grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 py-8 px-4">
+        <section className="w-full max-w-[1700px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-10 py-4 sm:py-8 px-4">
           <Link
             to="/find-hospital"
-            className="w-full flex items-center justify-center bg-[#CDEBF1] rounded-[30px] p-6 hover:shadow-xl transition-all duration-300"
+            className="w-full flex items-center justify-center bg-[#CDEBF1] rounded-[20px] sm:rounded-[30px] p-4 sm:p-6 hover:shadow-xl transition-all duration-300"
           >
             <img
-              className="w-12 h-12 md:w-16 md:h-16 mr-4"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 mr-3 sm:mr-4"
               src={FindHospitalimage}
               alt="Find Hospital"
             />
-            <span className="text-xl md:text-2xl font-bold text-[#252a61]">
+            <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#252a61]">
               Find Hospital
             </span>
           </Link>
           <Link
             to="/upload-reports"
-            className="w-full flex items-center justify-center bg-[#DEF1D0] rounded-[30px] p-6 hover:shadow-xl transition-all duration-300"
+            className="w-full flex items-center justify-center bg-[#DEF1D0] rounded-[20px] sm:rounded-[30px] p-4 sm:p-6 hover:shadow-xl transition-all duration-300"
           >
-            <span className="text-xl md:text-2xl font-bold text-[#252a61]">
+            <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#252a61]">
               Upload Reports
             </span>
           </Link>
           <Link
             to="/health-records"
-            className="w-full flex items-center justify-center bg-[#f8e5e5] rounded-[30px] p-6 hover:shadow-xl transition-all duration-300"
+            className="w-full flex items-center justify-center bg-[#f8e5e5] rounded-[20px] sm:rounded-[30px] p-4 sm:p-6 hover:shadow-xl transition-all duration-300"
           >
             <img
-              className="w-12 h-12 md:w-16 md:h-16 mr-4"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 mr-3 sm:mr-4"
               src={HealthRecordsimage}
               alt="Health Records"
             />
-            <span className="text-xl md:text-2xl font-bold text-[#252a61]">
+            <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#252a61]">
               Health Records
             </span>
           </Link>
         </section>
 
         {/* What We Do */}
-        <section className="w-full text-center py-8">
-          <h2 className="text-2xl md:text-3xl lg:text-5xl font-normal text-Text">
+        <section className="w-full text-center py-4 sm:py-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-normal text-Text">
             What We Do
           </h2>
         </section>
