@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook, FaStethoscope, FaHeartbeat } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import medicalIllustration from "../assets/Login.png";
 
@@ -37,6 +37,41 @@ const Login = () => {
         }} />
       </div>
 
+      {/* Mobile Medical Section */}
+      <div className="lg:hidden fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#4318FF]/10 to-transparent"></div>
+        <div className="absolute top-4 right-4 w-24 h-24">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-full h-full bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center"
+          >
+            <FaUserMd className="text-4xl text-[#4318FF]" />
+          </motion.div>
+        </div>
+        <div className="absolute bottom-4 left-4 w-20 h-20">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="w-full h-full bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center"
+          >
+            <FaStethoscope className="text-3xl text-[#4318FF]" />
+          </motion.div>
+        </div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="w-full h-full bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center"
+          >
+            <FaHeartbeat className="text-5xl text-[#4318FF]" />
+          </motion.div>
+        </div>
+      </div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -47,18 +82,28 @@ const Login = () => {
         <div className="w-full lg:w-[45%] p-20">
           <div className="max-w-[460px] mx-auto">
             {/* Welcome Text */}
-            <div className="mb-16">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-16"
+            >
               <h1 className="text-[46px] font-bold text-[#2B3674] mb-4 tracking-tight">
                 Welcome to Medicare
               </h1>
               <p className="text-[19px] text-[#707EAE] leading-relaxed">
                 Your trusted healthcare portal. Please sign in to access your secure medical dashboard.
               </p>
-            </div>
+            </motion.div>
 
             <form onSubmit={handleLogin} className="space-y-8">
               {/* Email Input */}
-              <div className="relative">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="relative"
+              >
                 <FaUserMd className="absolute left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
                 <input
                   type="email"
@@ -69,10 +114,14 @@ const Login = () => {
                   placeholder="Enter your email"
                   aria-label="Email address"
                 />
-              </div>
+              </motion.div>
 
               {/* Password Input */}
-              <div>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
                 <div className="relative">
                   <FaLock className="absolute left-6 top-1/2 -translate-y-1/2 text-[#707EAE] text-xl" />
                   <input
@@ -93,7 +142,12 @@ const Login = () => {
                     {showPassword ? <FaEyeSlash size={22} /> : <FaEye size={22} />}
                   </button>
                 </div>
-                <div className="mt-3 flex items-center justify-between">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="mt-3 flex items-center justify-between"
+                >
                   <label className="flex items-center gap-2 text-[15px] text-[#707EAE] cursor-pointer">
                     <input
                       type="checkbox"
@@ -109,16 +163,17 @@ const Login = () => {
                   >
                     Forgot password?
                   </Link>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Error Message */}
               <AnimatePresence>
                 {error && (
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
                     className="p-4 bg-red-50 text-red-700 rounded-[16px] text-[15px] border border-red-100 flex items-center gap-2"
                     role="alert"
                   >
@@ -131,7 +186,12 @@ const Login = () => {
               </AnimatePresence>
 
               {/* Login Button */}
-              <button
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isLoading}
                 className="w-full bg-[#4318FF] text-white py-5 rounded-[16px] hover:bg-[#3311DB] transition-all duration-300 font-semibold text-[17px] mt-6 shadow-lg shadow-[#4318FF]/20 hover:shadow-xl hover:shadow-[#4318FF]/30 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -144,19 +204,19 @@ const Login = () => {
                 ) : (
                   "Sign In Securely"
                 )}
-              </button>
+              </motion.button>
 
               {/* Social Login */}
-              <div className="relative my-8">
+              {/* <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-[#707EAE]/20"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-white text-[#707EAE]">Or continue with</span>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
                   className="flex items-center justify-center gap-2 py-3 px-4 border border-[#707EAE]/20 rounded-[16px] text-[#707EAE] hover:bg-[#F4F7FE] transition-all duration-300"
@@ -171,17 +231,22 @@ const Login = () => {
                   <FaFacebook className="text-xl" />
                   <span>Facebook</span>
                 </button>
-              </div>
+              </div> */}
 
               {/* Sign Up Link */}
-              <div className="text-center pt-8">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="text-center pt-8"
+              >
                 <p className="text-[16px] text-[#707EAE]">
                   New to Medicare?{" "}
                   <Link to="/signup" className="text-[#4318FF] hover:text-[#3311DB] font-medium transition-colors duration-300 hover:underline">
                     Create an Account
                   </Link>
                 </p>
-              </div>
+              </motion.div>
             </form>
           </div>
         </div>
