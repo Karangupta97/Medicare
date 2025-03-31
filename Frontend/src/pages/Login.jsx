@@ -189,89 +189,81 @@ const Login = () => {
         {/* Right Side - Medical Illustration */}
         <div className="hidden lg:flex lg:w-[55%] bg-white items-center justify-center relative">
           <div className="w-full max-w-4xl p-20">
-            {/* Welcome Text */}
-            <div className="absolute top-20 left-20 right-20">
-              <h2 className="text-[36px] font-bold mb-4 text-[#2B3674]">Medicare Portal</h2>
-              <p className="text-[20px] text-[#707EAE] leading-relaxed">
-                Your comprehensive healthcare management system. Access records, schedule appointments, and manage your medical journey with confidence.
-              </p>
-            </div>
-
-            {/* Medical Illustration */}
+            {/* Medical Illustration with Features Overlay */}
             <div className="relative w-full h-full">
               <img
                 src={medicalIllustration}
                 alt="3D Medical Office"
-                className="w-full h-full object-contain mt-40"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 flex items-center justify-center mt-40">
-                <div className="bg-gradient-to-b from-[#4318FF]/90 to-[#4318FF]/60 backdrop-blur-sm w-full py-12">
-                  <h2 className="text-[48px] font-bold text-white text-center tracking-tight">
-                    Medicare Portal
-                  </h2>
-                  <p className="text-[20px] text-white/90 text-center mt-4 max-w-2xl mx-auto">
-                    Your comprehensive healthcare management system
-                  </p>
-                  
-                  {/* Features Section */}
-                  <div className="mt-12 grid grid-cols-2 gap-8 px-12">
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
-                        <div>
-                          <h3 className="text-white font-semibold text-lg">Secure Access</h3>
-                          <p className="text-white/80 text-sm mt-1">24/7 secure access to your medical records and appointments</p>
+              {/* Features Overlay */}
+              <div className="absolute inset-0 flex flex-col justify-center">
+                <div className="bg-gradient-to-b from-[#4318FF]/70 via-[#4318FF]/50 to-[#4318FF]/30 backdrop-blur-[2px] w-full h-full rounded-[40px]">
+                  <div className="h-full flex flex-col justify-center px-12">
+                    <h2 className="text-[42px] font-bold text-white text-center tracking-tight mb-8 drop-shadow-lg">
+                      Medicare Portal
+                    </h2>
+                    
+                    {/* Features Grid */}
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4 bg-white/5 p-4 rounded-2xl backdrop-blur-[2px] border border-white/10">
+                          <div className="w-2.5 h-2.5 bg-white rounded-full mt-2"></div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg drop-shadow-md">Secure Access</h3>
+                            <p className="text-white/90 text-base mt-2 drop-shadow-sm">24/7 secure access to your medical records</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4 bg-white/5 p-4 rounded-2xl backdrop-blur-[2px] border border-white/10">
+                          <div className="w-2.5 h-2.5 bg-white rounded-full mt-2"></div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg drop-shadow-md">Appointment Management</h3>
+                            <p className="text-white/90 text-base mt-2 drop-shadow-sm">Schedule and manage your appointments</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4 bg-white/5 p-4 rounded-2xl backdrop-blur-[2px] border border-white/10">
+                          <div className="w-2.5 h-2.5 bg-white rounded-full mt-2"></div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg drop-shadow-md">Digital Records</h3>
+                            <p className="text-white/90 text-base mt-2 drop-shadow-sm">Access your complete medical history</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
-                        <div>
-                          <h3 className="text-white font-semibold text-lg">Appointment Management</h3>
-                          <p className="text-white/80 text-sm mt-1">Schedule and manage your medical appointments with ease</p>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4 bg-white/5 p-4 rounded-2xl backdrop-blur-[2px] border border-white/10">
+                          <div className="w-2.5 h-2.5 bg-white rounded-full mt-2"></div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg drop-shadow-md">Prescription Management</h3>
+                            <p className="text-white/90 text-base mt-2 drop-shadow-sm">View and manage your prescriptions</p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
-                        <div>
-                          <h3 className="text-white font-semibold text-lg">Digital Records</h3>
-                          <p className="text-white/80 text-sm mt-1">Access your complete medical history and test results</p>
+                        <div className="flex items-start gap-4 bg-white/5 p-4 rounded-2xl backdrop-blur-[2px] border border-white/10">
+                          <div className="w-2.5 h-2.5 bg-white rounded-full mt-2"></div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg drop-shadow-md">Billing & Insurance</h3>
+                            <p className="text-white/90 text-base mt-2 drop-shadow-sm">Track your medical bills and claims</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4 bg-white/5 p-4 rounded-2xl backdrop-blur-[2px] border border-white/10">
+                          <div className="w-2.5 h-2.5 bg-white rounded-full mt-2"></div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg drop-shadow-md">Health Tracking</h3>
+                            <p className="text-white/90 text-base mt-2 drop-shadow-sm">Monitor your health metrics</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
-                        <div>
-                          <h3 className="text-white font-semibold text-lg">Prescription Management</h3>
-                          <p className="text-white/80 text-sm mt-1">View and manage your prescriptions and medications</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
-                        <div>
-                          <h3 className="text-white font-semibold text-lg">Billing & Insurance</h3>
-                          <p className="text-white/80 text-sm mt-1">Track your medical bills and insurance claims</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-white rounded-full mt-2"></div>
-                        <div>
-                          <h3 className="text-white font-semibold text-lg">Health Tracking</h3>
-                          <p className="text-white/80 text-sm mt-1">Monitor your health metrics and wellness goals</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Call to Action */}
-                  <div className="mt-12 text-center">
-                    <p className="text-white/90 text-lg mb-4">Ready to take control of your healthcare journey?</p>
-                    <Link 
-                      to="/signup" 
-                      className="inline-block bg-white text-[#4318FF] px-8 py-3 rounded-full font-semibold hover:bg-white/90 transition-all duration-300"
-                    >
-                      Get Started Today
-                    </Link>
+                    {/* Call to Action */}
+                    <div className="mt-8 text-center">
+                      <p className="text-white/90 text-lg mb-4 drop-shadow-md">Ready to take control of your healthcare journey?</p>
+                      <Link 
+                        to="/signup" 
+                        className="inline-block bg-white/90 text-[#4318FF] px-8 py-3 rounded-2xl font-semibold text-base hover:bg-white transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-[2px]"
+                      >
+                        Get Started Today
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
