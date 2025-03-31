@@ -96,12 +96,12 @@ const VerifyEmail = () => {
     setIsSubmitting(true);
     try {
       await verifyEmail(verificationCode);
-      toast.success("Email verified successfully!");
       setShowSuccess(true);
-      // Wait for 3 seconds before redirecting
+      // Wait for 4 seconds before redirecting
       setTimeout(() => {
+        setShowSuccess(false);
         navigate("/");
-      }, 3000);
+      }, 4000);
     } catch (error) {
       console.error("Verification error:", error);
       setShake(true);
@@ -130,29 +130,30 @@ const VerifyEmail = () => {
       />
 
       {/* Success Overlay */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showSuccess && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
           >
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white p-8 rounded-2xl flex flex-col items-center"
+              className="bg-white p-8 rounded-2xl flex flex-col items-center shadow-2xl"
             >
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4"
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6"
               >
                 <svg
-                  className="w-10 h-10 text-green-500"
+                  className="w-12 h-12 text-green-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -160,10 +161,10 @@ const VerifyEmail = () => {
                   <motion.path
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
+                    strokeWidth={3}
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
@@ -171,16 +172,16 @@ const VerifyEmail = () => {
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="text-2xl font-bold text-gray-800 mb-2"
+                transition={{ delay: 0.5 }}
+                className="text-3xl font-bold text-[#252A61] mb-3"
               >
                 Email Verified!
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
-                className="text-gray-600"
+                transition={{ delay: 0.7 }}
+                className="text-gray-600 text-lg"
               >
                 Redirecting to home page...
               </motion.p>
