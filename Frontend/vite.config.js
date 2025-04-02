@@ -12,9 +12,9 @@ export default defineConfig({
   server: {
     historyApiFallback: true,
     proxy: {
-      "/api": "https://medicare-backend-pdci8.ondigitalocean.app",
+      // "/api": "https://medicare-backend-pdci8.ondigitalocean.app",
       // "/api": "https://medicare-3c0t.onrender.com",
-      // "/api": "http://localhost:4000",
+      "/api": "http://localhost:4000",
     },
   },
 })
