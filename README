@@ -1,0 +1,8 @@
+backend
+-server.js
+-.env
+
+frontend
+-vite.config.js
+-authStore.js
+.env

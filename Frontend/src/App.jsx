@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
 import Loading from "./components/Loading";
+import Reports from "./pages/Reports";
 
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
@@ -73,6 +74,14 @@ const App = () => {
           }
         />
         <Route
+          path="/dashboard/reports"
+          element={
+            <ProtectedRoute>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/settings"
           element={
             <ProtectedRoute>
@@ -113,12 +122,10 @@ const App = () => {
           }
         />
         <Route path="/about" element={<About />} />
-
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/test" element={<Test />} />
         <Route path="/test1" element={<Test1 />} />
         <Route path="/loading" element={<Loading />} />
-
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Analytics />

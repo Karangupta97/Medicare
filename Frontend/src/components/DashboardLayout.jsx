@@ -1,9 +1,17 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { 
-  FiUser, FiFileText, FiSettings, FiLogOut, 
-  FiHome, FiUpload, FiDownload, FiHelpCircle,
-  FiMenu, FiX
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  FiUser,
+  FiFileText,
+  FiSettings,
+  FiLogOut,
+  FiHome,
+  FiUpload,
+  FiDownload,
+  FiHelpCircle,
+  FiMenu,
+  FiX,
+  FiArrowLeft,
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore";
@@ -11,9 +19,16 @@ import { useAuthStore } from "../store/authStore";
 const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navigationItems = [
+    {
+      name: "Back",
+      icon: <FiArrowLeft />,
+      path: "#",
+      onClick: () => navigate(-1),
+    },
     { name: "Overview", icon: <FiHome />, path: "/dashboard" },
     { name: "Reports", icon: <FiFileText />, path: "/dashboard/reports" },
     { name: "Upload", icon: <FiUpload />, path: "/dashboard/upload" },
@@ -23,13 +38,17 @@ const DashboardLayout = ({ children }) => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-lg lg:hidden"
+        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg lg:hidden"
       >
-        {isSidebarOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+        {isSidebarOpen ? (
+          <FiX className="w-6 h-6 text-gray-900 dark:text-white" />
+        ) : (
+          <FiMenu className="w-6 h-6 text-gray-900 dark:text-white" />
+        )}
       </button>
 
       {/* Sidebar */}
@@ -48,33 +67,55 @@ const DashboardLayout = ({ children }) => {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 space-y-2">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  location.pathname === item.path
-                    ? 'bg-white/20 text-white'
-                    : 'hover:bg-white/10 text-white/80'
-                }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                <span>{item.name}</span>
-              </Link>
-            ))}
+            {navigationItems.map((item) =>
+              item.onClick ? (
+                <button
+                  key={item.name}
+                  onClick={item.onClick}
+                  className="flex items-center space-x-3 px-4 py-3 w-full rounded-lg transition-all duration-200 hover:bg-white/10 text-white/80"
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span>{item.name}</span>
+                </button>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    location.pathname === item.path
+                      ? "bg-white/20 text-white"
+                      : "hover:bg-white/10 text-white/80"
+                  }`}
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span>{item.name}</span>
+                </Link>
+              )
+            )}
           </nav>
 
           {/* User Profile & Logout */}
           <div className="p-4 border-t border-white/10">
-            <div className="flex items-center space-x-3 px-4 py-3">
+            <Link
+              to="/dashboard/profile"
+              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                location.pathname === "/dashboard/profile"
+                  ? "bg-white/20 text-white"
+                  : "hover:bg-white/10 text-white/80"
+              }`}
+            >
               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                 <FiUser className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.name || 'User'}</p>
-                <p className="text-xs text-white/70 truncate">{user?.email || 'user@example.com'}</p>
+                <p className="text-sm font-medium truncate">
+                  {user?.name || "User"}
+                </p>
+                <p className="text-xs text-white/70 truncate">
+                  {user?.email || "user@example.com"}
+                </p>
               </div>
-            </div>
+            </Link>
             <button
               onClick={logout}
               className="flex items-center space-x-3 px-4 py-3 w-full text-white/80 hover:bg-white/10 rounded-lg transition-all duration-200"
@@ -87,11 +128,15 @@ const DashboardLayout = ({ children }) => {
       </motion.div>
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'}`}>
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarOpen ? "lg:ml-64" : "lg:ml-0"
+        }`}
+      >
         {children}
       </div>
     </div>
   );
 };
 
-export default DashboardLayout; 
+export default DashboardLayout;

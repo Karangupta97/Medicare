@@ -39,6 +39,23 @@ const Reports = () => {
   const [selectedReportType, setSelectedReportType] = useState("");
   const [fileToUpload, setFileToUpload] = useState(null);
   const [reportDescription, setReportDescription] = useState("");
+  
+  // Define storage limit (in bytes) - 50MB limit
+  const STORAGE_LIMIT = 50 * 1024 * 1024; 
+  
+  // Calculate total used storage
+  const calculateUsedStorage = () => {
+    return userReports.reduce(
+      (total, report) => total + (report.fileSize || 0),
+      0
+    );
+  };
+  
+  // Check if file will exceed storage limit
+  const willExceedStorageLimit = (fileSize) => {
+    const currentUsage = calculateUsedStorage();
+    return currentUsage + fileSize > STORAGE_LIMIT;
+  };
 
   useEffect(() => {
     // Load user preference for delete confirmation from localStorage
@@ -79,6 +96,16 @@ const Reports = () => {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Check if file will exceed storage limit
+    if (willExceedStorageLimit(file.size)) {
+      setErrorMessage(`Cannot upload file. You've reached your ${(STORAGE_LIMIT / (1024 * 1024)).toFixed(0)}MB storage limit. Please delete some files to free up space.`);
+      setUploadStatus("error");
+      setTimeout(() => {
+        setUploadStatus(null);
+      }, 5000);
+      return;
+    }
+
     // Instead of uploading immediately, store the file and show the type selection modal
     setFileToUpload(file);
     setSelectedFile(file);
@@ -97,6 +124,17 @@ const Reports = () => {
   const confirmUpload = async () => {
     if (!fileToUpload || !selectedReportType) return;
 
+    // Final check to make sure the file doesn't exceed storage limit
+    if (willExceedStorageLimit(fileToUpload.size)) {
+      setShowTypeSelection(false);
+      setErrorMessage(`Cannot upload file. You've reached your ${(STORAGE_LIMIT / (1024 * 1024)).toFixed(0)}MB storage limit. Please delete some files to free up space.`);
+      setUploadStatus("error");
+      setTimeout(() => {
+        setUploadStatus(null);
+      }, 5000);
+      return;
+    }
+
     setShowTypeSelection(false);
     setUploadStatus("uploading");
     setUploadProgress(0);
@@ -105,25 +143,39 @@ const Reports = () => {
     const userId = user.id || user._id || user.uid;
     const formData = new FormData();
     
-    // Generate a date-time string for the filename
+    // Generate a well-formatted date-time string for the filename
     const now = new Date();
-    const dateTimeStr = now.toISOString().replace(/[:\.]/g, '-').replace('T', '_');
+    const dateTimeFormatted = now.toISOString()
+      .replace(/[:.]/g, '-')
+      .replace('T', '_');
     
-    // Get original file extension
-    const fileExt = fileToUpload.name.split('.').pop();
+    // Get original file components
+    const fileExt = fileToUpload.name.split('.').pop().toLowerCase();
     const fileNameWithoutExt = fileToUpload.name.substring(0, fileToUpload.name.lastIndexOf('.'));
     
-    // Create the new filename with date-time stamp
-    const newFilename = `${fileNameWithoutExt}_${dateTimeStr}.${fileExt}`;
+    // Create a clean version of original filename (remove special chars)
+    const cleanOriginalName = fileNameWithoutExt
+      .replace(/[^a-zA-Z0-9-_]/g, '_')
+      .substring(0, 50); // Limit length
+    
+    // Get username or user identifier for file naming
+    const userIdentifier = user.username || 
+                          (user.email ? user.email.split('@')[0] : null) || 
+                          userId.substring(0, 8);
+    
+    // Create the new filename with format: username_originalName_YYYY-MM-DD_HH-MM-SS.ext
+    const s3Filename = `${userIdentifier}_${cleanOriginalName}_${dateTimeFormatted}.${fileExt}`;
     
     // Create a new File object with the modified name
-    const modifiedFile = new File([fileToUpload], newFilename, { type: fileToUpload.type });
+    const modifiedFile = new File([fileToUpload], s3Filename, { type: fileToUpload.type });
     
     formData.append("report", modifiedFile);
     formData.append("userId", userId);
     formData.append("reportType", selectedReportType);
     formData.append("description", reportDescription);
-    formData.append("originalFilename", fileToUpload.name); // Keep original filename for display
+    formData.append("originalFilename", fileToUpload.name); // Store original filename for display
+    formData.append("uploadDateTime", now.toISOString()); // Store exact upload time in ISO format
+    formData.append("s3Filename", s3Filename); // Store the actual S3 filename
 
     try {
       const response = await axios.post("/api/reports/upload", formData, {
@@ -776,6 +828,27 @@ const Reports = () => {
           </div>
         )}
 
+        {/* Low Storage Warning */}
+        {calculateUsedStorage() / STORAGE_LIMIT > 0.85 && (
+          <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="flex items-start">
+              <FiInfo className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-yellow-800">Storage Almost Full</p>
+                <p className="text-xs text-yellow-700 mt-1">
+                  You are using {Math.round((calculateUsedStorage() / STORAGE_LIMIT) * 100)}% of your {(STORAGE_LIMIT / (1024 * 1024)).toFixed(0)}MB storage limit. Consider deleting some files to free up space.
+                </p>
+                <div className="mt-2 w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full rounded-full bg-yellow-500"
+                    style={{ width: `${Math.min(100, (calculateUsedStorage() / STORAGE_LIMIT) * 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Search and Filter Section */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
@@ -815,7 +888,14 @@ const Reports = () => {
           `}</style>
           <div className="grid grid-cols-5 gap-3 min-w-[900px]">
             {/* Total Reports Card */}
-            <div className="bg-white p-3 rounded-lg shadow-sm border border-blue-100 transform hover:scale-105 transition-transform duration-200">
+            <div 
+              className={`bg-white p-3 rounded-lg shadow-sm border ${
+                filterType === "all" 
+                  ? "border-blue-500 shadow-md ring-2 ring-blue-200" 
+                  : "border-blue-100"
+              } transform hover:scale-105 transition-transform duration-200 cursor-pointer`}
+              onClick={() => setFilterType("all")}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500">Total Reports</p>
@@ -823,17 +903,24 @@ const Reports = () => {
                     {userReports.length}
                   </p>
                 </div>
-                <div className="p-1.5 bg-blue-100 rounded-full">
-                  <FiFileText className="w-4 h-4 text-blue-600" />
+                <div className={`p-1.5 rounded-full ${filterType === "all" ? "bg-blue-200" : "bg-blue-100"}`}>
+                  <FiFileText className={`w-4 h-4 ${filterType === "all" ? "text-blue-700" : "text-blue-600"}`} />
                 </div>
               </div>
               <div className="flex items-center mt-1 text-xs">
-                <span className="text-blue-600 text-xs">All documents</span>
+                <span className={`${filterType === "all" ? "text-blue-700 font-medium" : "text-blue-600"} text-xs`}>All documents</span>
               </div>
             </div>
 
             {/* Images Card */}
-            <div className="bg-white p-3 rounded-lg shadow-sm border border-purple-100 transform hover:scale-105 transition-transform duration-200">
+            <div 
+              className={`bg-white p-3 rounded-lg shadow-sm border ${
+                filterType === "Image" 
+                  ? "border-purple-500 shadow-md ring-2 ring-purple-200" 
+                  : "border-purple-100"
+              } transform hover:scale-105 transition-transform duration-200 cursor-pointer`}
+              onClick={() => setFilterType("Image")}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500">Images</p>
@@ -845,17 +932,24 @@ const Reports = () => {
                     }
                   </p>
                 </div>
-                <div className="p-1.5 bg-purple-100 rounded-full">
-                  <FiFile className="w-4 h-4 text-purple-600" />
+                <div className={`p-1.5 rounded-full ${filterType === "Image" ? "bg-purple-200" : "bg-purple-100"}`}>
+                  <FiFile className={`w-4 h-4 ${filterType === "Image" ? "text-purple-700" : "text-purple-600"}`} />
                 </div>
               </div>
               <div className="flex items-center mt-1 text-xs">
-                <span className="text-purple-600 text-xs">X-rays, scans</span>
+                <span className={`${filterType === "Image" ? "text-purple-700 font-medium" : "text-purple-600"} text-xs`}>X-rays, scans</span>
               </div>
             </div>
 
             {/* PDF Documents Card */}
-            <div className="bg-white p-3 rounded-lg shadow-sm border border-red-100 transform hover:scale-105 transition-transform duration-200">
+            <div 
+              className={`bg-white p-3 rounded-lg shadow-sm border ${
+                filterType === "PDF Document" 
+                  ? "border-red-500 shadow-md ring-2 ring-red-200" 
+                  : "border-red-100"
+              } transform hover:scale-105 transition-transform duration-200 cursor-pointer`}
+              onClick={() => setFilterType("PDF Document")}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500">PDF Documents</p>
@@ -867,17 +961,24 @@ const Reports = () => {
                     }
                   </p>
                 </div>
-                <div className="p-1.5 bg-red-100 rounded-full">
-                  <FiFile className="w-4 h-4 text-red-600" />
+                <div className={`p-1.5 rounded-full ${filterType === "PDF Document" ? "bg-red-200" : "bg-red-100"}`}>
+                  <FiFile className={`w-4 h-4 ${filterType === "PDF Document" ? "text-red-700" : "text-red-600"}`} />
                 </div>
               </div>
               <div className="flex items-center mt-1 text-xs">
-                <span className="text-red-600 text-xs">Documents, forms</span>
+                <span className={`${filterType === "PDF Document" ? "text-red-700 font-medium" : "text-red-600"} text-xs`}>Documents, forms</span>
               </div>
             </div>
 
             {/* Medical Reports Card */}
-            <div className="bg-white p-3 rounded-lg shadow-sm border border-green-100 transform hover:scale-105 transition-transform duration-200">
+            <div 
+              className={`bg-white p-3 rounded-lg shadow-sm border ${
+                filterType === "Medical Report" 
+                  ? "border-green-500 shadow-md ring-2 ring-green-200" 
+                  : "border-green-100"
+              } transform hover:scale-105 transition-transform duration-200 cursor-pointer`}
+              onClick={() => setFilterType("Medical Report")}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500">Medical Reports</p>
@@ -889,12 +990,12 @@ const Reports = () => {
                     }
                   </p>
                 </div>
-                <div className="p-1.5 bg-green-100 rounded-full">
-                  <FiFileText className="w-4 h-4 text-green-600" />
+                <div className={`p-1.5 rounded-full ${filterType === "Medical Report" ? "bg-green-200" : "bg-green-100"}`}>
+                  <FiFileText className={`w-4 h-4 ${filterType === "Medical Report" ? "text-green-700" : "text-green-600"}`} />
                 </div>
               </div>
               <div className="flex items-center mt-1 text-xs">
-                <span className="text-green-600 text-xs">Lab results</span>
+                <span className={`${filterType === "Medical Report" ? "text-green-700 font-medium" : "text-green-600"} text-xs`}>Lab results</span>
               </div>
             </div>
 
@@ -904,14 +1005,7 @@ const Reports = () => {
                 <div>
                   <p className="text-xs text-gray-500">Storage Used</p>
                   <p className="text-lg font-bold text-gray-800">
-                    {(
-                      userReports.reduce(
-                        (total, report) => total + (report.fileSize || 0),
-                        0
-                      ) /
-                      (1024 * 1024)
-                    ).toFixed(2)}{" "}
-                    MB
+                    {(calculateUsedStorage() / (1024 * 1024)).toFixed(2)} / {(STORAGE_LIMIT / (1024 * 1024)).toFixed(0)} MB
                   </p>
                 </div>
                 <div className="p-1.5 bg-green-100 rounded-full">
@@ -919,7 +1013,20 @@ const Reports = () => {
                 </div>
               </div>
               <div className="flex items-center mt-1 text-xs">
-                <span className="text-green-600 text-xs">Total storage</span>
+                <span className="text-green-600 text-xs">
+                  {Math.min(100, Math.round((calculateUsedStorage() / STORAGE_LIMIT) * 100))}% of limit
+                </span>
+              </div>
+              
+              {/* Storage progress bar */}
+              <div className="mt-1.5 w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full ${
+                    (calculateUsedStorage() / STORAGE_LIMIT) > 0.9 ? 'bg-red-500' : 
+                    (calculateUsedStorage() / STORAGE_LIMIT) > 0.7 ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min(100, (calculateUsedStorage() / STORAGE_LIMIT) * 100)}%` }}
+                ></div>
               </div>
             </div>
           </div>
@@ -986,7 +1093,7 @@ const Reports = () => {
             {filteredReports.map((report) => (
               <div
                 key={report._id}
-                className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:border-blue-200 hover:translate-y-[-2px] cursor-pointer transition-all duration-200 flex flex-col group"
+                className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:border-blue-200 hover:translate-y-[-2px] cursor-pointer transition-all duration-200 flex flex-col group relative"
               >
                 {/* Card Header with Color Accent */}
                 <div
@@ -1002,7 +1109,20 @@ const Reports = () => {
                 ></div>
 
                 {/* Preview Section */}
-                <div className={`px-3 pt-3 ${report.reportType === "Image" ? "" : "flex justify-center items-center"}`}>
+                <div className={`px-3 pt-3 ${report.reportType === "Image" ? "" : "flex justify-center items-center"} relative`}>
+                  {/* File type indicator badge */}
+                  <div className={`absolute top-2 right-2 z-10 text-xs px-2 py-1 rounded-full ${
+                    report.reportType === "Image" ? "bg-purple-100 text-purple-700" : 
+                    report.reportType === "PDF Document" ? "bg-red-100 text-red-700" : 
+                    report.reportType === "Medical Report" ? "bg-green-100 text-green-700" : 
+                    "bg-blue-100 text-blue-700"
+                  }`}>
+                    {report.reportType === "Image" ? "IMAGE" : 
+                     report.reportType === "PDF Document" ? "PDF" : 
+                     report.reportType === "Medical Report" ? "MED" : 
+                     "DOC"}
+                  </div>
+                  
                   {report.reportType === "Image" ? (
                     <div className="w-full h-32 overflow-hidden rounded-md bg-gray-100 mb-2 flex items-center justify-center">
                       <img 
@@ -1144,7 +1264,9 @@ const Reports = () => {
                     </div>
                     <div>
                       <p className="font-medium">Date</p>
-                      <p>{formatDate(report.createdAt)}</p>
+                      <p title={report.uploadDateTime || report.createdAt}>
+                        {formatDate(report.uploadDateTime || report.createdAt)}
+                      </p>
                     </div>
                     <div>
                       <p className="font-medium">Size</p>
