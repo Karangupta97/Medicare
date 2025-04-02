@@ -13,10 +13,10 @@ import ResetPassword from "./pages/ResetPassword";
 import Test from "./pages/Test";
 import Test1 from "./pages/Test1";
 import NotFound from "./pages/NotFound";
-import Settings from "./pages/Settings";
-import About from "./pages/About";
+
 import Loading from "./components/Loading";
-import Reports from "./pages/Reports";
+
+
 
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
@@ -46,11 +46,6 @@ const RedirectAuthenticatedUser = ({ children }) => {
   return children;
 };
 
-const PrivateRoute = ({ children }) => {
-  const { user } = useAuthStore();
-  return user ? children : <Navigate to="/login" />;
-};
-
 const App = () => {
   const { isCheckingAuth, isAuthenticated, checkAuth, user } = useAuthStore();
   useEffect(() => {
@@ -70,22 +65,6 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/reports"
-          element={
-            <ProtectedRoute>
-              <Reports />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/settings"
-          element={
-            <ProtectedRoute>
-              <Settings />
             </ProtectedRoute>
           }
         />
@@ -121,7 +100,6 @@ const App = () => {
             </RedirectAuthenticatedUser>
           }
         />
-        <Route path="/about" element={<About />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/test" element={<Test />} />
         <Route path="/test1" element={<Test1 />} />
