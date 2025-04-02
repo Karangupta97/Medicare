@@ -1,8 +1,8 @@
 import axios from "axios";
 import { create } from "zustand";
 
-// const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
-const API_URL = "process.env.REACT_APP_API_URL";
+const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
+// const API_URL = "process.env.REACT_APP_API_URL";
 // const API_URL = "http://localhost:4000";
 // const API_URL = "https://medicare-3c0t.onrender.com/api/auth";
 
