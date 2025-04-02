@@ -17,7 +17,13 @@ const __dirname = path.dirname(__filename);
 const port = process.env.PORT || 4000;
 const app = express();
 
-app.use(cors({ origin: "https://www.medicares.in", credentials: true  }));
+app.use(cors({ 
+  origin: "https://www.medicares.in", 
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Set-Cookie']
+}));
 // app.use(cors({ origin: "http://localhost:5173", credentials: true  }));
  
 app.use(express.json()); // Middleware to parse JSON request bodies

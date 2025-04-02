@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
 import { formatDate } from "../utils/date";
-import axios from "axios";
+import api from "../utils/api";  // Import our configured axios instance
 import {
   FiUploadCloud,
   FiFile,
@@ -80,9 +80,13 @@ const Reports = () => {
     try {
       setIsLoading(true);
       const userId = user.id || user._id || user.uid;
-      const response = await axios.get(`/api/reports/user/${userId}`, {
-        withCredentials: true,
-      });
+
+      // Add a console log to track the request
+      console.log("Fetching reports for user:", userId);
+
+      // Use our configured api instance that already handles auth and cookies
+      const response = await api.get(`/reports/user/${userId}`);
+      
       setUserReports(response.data);
       setIsLoading(false);
     } catch (error) {
@@ -110,6 +114,7 @@ const Reports = () => {
     setFileToUpload(file);
     setSelectedFile(file);
 
+  
     // Auto-select a default report type based on file extension
     const suggestedType = getReportType(file.name);
     setSelectedReportType(suggestedType);
@@ -178,8 +183,7 @@ const Reports = () => {
     formData.append("s3Filename", s3Filename); // Store the actual S3 filename
 
     try {
-      const response = await axios.post("/api/reports/upload", formData, {
-        withCredentials: true,
+      const response = await api.post("/reports/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -247,12 +251,9 @@ const Reports = () => {
         `Attempting to delete report ${reportId} from S3 and database`
       );
 
-      // Send delete request to API with a query parameter to confirm S3 deletion
-      const response = await axios.delete(
-        `/api/reports/${reportId}?deleteFromS3=true`,
-        {
-          withCredentials: true,
-        }
+      // Use our configured api instance
+      const response = await api.delete(
+        `/reports/${reportId}?deleteFromS3=true`
       );
 
       console.log("Delete response:", response.data);
@@ -316,7 +317,7 @@ const Reports = () => {
       // For simplicity and reliability, use the server-side proxy directly
       // This approach has fewer browser security restrictions
       console.log("Using server-side proxy for download");
-      const proxyUrl = `/api/reports/${reportId}/download`;
+      const proxyUrl = `/reports/${reportId}/download`;
 
       // Create an invisible iframe to handle the download
       // This is the most reliable cross-browser approach
