@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./DB/db.js";
+import authRoutes from "./routes/auth.routes.js";
+import reportsRoutes from "./routes/reports.js";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from 'url';
@@ -34,17 +36,26 @@ app.use((req, res, next) => {
   next();
 });
 
+// Log requests in development mode
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Connect to MongoDB
 connectDB();
 
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/reports", reportsRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is ready");
 });
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Server is running' });
+});
 
 // Static file serving for production
 if (process.env.NODE_ENV === 'production') {
