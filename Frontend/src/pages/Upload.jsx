@@ -96,32 +96,29 @@ const Upload = () => {
     setUploadProgress({});
 
     try {
-      console.log('Starting file upload process...');
-      console.log('File details:', {
-        name: files[0].name,
-        size: files[0].size,
-        type: files[0].type
+      const file = files[0];
+      console.log('Starting file upload process...', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        hasToken: !!token
       });
-      console.log('Token available:', !!token);
-      console.log('Token first 10 chars:', token ? token.substring(0, 10) + '...' : 'No token');
       
       const formData = new FormData();
-      formData.append('file', files[0]);
+      formData.append('file', file, file.name); // Add filename explicitly
       formData.append('description', description || `Uploaded on ${new Date().toLocaleDateString()}`);
       formData.append('category', category);
       formData.append('title', title);
 
-      console.log('FormData created with:', {
-        category,
-        title,
-        description: description || `Uploaded on ${new Date().toLocaleDateString()}`,
-        fileSize: files[0].size,
-        fileType: files[0].type
-      });
+      // Log FormData contents
+      for (let pair of formData.entries()) {
+        console.log('FormData entry:', pair[0], pair[1]);
+      }
 
       const response = await axios.post('/api/reports/upload', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
         withCredentials: true,
         onUploadProgress: (progressEvent) => {
@@ -135,18 +132,21 @@ const Upload = () => {
         },
       });
 
-      console.log('Upload response:', response.data);
+      console.log('Upload successful:', response.data);
       toast.success('Report uploaded successfully!');
       setFiles([]);
       setDescription('');
       setTitle('');
     } catch (error) {
-      console.error('Error uploading file:', {
+      console.error('Upload error:', {
         message: error.message,
         status: error.response?.status,
         data: error.response?.data,
-        url: error.config?.url,
-        headers: error.config?.headers
+        config: {
+          url: error.config?.url,
+          headers: error.config?.headers,
+          data: error.config?.data
+        }
       });
       
       if (error.response?.status === 404) {
@@ -158,10 +158,8 @@ const Upload = () => {
         toast.error('File is too large. Maximum size is 10MB.');
       } else if (error.response?.status === 415) {
         toast.error('Invalid file type. Only PDF, JPG, PNG, and DICOM files are allowed.');
-      } else if (error.response) {
-        toast.error(
-          error.response?.data?.message || 'Failed to upload report. Please try again.'
-        );
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
       } else if (error.request) {
         toast.error('Network error: Could not connect to the server. Please check your internet connection.');
       } else {
