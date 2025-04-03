@@ -112,7 +112,7 @@ const App = () => {
   // If not authenticated and not on login/signup pages, redirect to login
   if (
     !isAuthenticated &&
-    !["/login", "/signup", "/forgot-password", "/reset-password"].includes(
+    !["/login", "/signup", "/forgot-password", "/reset-password", "/"].includes(
       currentPath
     )
   ) {
@@ -128,7 +128,7 @@ const App = () => {
     )
   ) {
     console.log("Authenticated on auth page, redirecting to dashboard");
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // If user is not verified and not on verify-email page, redirect to verify-email
