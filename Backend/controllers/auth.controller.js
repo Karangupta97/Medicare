@@ -117,7 +117,6 @@ export const login = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
-      throw new Error("Please fill all fields");
     }
     const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
@@ -125,9 +124,15 @@ export const login = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
     }
+    
+    // Generate token
     const token = await generateTokenAndsendcookie(res, user._id);
+    
+    // Update last login
     user.lastLOGIN = new Date();
     await user.save();
+    
+    // Send response with token
     res.status(200).json({
       success: true,
       message: "Logged in successfully",
@@ -238,7 +243,7 @@ export const checkAuth = async (req, res) => {
     res.status(200).json({
       success: true,
       user,
-      token: req.cookies.token,
+      token: req.headers.authorization?.split(' ')[1]
     });
   } catch (error) {
     console.log("Error in checkAuth", error);

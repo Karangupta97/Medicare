@@ -1,44 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import DashboardLayout from '../components/DashboardLayout';
-import { FiFileText, FiCheckCircle, FiCalendar, FiAlertCircle, FiMail, FiPhone, FiCreditCard, FiUpload, FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { FiFileText, FiCheckCircle, FiCalendar, FiAlertCircle, FiMail, FiPhone, FiCreditCard, FiUpload, FiSearch, FiRefreshCw, FiHome } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [stats, setStats] = useState([]);
-  const [recentActivity, setRecentActivity] = useState([]);
   
-  const fetchStats = async () => {
-    try {
-      const response = await axios.get('/api/dashboard/stats', {
-        withCredentials: true,
-      });
-      setStats(response.data.stats || []);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-      toast.error('Failed to load dashboard statistics');
+  const stats = [
+    {
+      title: 'Documents',
+      value: '12',
+      change: '+18%',
+      changeText: 'from last month',
+      icon: FiFileText,
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600'
+    },
+    {
+      title: 'Claims Processed',
+      value: '8',
+      status: 'All Clear',
+      icon: FiCheckCircle,
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600'
+    },
+    {
+      title: 'Upcoming Appts',
+      value: '2',
+      nextDate: 'Next: May 15',
+      icon: FiCalendar,
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-600'
+    },
+    {
+      title: 'Prescriptions',
+      value: '5',
+      alert: '1 Renewal Needed',
+      icon: FiAlertCircle,
+      iconBg: 'bg-yellow-100',
+      iconColor: 'text-yellow-600'
     }
-  };
+  ];
 
-  const fetchRecentActivity = async () => {
-    try {
-      const response = await axios.get('/api/dashboard/recent-activity', {
-        withCredentials: true,
-      });
-      setRecentActivity(response.data.activities || []);
-    } catch (error) {
-      console.error('Error fetching recent activity:', error);
-      toast.error('Failed to load recent activity');
+  const recentActivity = [
+    {
+      type: 'upload',
+      title: 'Blood Test Results Uploaded',
+      description: 'Your lab results have been processed successfully',
+      time: '2 hours ago',
+      icon: FiFileText,
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600'
+    },
+    {
+      type: 'alert',
+      title: 'Prescription Renewal Needed',
+      description: 'Your heart medication needs to be renewed within 5 days',
+      time: 'Yesterday',
+      icon: FiAlertCircle,
+      iconBg: 'bg-yellow-100',
+      iconColor: 'text-yellow-600'
+    },
+    {
+      type: 'success',
+      title: 'Claim #MC456789 Approved',
+      description: 'Your claim has been approved. Reimbursement will be processed.',
+      time: '2 days ago',
+      icon: FiCheckCircle,
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600'
     }
-  };
+  ];
 
   const fetchReports = async () => {
     try {
@@ -46,9 +86,13 @@ const Dashboard = () => {
       setError(null);
       console.log('Fetching reports from API');
       
-      const response = await axios.get('/api/reports', {
-        withCredentials: true,
-      });
+      if (!token) {
+        setError('No authentication token found');
+        toast.error('Please login to view your reports');
+        return;
+      }
+
+      const response = await axios.get('/api/reports');
       
       console.log('Reports fetched successfully:', response.data);
       setReports(response.data.reports || []);
@@ -59,6 +103,7 @@ const Dashboard = () => {
       if (error.response?.status === 401) {
         setError('Please login to view your reports');
         toast.error('Please login to view your reports');
+        window.location.href = '/login';
       } else if (error.response?.status === 500) {
         setError(`Server error: ${error.response?.data?.message || 'Unknown error'}`);
         toast.error(`Server error: ${error.response?.data?.message || 'Unknown error'}`);
@@ -81,8 +126,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchReports();
-    fetchStats();
-    fetchRecentActivity();
   }, []);
 
   const handleRetry = () => {
@@ -142,8 +185,19 @@ const Dashboard = () => {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard Overview</h1>
-          <p className="text-gray-600 mt-1">Manage your Medicare information and documents.</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">Dashboard Overview</h1>
+              <p className="text-gray-600 mt-1">Manage your Medicare information and documents.</p>
+            </div>
+            <button
+              onClick={() => window.location.href = '/'}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <FiHome className="w-5 h-5" />
+              Go to Home
+            </button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -391,7 +445,7 @@ const Dashboard = () => {
           <div className="space-y-6">
             {recentActivity.map((activity, index) => (
               <motion.div
-                key={activity.id}
+                key={activity.title}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}

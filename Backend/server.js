@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 import connectDB from "./DB/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import reportsRoutes from "./routes/reports.routes.js";
@@ -12,9 +11,15 @@ const port = process.env.PORT || 4000;
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "https://www.medicares.in", credentials: true }));
+app.use(cors({
+  origin: process.env.NODE_ENV === "production" 
+    ? process.env.CLIENT_URL 
+    : "http://localhost:5173", // Vite's default port
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 app.use(express.json());
-app.use(cookieParser());
 
 // Middleware to log request details
 app.use((req, res, next) => {

@@ -3,9 +3,10 @@ import { create } from "zustand";
 
 // const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
 // const API_URL = "http://localhost:4000";
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Configure axios defaults
+axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
@@ -17,11 +18,15 @@ axios.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
+    // Ensure withCredentials is set for all requests
+    config.withCredentials = true;
+    
     // Log request details in development
     if (import.meta.env.DEV) {
       console.log(`Making ${config.method.toUpperCase()} request to ${config.url}`, {
         headers: config.headers,
-        data: config.data
+        data: config.data,
+        withCredentials: config.withCredentials
       });
     }
     
@@ -40,7 +45,8 @@ axios.interceptors.response.use(
     if (import.meta.env.DEV) {
       console.log(`Response from ${response.config.url}:`, {
         status: response.status,
-        data: response.data
+        data: response.data,
+        headers: response.headers
       });
     }
     return response;
@@ -50,16 +56,12 @@ axios.interceptors.response.use(
     
     // Log detailed error information
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
       console.error('Error response data:', error.response.data);
       console.error('Error response status:', error.response.status);
       console.error('Error response headers:', error.response.headers);
     } else if (error.request) {
-      // The request was made but no response was received
       console.error('Error request:', error.request);
     } else {
-      // Something happened in setting up the request that triggered an Error
       console.error('Error message:', error.message);
     }
     
@@ -67,6 +69,7 @@ axios.interceptors.response.use(
       console.log('Unauthorized request, clearing auth state');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
@@ -179,78 +182,90 @@ export const useAuthStore = create((set, get) => ({
   },
 
   checkAuth: async () => {
+    console.log('Starting checkAuth...');
+    
     // If we're already checking auth, don't start another check
     if (get().isCheckingAuth) {
+      console.log('Already checking auth, returning early');
       return;
     }
     
     // Set checking flag to true
     set({ isCheckingAuth: true });
     
-    // Get token and user from localStorage
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-    
-    // If no token exists, we're not authenticated
-    if (!token) {
-      set({ 
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isCheckingAuth: false
+    try {
+      // Get token and user from localStorage
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+      
+      console.log('Auth state:', {
+        hasToken: !!token,
+        tokenLength: token?.length,
+        hasStoredUser: !!storedUser,
+        storedUserData: storedUser
       });
-      return;
-    }
-    
-    // If we have a token but no user data, try to restore from localStorage
-    if (token && !storedUser) {
-      try {
-        // Make the API call to check authentication
-        const response = await axios.get(`${API_URL}/api/auth/check-auth`);
-        
-        // Update the state with the user data and token
-        const userData = response.data.user;
-        
-        // Save user to localStorage
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        set({
-          user: userData,
-          token: token,
-          isAuthenticated: true,
-          isCheckingAuth: false,
-        });
-        
-        return response.data;
-      } catch (error) {
-        // If there's an error but we have a token, keep the authentication state
-        // This prevents redirects during page reloads
+      
+      // If no token exists, we're not authenticated
+      if (!token) {
+        console.log('No token found in localStorage');
         set({ 
-          isCheckingAuth: false,
-          error: error.response?.data?.message || "Authentication check failed"
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isCheckingAuth: false
         });
         return;
       }
-    }
-    
-    // If we have both token and user data, we're authenticated
-    if (token && storedUser) {
+      
+      console.log('Making check-auth request with token');
+      // Make the API call to verify token validity
+      const response = await axios.get(`${API_URL}/api/auth/check-auth`);
+      
+      console.log('Check-auth response:', response.data);
+      
+      // Update the state with the user data and token
+      const userData = response.data.user;
+      
+      // Save user to localStorage
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', token);
+      
+      console.log('Setting authenticated state with user data');
       set({
-        user: storedUser,
+        user: userData,
         token: token,
         isAuthenticated: true,
         isCheckingAuth: false,
       });
       
-      // Silently verify token validity in the background
-      try {
-        await axios.get(`${API_URL}/api/auth/check-auth`);
-      } catch (error) {
-        console.error("Token validation failed:", error);
-        // Don't update state, just log the error
-      }
+      return response.data;
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      console.error("Error details:", {
+        status: error.response?.status,
+        message: error.message,
+        response: error.response?.data
+      });
       
-      return { user: storedUser, token };
+      // If token is invalid or expired, clear auth state
+      if (error.response?.status === 401) {
+        console.log('Token invalid or expired, clearing auth state');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        set({ 
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isCheckingAuth: false,
+          error: "Session expired. Please login again."
+        });
+      } else {
+        set({ 
+          isCheckingAuth: false,
+          error: error.response?.data?.message || "Authentication check failed"
+        });
+      }
+      return;
     }
   },
 

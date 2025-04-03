@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiHome, FiFileText, FiUpload, FiUser, FiSettings, FiHelpCircle, 
   FiLogOut, FiMenu, FiSearch, FiBell, FiPlus, FiChevronDown, 
-  FiCalendar, FiGrid, FiList, FiMoreHorizontal 
+  FiCalendar, FiGrid, FiList, FiMoreHorizontal, FiArrowLeft
 } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import LogoutModal from './LogoutModal';
@@ -22,6 +22,7 @@ const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuthStore();
 
   const menuItems = [
+    { icon: FiArrowLeft, label: 'Medicare', path: '/' },
     { icon: FiHome, label: 'Overview', path: '/dashboard' },
     { icon: FiFileText, label: 'Reports', path: '/reports' },
     { icon: FiUpload, label: 'Upload', path: '/upload' },

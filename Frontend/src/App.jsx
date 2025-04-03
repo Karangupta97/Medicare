@@ -59,36 +59,87 @@ const App = () => {
   const location = useLocation();
   const [currentPath, setCurrentPath] = useState(location.pathname);
   const [isInitialized, setIsInitialized] = useState(false);
-  
+
   useEffect(() => {
     // Store the current path when it changes
     setCurrentPath(location.pathname);
+    console.log("Path changed to:", location.pathname);
   }, [location.pathname]);
-  
+
   useEffect(() => {
-    // Check auth once on mount
+    // Check auth on mount and when path changes
     const verifyAuth = async () => {
+      console.log("Starting verifyAuth...", {
+        currentPath,
+        isCheckingAuth,
+        isAuthenticated,
+        hasUser: !!user,
+      });
+
       try {
+        setIsInitialized(false);
         await checkAuth();
+        console.log("Auth check completed successfully");
       } catch (error) {
         console.error("Auth check failed:", error);
       } finally {
         setIsInitialized(true);
+        console.log("Auth initialization completed", {
+          isInitialized: true,
+          isCheckingAuth,
+          isAuthenticated,
+          hasUser: !!user,
+        });
       }
     };
-    
+
     verifyAuth();
-  }, []); // Empty dependency array to run only once on mount
+  }, [currentPath]); // Add currentPath as dependency to recheck auth on route changes
 
   // Show loading state while checking authentication
-  if (isCheckingAuth || !isInitialized) return <Loading />;
-  
-  // Remove console logs to prevent spam
-  // console.log("isAuthenticated", isAuthenticated);
-  // console.log("user", user);
+  if (isCheckingAuth || !isInitialized) {
+    console.log("Showing loading state:", { isCheckingAuth, isInitialized });
+    return <Loading />;
+  }
 
+  console.log("Current auth state:", {
+    isAuthenticated,
+    hasUser: !!user,
+    currentPath,
+    isVerified: user?.isverified,
+  });
+
+  // If not authenticated and not on login/signup pages, redirect to login
+  if (
+    !isAuthenticated &&
+    !["/login", "/signup", "/forgot-password", "/reset-password"].includes(
+      currentPath
+    )
+  ) {
+    console.log("Not authenticated, redirecting to login");
+    return <Navigate to="/login" replace />;
+  }
+
+  // If authenticated and on login/signup pages, redirect to dashboard
+  if (
+    isAuthenticated &&
+    ["/login", "/signup", "/forgot-password", "/reset-password"].includes(
+      currentPath
+    )
+  ) {
+    console.log("Authenticated on auth page, redirecting to dashboard");
+    return <Navigate to="/" replace />;
+  }
+
+  // If user is not verified and not on verify-email page, redirect to verify-email
+  if (user && !user.isverified && currentPath !== "/verify-email") {
+    console.log("User not verified, redirecting to verify-email");
+    return <Navigate to="/verify-email" replace />;
+  }
+
+  console.log("Rendering main app content");
   return (
-    <div>
+    <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
@@ -99,42 +150,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/signup"
-          element={
-            <RedirectAuthenticatedUser>
-              <Signup />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <RedirectAuthenticatedUser>
-              <Login />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route
-          path="/forgot-password"
-          element={
-            <RedirectAuthenticatedUser>
-              <ForgotPassword />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route
-          path="/verify-email"
-          element={
-            <RedirectAuthenticatedUser>
-              <VerifyEmail />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/test" element={<Test />} />
-        <Route path="/test1" element={<Test1 />} />
-        <Route path="/loading" element={<Loading />} />
         <Route
           path="/reports"
           element={
@@ -151,10 +166,43 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/login"
+          element={
+            <RedirectAuthenticatedUser>
+              <Login />
+            </RedirectAuthenticatedUser>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <RedirectAuthenticatedUser>
+              <Signup />
+            </RedirectAuthenticatedUser>
+          }
+        />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route
+          path="/forgot-password"
+          element={
+            <RedirectAuthenticatedUser>
+              <ForgotPassword />
+            </RedirectAuthenticatedUser>
+          }
+        />
+        <Route
+          path="/reset-password/:token"
+          element={
+            <RedirectAuthenticatedUser>
+              <ResetPassword />
+            </RedirectAuthenticatedUser>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster position="top-center" />
-    </div>
+      <Toaster position="top-right" />
+    </>
   );
 };
 
