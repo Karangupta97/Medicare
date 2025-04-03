@@ -102,6 +102,8 @@ const Upload = () => {
         size: files[0].size,
         type: files[0].type
       });
+      console.log('Token available:', !!token);
+      console.log('Token first 10 chars:', token ? token.substring(0, 10) + '...' : 'No token');
       
       const formData = new FormData();
       // Only upload the first file since we're using single file upload

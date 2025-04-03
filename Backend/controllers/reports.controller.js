@@ -92,13 +92,29 @@ export const uploadReport = async (req, res) => {
     const { description, category, title } = req.body;
     const file = req.file;
 
-    console.log("Upload request received:", { description, category, title, file: file ? { 
-      originalname: file.originalname, 
-      mimetype: file.mimetype, 
-      size: file.size 
-    } : null });
+    console.log("Upload request received:", { 
+      description, 
+      category, 
+      title, 
+      userId: req.user?.id,
+      userName: req.user?.name,
+      file: file ? { 
+        originalname: file.originalname, 
+        mimetype: file.mimetype, 
+        size: file.size 
+      } : null 
+    });
+
+    if (!req.user || !req.user.id) {
+      console.error("User information missing in request");
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required. User information is missing.',
+      });
+    }
 
     if (!file) {
+      console.error("No file provided in request");
       return res.status(400).json({
         success: false,
         message: 'Please upload a file.',
@@ -108,6 +124,7 @@ export const uploadReport = async (req, res) => {
     // Validate file type
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/dicom'];
     if (!allowedTypes.includes(file.mimetype)) {
+      console.error(`Invalid file type: ${file.mimetype}`);
       return res.status(415).json({
         success: false,
         message: 'Invalid file type. Only PDF, JPG, PNG, and DICOM files are allowed.',
@@ -117,6 +134,7 @@ export const uploadReport = async (req, res) => {
     // Validate file size (10MB limit)
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     if (file.size > maxSize) {
+      console.error(`File size too large: ${file.size} bytes`);
       return res.status(413).json({
         success: false,
         message: 'File size too large. Maximum size is 10MB.',
@@ -194,10 +212,20 @@ export const uploadReport = async (req, res) => {
       });
     } catch (error) {
       console.error('Error uploading file to S3:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
       throw new Error('Failed to upload file to S3: ' + error.message);
     }
   } catch (error) {
     console.error('Error uploading report:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to upload report. Please try again.',

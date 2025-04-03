@@ -14,17 +14,23 @@ export default defineConfig({
     proxy: {
       "/api": {
         target: "https://medicare-backend-pdci8.ondigitalocean.app",
+        // target: "http://localhost:4000",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
+            console.error('Proxy error:', err);
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('Sending Request to the Target:', req.method, req.url);
             // Log headers for debugging
             console.log('Request headers:', proxyReq.getHeaders());
+            
+            // Ensure Authorization header is properly forwarded
+            if (req.headers.authorization) {
+              proxyReq.setHeader('Authorization', req.headers.authorization);
+            }
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
