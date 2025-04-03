@@ -96,15 +96,26 @@ const Upload = () => {
     setUploadProgress({});
 
     try {
+      console.log('Starting file upload process...');
+      console.log('File details:', {
+        name: files[0].name,
+        size: files[0].size,
+        type: files[0].type
+      });
+      
       const formData = new FormData();
       // Only upload the first file since we're using single file upload
       formData.append('file', files[0]);
       formData.append('description', description || `Uploaded on ${new Date().toLocaleDateString()}`);
       formData.append('category', category);
+      formData.append('title', title);
+
+      console.log('FormData created with category:', category);
 
       const response = await axios.post('/api/reports/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`,
         },
         withCredentials: true,
         onUploadProgress: (progressEvent) => {
@@ -118,18 +129,32 @@ const Upload = () => {
         },
       });
 
+      console.log('Upload response:', response.data);
       toast.success('Report uploaded successfully!');
       setFiles([]);
       setDescription('');
+      setTitle('');
     } catch (error) {
       console.error('Error uploading file:', error);
+      console.error('Error details:', error.response?.data);
+      
       if (error.response?.status === 401) {
         toast.error('Session expired. Please login again.');
         navigate('/login');
-      } else {
+      } else if (error.response?.status === 413) {
+        toast.error('File is too large. Maximum size is 10MB.');
+      } else if (error.response?.status === 415) {
+        toast.error('Invalid file type. Only PDF, JPG, PNG, and DICOM files are allowed.');
+      } else if (error.response) {
         toast.error(
           error.response?.data?.message || 'Failed to upload report. Please try again.'
         );
+      } else if (error.request) {
+        // The request was made but no response was received
+        toast.error('Network error: Could not connect to the server. Please check your internet connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        toast.error(`Error: ${error.message || 'Failed to upload report. Please try again.'}`);
       }
     } finally {
       setUploading(false);

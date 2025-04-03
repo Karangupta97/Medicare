@@ -10,7 +10,6 @@ const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const { token, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -104,10 +103,7 @@ const Reports = () => {
     const matchesSearch = 
       (report.originalFilename?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
       (report.description?.toLowerCase().includes(searchQuery.toLowerCase()) || false);
-    
-    const matchesCategory = selectedCategory === 'all' || report.category === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const formatDate = (date) => {
@@ -153,25 +149,6 @@ const Reports = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="relative">
-            <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <select
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="all">All Categories</option>
-              <option value="medical">Medical Reports</option>
-              <option value="xrays">X-rays & Scans</option>
-              <option value="lab">Lab Results</option>
-              <option value="forms">Medical Forms</option>
-            </select>
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </div>
-          </div>
         </div>
 
         {loading ? (
@@ -205,10 +182,6 @@ const Reports = () => {
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">Size:</span>{' '}
                         {formatFileSize(report.fileSize)}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Category:</span>{' '}
-                        {report.category ? report.category.charAt(0).toUpperCase() + report.category.slice(1) : 'Uncategorized'}
                       </p>
                     </div>
                   </div>

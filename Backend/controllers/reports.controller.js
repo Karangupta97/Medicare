@@ -59,15 +59,37 @@ export const getReports = async (req, res) => {
 // Upload a new report
 export const uploadReport = async (req, res) => {
   try {
-    const { description, category } = req.body;
+    const { description, category, title } = req.body;
     const file = req.file;
 
-    console.log("Upload request received:", { description, category, file });
+    console.log("Upload request received:", { description, category, title, file: file ? { 
+      originalname: file.originalname, 
+      mimetype: file.mimetype, 
+      size: file.size 
+    } : null });
 
     if (!file) {
       return res.status(400).json({
         success: false,
         message: 'Please upload a file.',
+      });
+    }
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/dicom'];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return res.status(415).json({
+        success: false,
+        message: 'Invalid file type. Only PDF, JPG, PNG, and DICOM files are allowed.',
+      });
+    }
+
+    // Validate file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      return res.status(413).json({
+        success: false,
+        message: 'File size too large. Maximum size is 10MB.',
       });
     }
 
@@ -90,6 +112,8 @@ export const uploadReport = async (req, res) => {
     const s3Key = `${userFolder}/${randomString}${fileExtension}`;
 
     try {
+      console.log("Uploading to S3 with key:", s3Key);
+      
       // Upload to S3
       await s3Client.send(
         new PutObjectCommand({
@@ -99,6 +123,8 @@ export const uploadReport = async (req, res) => {
           ContentType: file.mimetype,
         })
       );
+
+      console.log("File uploaded to S3 successfully");
 
       // Generate a signed URL for the uploaded file
       const fileUrl = await getSignedUrl(
@@ -110,11 +136,13 @@ export const uploadReport = async (req, res) => {
         { expiresIn: 3600 } // URL expires in 1 hour
       );
 
+      console.log("Generated signed URL for file");
+
       // Create report in database
       const report = new Report({
         userId: req.user.id,
         filename: formattedFilename, // Use the formatted filename
-        originalFilename: file.originalname,
+        originalFilename: title || file.originalname, // Use title if provided, otherwise use original filename
         description: description || `Uploaded on ${new Date().toLocaleDateString()}`,
         reportType: file.mimetype,
         fileUrl,
@@ -136,7 +164,7 @@ export const uploadReport = async (req, res) => {
       });
     } catch (error) {
       console.error('Error uploading file to S3:', error);
-      throw new Error('Failed to upload file to S3');
+      throw new Error('Failed to upload file to S3: ' + error.message);
     }
   } catch (error) {
     console.error('Error uploading report:', error);

@@ -5,7 +5,9 @@ import { create } from "zustand";
 // const API_URL = "http://localhost:4000";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
+// Configure axios defaults
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // Add axios interceptor to add token to all requests
 axios.interceptors.request.use(
@@ -14,9 +16,36 @@ axios.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Log request details in development
+    if (import.meta.env.DEV) {
+      console.log(`Making ${config.method.toUpperCase()} request to ${config.url}`);
+    }
+    
     return config;
   },
   (error) => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle common errors
+axios.interceptors.response.use(
+  (response) => {
+    // Log response details in development
+    if (import.meta.env.DEV) {
+      console.log(`Response from ${response.config.url}:`, response.status);
+    }
+    return response;
+  },
+  (error) => {
+    console.error('Axios error:', error);
+    if (error.response?.status === 401) {
+      console.log('Unauthorized request, clearing auth state');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
     return Promise.reject(error);
   }
 );
