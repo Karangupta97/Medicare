@@ -20,12 +20,26 @@ const VALID_CATEGORIES = ['xrays', 'lab', 'forms'];
 // Get all reports for the authenticated user
 export const getReports = async (req, res) => {
   try {
+    console.log(`Fetching reports for user ID: ${req.user.id}`);
+    
+    if (!req.user || !req.user.id) {
+      console.error('User ID is missing in the request');
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required. User ID is missing.',
+      });
+    }
+    
     const reports = await Report.find({ userId: req.user.id })
       .sort({ createdAt: -1 });
+    
+    console.log(`Found ${reports.length} reports for user ID: ${req.user.id}`);
     
     // Generate fresh signed URLs for each report
     const reportsWithUrls = await Promise.all(reports.map(async (report) => {
       try {
+        console.log(`Generating signed URL for report ID: ${report._id}, S3 key: ${report.s3Key}`);
+        
         const fileUrl = await getSignedUrl(
           s3Client,
           new GetObjectCommand({
@@ -35,6 +49,8 @@ export const getReports = async (req, res) => {
           { expiresIn: 3600 } // URL expires in 1 hour
         );
         
+        console.log(`Successfully generated signed URL for report ID: ${report._id}`);
+        
         // Create a new object with the updated URL
         return {
           ...report.toObject(),
@@ -42,16 +58,30 @@ export const getReports = async (req, res) => {
         };
       } catch (error) {
         console.error(`Error generating signed URL for report ${report._id}:`, error);
+        console.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack
+        });
         return report;
       }
     }));
     
+    console.log(`Successfully processed ${reportsWithUrls.length} reports with signed URLs`);
+    
     res.json({ success: true, reports: reportsWithUrls });
   } catch (error) {
     console.error('Error fetching reports:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    
     res.status(500).json({
       success: false,
       message: 'Failed to fetch reports. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

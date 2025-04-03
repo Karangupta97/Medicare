@@ -31,21 +31,35 @@ const Reports = () => {
 
     try {
       setLoading(true);
+      console.log('Fetching reports with token:', token.substring(0, 10) + '...');
+      
       const response = await axios.get('/api/reports', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         withCredentials: true,
       });
+      
+      console.log('Reports fetched successfully:', response.data);
       setReports(response.data.reports || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching reports:', error);
+      console.error('Error details:', error.response?.data);
+      
       if (error.response?.status === 401) {
         toast.error('Please login to view your reports');
         navigate('/login');
+      } else if (error.response?.status === 500) {
+        toast.error(`Server error: ${error.response?.data?.message || 'Unknown error'}`);
+      } else if (error.response) {
+        toast.error(`Error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`);
+      } else if (error.request) {
+        // The request was made but no response was received
+        toast.error('Network error: Could not connect to the server. Please check your internet connection.');
       } else {
-        toast.error('Failed to load reports. Please try again.');
+        // Something happened in setting up the request that triggered an Error
+        toast.error(`Error: ${error.message || 'Failed to load reports. Please try again.'}`);
       }
       setLoading(false);
     }

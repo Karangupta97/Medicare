@@ -84,12 +84,36 @@ const Dashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axios.get('/api/reports');
+      console.log('Fetching reports from API');
+      
+      const response = await axios.get('/api/reports', {
+        withCredentials: true,
+      });
+      
+      console.log('Reports fetched successfully:', response.data);
       setReports(response.data.reports || []);
     } catch (error) {
       console.error('Error fetching reports:', error);
-      setError('Failed to load reports. Please try again.');
-      toast.error('Failed to load reports. Please try again.');
+      console.error('Error details:', error.response?.data);
+      
+      if (error.response?.status === 401) {
+        setError('Please login to view your reports');
+        toast.error('Please login to view your reports');
+      } else if (error.response?.status === 500) {
+        setError(`Server error: ${error.response?.data?.message || 'Unknown error'}`);
+        toast.error(`Server error: ${error.response?.data?.message || 'Unknown error'}`);
+      } else if (error.response) {
+        setError(`Error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`);
+        toast.error(`Error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`);
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError('Network error: Could not connect to the server. Please check your internet connection.');
+        toast.error('Network error: Could not connect to the server. Please check your internet connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError(`Error: ${error.message || 'Failed to load reports. Please try again.'}`);
+        toast.error(`Error: ${error.message || 'Failed to load reports. Please try again.'}`);
+      }
     } finally {
       setIsLoading(false);
     }
