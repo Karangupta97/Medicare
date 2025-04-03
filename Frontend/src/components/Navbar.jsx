@@ -93,7 +93,7 @@ const Navbar = ({ user, onLogout }) => {
           <Link to="/health-records" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
             Health Records
           </Link>
-          <Link to="/upload-reports" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
+          <Link to="/upload" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
             Upload Reports
           </Link>
           <Link to="/about" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
