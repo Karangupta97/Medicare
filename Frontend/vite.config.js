@@ -13,8 +13,8 @@ export default defineConfig({
     historyApiFallback: true,
     proxy: {
       "/api": {
-        target: "https://medicare-backend-pdci8.ondigitalocean.app",
-        // target: "http://localhost:4000",
+        target: "http://localhost:4000", // Use local backend for development
+        // target: "https://medicare-backend-pdci8.ondigitalocean.app", // Production backend
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
