@@ -12,11 +12,7 @@ const port = process.env.PORT || 4000;
 const app = express();
 
 // Middleware
-// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.use(cors({ 
-  origin: ["https://www.medicares.in", "https://medicares.in", "http://localhost:5173"], 
-  credentials: true 
-}));
+app.use(cors({ origin: "https://medicare-backend-pdci8.ondigitalocean.app", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
