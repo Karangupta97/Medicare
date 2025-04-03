@@ -53,7 +53,7 @@ export const signup = async (req, res) => {
     });
     await user.save();
 
-    generateTokenAndsendcookie(res, user._id);
+    const token = await generateTokenAndsendcookie(res, user._id);
     // send Verification Email with otp
     await sendVerificationEmail(user.email, verificationToken);
 
@@ -64,6 +64,7 @@ export const signup = async (req, res) => {
         ...user._doc,
         password: undefined,
       },
+      token,
     });
   } catch (error) {
     console.log(error);
@@ -124,7 +125,7 @@ export const login = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
     }
-    generateTokenAndsendcookie(res, user._id);
+    const token = await generateTokenAndsendcookie(res, user._id);
     user.lastLOGIN = new Date();
     await user.save();
     res.status(200).json({
@@ -134,6 +135,7 @@ export const login = async (req, res) => {
         ...user._doc,
         password: undefined,
       },
+      token,
     });
   } catch (error) {
     console.log("Error in login", error);
@@ -226,21 +228,23 @@ export const resetPassword = async (req, res) => {
 
 export const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.user.id).select("-password");
     if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
     res.status(200).json({
       success: true,
       user,
+      token: req.cookies.token,
     });
   } catch (error) {
     console.log("Error in checkAuth", error);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Server error",
     });
   }
 };
