@@ -145,7 +145,7 @@ const Home = () => {
             whileTap={{ scale: 0.95 }}
           >
             <Link
-              to="/upload-reports"
+              to="/upload"
               className="w-full flex items-center space-x-4 md:justify-center bg-[#DEF1D0] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
             >
               <svg className="w-12 h-12 md:w-16 md:h-16 text-[#252a61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
