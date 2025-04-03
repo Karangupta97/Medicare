@@ -3,11 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiHome, FiFileText, FiUpload, FiUser, FiSettings, FiHelpCircle, 
-  FiLogOut, FiMenu, FiSearch, FiMail, FiBell, FiPlus, FiChevronDown, 
+  FiLogOut, FiMenu, FiSearch, FiBell, FiPlus, FiChevronDown, 
   FiCalendar, FiGrid, FiList, FiMoreHorizontal 
 } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import LogoutModal from './LogoutModal';
+import axios from 'axios';
 
 const DashboardLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -16,6 +17,7 @@ const DashboardLayout = ({ children }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+  const [notifications, setNotifications] = useState([]);
   const location = useLocation();
   const { user, logout } = useAuthStore();
 
@@ -28,22 +30,20 @@ const DashboardLayout = ({ children }) => {
     { icon: FiHelpCircle, label: 'Help', path: '/help' },
   ];
 
-  const notifications = [
-    {
-      id: 1,
-      title: 'New Report Available',
-      message: 'Your monthly health report is ready to view',
-      time: '5 min ago',
-      type: 'info'
-    },
-    {
-      id: 2,
-      title: 'Appointment Reminder',
-      message: 'Dr. Smith tomorrow at 10:00 AM',
-      time: '1 hour ago',
-      type: 'reminder'
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get('/api/notifications', {
+        withCredentials: true,
+      });
+      setNotifications(response.data.notifications || []);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const handleLogoutClick = () => {
     setIsLogoutModalOpen(true);

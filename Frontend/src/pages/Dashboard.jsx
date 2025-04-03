@@ -13,72 +13,32 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [stats, setStats] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   
-  const stats = [
-    {
-      title: 'Documents',
-      value: '12',
-      change: '+18%',
-      changeText: 'from last month',
-      icon: FiFileText,
-      iconBg: 'bg-blue-100',
-      iconColor: 'text-blue-600'
-    },
-    {
-      title: 'Claims Processed',
-      value: '8',
-      status: 'All Clear',
-      icon: FiCheckCircle,
-      iconBg: 'bg-green-100',
-      iconColor: 'text-green-600'
-    },
-    {
-      title: 'Upcoming Appts',
-      value: '2',
-      nextDate: 'Next: May 15',
-      icon: FiCalendar,
-      iconBg: 'bg-purple-100',
-      iconColor: 'text-purple-600'
-    },
-    {
-      title: 'Prescriptions',
-      value: '5',
-      alert: '1 Renewal Needed',
-      icon: FiAlertCircle,
-      iconBg: 'bg-yellow-100',
-      iconColor: 'text-yellow-600'
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get('/api/dashboard/stats', {
+        withCredentials: true,
+      });
+      setStats(response.data.stats || []);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      toast.error('Failed to load dashboard statistics');
     }
-  ];
+  };
 
-  const recentActivity = [
-    {
-      type: 'upload',
-      title: 'Blood Test Results Uploaded',
-      description: 'Your lab results have been processed successfully',
-      time: '2 hours ago',
-      icon: FiFileText,
-      iconBg: 'bg-blue-100',
-      iconColor: 'text-blue-600'
-    },
-    {
-      type: 'alert',
-      title: 'Prescription Renewal Needed',
-      description: 'Your heart medication needs to be renewed within 5 days',
-      time: 'Yesterday',
-      icon: FiAlertCircle,
-      iconBg: 'bg-yellow-100',
-      iconColor: 'text-yellow-600'
-    },
-    {
-      type: 'success',
-      title: 'Claim #MC456789 Approved',
-      description: 'Your claim has been approved. Reimbursement will be processed.',
-      time: '2 days ago',
-      icon: FiCheckCircle,
-      iconBg: 'bg-green-100',
-      iconColor: 'text-green-600'
+  const fetchRecentActivity = async () => {
+    try {
+      const response = await axios.get('/api/dashboard/recent-activity', {
+        withCredentials: true,
+      });
+      setRecentActivity(response.data.activities || []);
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      toast.error('Failed to load recent activity');
     }
-  ];
+  };
 
   const fetchReports = async () => {
     try {
@@ -121,6 +81,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchReports();
+    fetchStats();
+    fetchRecentActivity();
   }, []);
 
   const handleRetry = () => {
@@ -429,7 +391,7 @@ const Dashboard = () => {
           <div className="space-y-6">
             {recentActivity.map((activity, index) => (
               <motion.div
-                key={activity.title}
+                key={activity.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
