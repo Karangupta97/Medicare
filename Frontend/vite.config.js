@@ -21,11 +21,19 @@ export default defineConfig({
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.error('Proxy error:', err);
+            console.error('Error details:', {
+              message: err.message,
+              code: err.code,
+              stack: err.stack
+            });
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-            // Log headers for debugging
-            console.log('Request headers:', proxyReq.getHeaders());
+            console.log('Sending Request to the Target:', {
+              method: req.method,
+              url: req.url,
+              path: req.path,
+              headers: proxyReq.getHeaders()
+            });
             
             // Ensure Authorization header is properly forwarded
             if (req.headers.authorization) {
@@ -34,14 +42,27 @@ export default defineConfig({
             
             // For multipart/form-data requests, ensure the content-type header is preserved
             if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+              console.log('Handling multipart/form-data request');
               // Don't modify the content-type header for multipart/form-data
-              console.log('Preserving multipart/form-data content-type');
             }
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-            // Log response headers for debugging
-            console.log('Response headers:', proxyRes.headers);
+            console.log('Received Response from the Target:', {
+              statusCode: proxyRes.statusCode,
+              url: req.url,
+              headers: proxyRes.headers
+            });
+            
+            // Log 404 errors with more details
+            if (proxyRes.statusCode === 404) {
+              console.error('404 Error Details:', {
+                method: req.method,
+                url: req.url,
+                path: req.path,
+                headers: req.headers,
+                body: req.body
+              });
+            }
           });
         },
       }

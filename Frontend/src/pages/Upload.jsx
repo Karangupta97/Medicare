@@ -106,13 +106,18 @@ const Upload = () => {
       console.log('Token first 10 chars:', token ? token.substring(0, 10) + '...' : 'No token');
       
       const formData = new FormData();
-      // Only upload the first file since we're using single file upload
       formData.append('file', files[0]);
       formData.append('description', description || `Uploaded on ${new Date().toLocaleDateString()}`);
       formData.append('category', category);
       formData.append('title', title);
 
-      console.log('FormData created with category:', category);
+      console.log('FormData created with:', {
+        category,
+        title,
+        description: description || `Uploaded on ${new Date().toLocaleDateString()}`,
+        fileSize: files[0].size,
+        fileType: files[0].type
+      });
 
       const response = await axios.post('/api/reports/upload', formData, {
         headers: {
@@ -136,10 +141,17 @@ const Upload = () => {
       setDescription('');
       setTitle('');
     } catch (error) {
-      console.error('Error uploading file:', error);
-      console.error('Error details:', error.response?.data);
+      console.error('Error uploading file:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        url: error.config?.url,
+        headers: error.config?.headers
+      });
       
-      if (error.response?.status === 401) {
+      if (error.response?.status === 404) {
+        toast.error('API endpoint not found. Please check if the server is running and accessible.');
+      } else if (error.response?.status === 401) {
         toast.error('Session expired. Please login again.');
         navigate('/login');
       } else if (error.response?.status === 413) {
@@ -151,10 +163,8 @@ const Upload = () => {
           error.response?.data?.message || 'Failed to upload report. Please try again.'
         );
       } else if (error.request) {
-        // The request was made but no response was received
         toast.error('Network error: Could not connect to the server. Please check your internet connection.');
       } else {
-        // Something happened in setting up the request that triggered an Error
         toast.error(`Error: ${error.message || 'Failed to upload report. Please try again.'}`);
       }
     } finally {

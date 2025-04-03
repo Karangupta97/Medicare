@@ -13,12 +13,17 @@ const app = express();
 
 // Middleware
 // app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.use(cors({ origin: "https://www.medicares.in", credentials: true  }));
+app.use(cors({ 
+  origin: ["https://www.medicares.in", "https://medicares.in", "http://localhost:5173"], 
+  credentials: true 
+}));
 app.use(express.json());
 app.use(cookieParser());
 
-// Middleware to log request body
+// Middleware to log request details
 app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log("Request Headers:", req.headers);
   console.log("Request Body:", req.body);
   next();
 });
@@ -26,6 +31,19 @@ app.use((req, res, next) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportsRoutes);
+
+// Log available routes
+app._router.stack.forEach(function(r){
+  if (r.route && r.route.path){
+    console.log(`Route: ${Object.keys(r.route.methods)} ${r.route.path}`);
+  } else if (r.name === 'router') {
+    r.handle.stack.forEach(function(h) {
+      if (h.route) {
+        console.log(`Route: ${Object.keys(h.route.methods)} ${r.regexp} ${h.route.path}`);
+      }
+    });
+  }
+});
 
 app.get("/", (req, res) => {
   res.send("Server is ready");
