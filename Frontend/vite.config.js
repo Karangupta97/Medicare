@@ -31,6 +31,12 @@ export default defineConfig({
             if (req.headers.authorization) {
               proxyReq.setHeader('Authorization', req.headers.authorization);
             }
+            
+            // For multipart/form-data requests, ensure the content-type header is preserved
+            if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+              // Don't modify the content-type header for multipart/form-data
+              console.log('Preserving multipart/form-data content-type');
+            }
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);

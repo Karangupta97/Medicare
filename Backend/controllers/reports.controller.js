@@ -161,30 +161,54 @@ export const uploadReport = async (req, res) => {
 
     try {
       console.log("Uploading to S3 with key:", s3Key);
+      console.log("S3 bucket:", process.env.AWS_S3_BUCKET);
+      console.log("File buffer size:", file.buffer.length);
       
       // Upload to S3
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: process.env.AWS_S3_BUCKET,
-          Key: s3Key,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-        })
-      );
-
-      console.log("File uploaded to S3 successfully");
+      try {
+        await s3Client.send(
+          new PutObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET,
+            Key: s3Key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          })
+        );
+        console.log("File uploaded to S3 successfully");
+      } catch (s3Error) {
+        console.error('S3 upload error:', s3Error);
+        console.error('S3 error details:', {
+          message: s3Error.message,
+          code: s3Error.code,
+          stack: s3Error.stack
+        });
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to upload file to storage. Please try again.',
+          error: process.env.NODE_ENV === 'development' ? s3Error.message : undefined
+        });
+      }
 
       // Generate a signed URL for the uploaded file
-      const fileUrl = await getSignedUrl(
-        s3Client,
-        new GetObjectCommand({
-          Bucket: process.env.AWS_S3_BUCKET,
-          Key: s3Key,
-        }),
-        { expiresIn: 3600 } // URL expires in 1 hour
-      );
-
-      console.log("Generated signed URL for file");
+      let fileUrl;
+      try {
+        fileUrl = await getSignedUrl(
+          s3Client,
+          new GetObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET,
+            Key: s3Key,
+          }),
+          { expiresIn: 3600 } // URL expires in 1 hour
+        );
+        console.log("Generated signed URL for file");
+      } catch (urlError) {
+        console.error('Error generating signed URL:', urlError);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to generate file URL. Please try again.',
+          error: process.env.NODE_ENV === 'development' ? urlError.message : undefined
+        });
+      }
 
       // Create report in database
       const report = new Report({
@@ -211,13 +235,16 @@ export const uploadReport = async (req, res) => {
         report: savedReport,
       });
     } catch (error) {
-      console.error('Error uploading file to S3:', error);
+      console.error('Error uploading report:', error);
       console.error('Error details:', {
         message: error.message,
         code: error.code,
         stack: error.stack
       });
-      throw new Error('Failed to upload file to S3: ' + error.message);
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to upload report. Please try again.',
+      });
     }
   } catch (error) {
     console.error('Error uploading report:', error);

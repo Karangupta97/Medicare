@@ -116,7 +116,6 @@ const Upload = () => {
 
       const response = await axios.post('/api/reports/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
         },
         withCredentials: true,
