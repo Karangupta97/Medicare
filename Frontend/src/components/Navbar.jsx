@@ -1,20 +1,80 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../assets/Medicare logo.jpg";
 import UserIcon from "../assets/user.png";
+import { FiUser, FiLogOut, FiHome } from 'react-icons/fi';
+import { useAuthStore } from "../store/authStore";
+import LogoutModal from "./LogoutModal";
 
 const Navbar = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.user-menu')) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      // Call the logout function from auth store and wait for it to complete
+      await logout();
+      
+      // Call the onLogout prop if provided
+      if (onLogout) {
+        onLogout();
+      }
+      
+      // Close the menu
+      setIsUserMenuOpen(false);
+      
+      // Navigate to home page
+      navigate('/');
+      
+      // Force a page reload to clear any cached state
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Show error message to user
+      alert('Failed to logout. Please try again.');
+    }
+  };
+
+  const handleLogoutClick = () => {
+    setIsUserMenuOpen(false);
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setIsLogoutModalOpen(false);
+    handleLogout();
+  };
 
   return (
     <motion.header 
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="w-full max-w-[1700px] flex justify-between items-center py-4 px-4 md:px-8"
+      className="w-full max-w-[1700px] flex justify-between items-center py-4 px-4 md:px-8 relative z-50"
     >
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
+
       {/* Mobile Controls */}
       <div className="md:hidden flex justify-between items-center w-full">
         {/* Mobile menu button */}
@@ -33,7 +93,7 @@ const Navbar = ({ user, onLogout }) => {
 
         {/* Mobile Login/User */}
         {user ? (
-          <div className="relative">
+          <div className="relative user-menu">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="w-[45px] h-[45px] rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
@@ -44,34 +104,44 @@ const Navbar = ({ user, onLogout }) => {
                 className="w-8 h-8 rounded-full"
               />
             </button>
-            {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
-                <div className="px-4 py-2 border-b">
-                  <p className="text-sm font-semibold text-gray-800">{user.name || 'User'}</p>
-                  <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
-                </div>
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsUserMenuOpen(false)}
+            <AnimatePresence>
+              {isUserMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100 z-50"
                 >
-                  Profile
-                </Link>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-                <button
-                  onClick={onLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">{user.name || 'User'}</p>
+                    <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
+                  </div>
+                  <Link
+                    to="/profile"
+                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    <FiUser className="w-4 h-4" />
+                    <span>Profile</span>
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    <FiHome className="w-4 h-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <button
+                    onClick={handleLogoutClick}
+                    className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 w-full"
+                  >
+                    <FiLogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ) : (
           <Link
@@ -104,7 +174,7 @@ const Navbar = ({ user, onLogout }) => {
           </Link>
         </nav>
         {user ? (
-          <div className="relative">
+          <div className="relative user-menu">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="w-[60px] h-[60px] focus:outline-none"
@@ -115,34 +185,44 @@ const Navbar = ({ user, onLogout }) => {
                 className="w-full h-full rounded-full object-cover hover:ring-2 hover:ring-[#252A61] transition-all duration-300"
               />
             </button>
-            {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2">
-                <div className="px-4 py-2 border-b">
-                  <p className="text-sm font-semibold text-gray-800">{user.name || 'User'}</p>
-                  <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
-                </div>
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsUserMenuOpen(false)}
+            <AnimatePresence>
+              {isUserMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100 z-50"
                 >
-                  Profile
-                </Link>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  onClick={() => setIsUserMenuOpen(false)}
-                >
-                  Settings
-                </Link>
-                <button
-                  onClick={onLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">{user.name || 'User'}</p>
+                    <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
+                  </div>
+                  <Link
+                    to="/profile"
+                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    <FiUser className="w-4 h-4" />
+                    <span>Profile</span>
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    <FiHome className="w-4 h-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <button
+                    onClick={handleLogoutClick}
+                    className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 w-full"
+                  >
+                    <FiLogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ) : (
           <Link
@@ -156,7 +236,7 @@ const Navbar = ({ user, onLogout }) => {
 
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden">
           <div className="absolute left-0 top-0 h-full w-[80%] bg-white rounded-r-[30px] shadow-xl">
             <div className="flex justify-between items-center p-4 border-b">
               <img className="w-32 h-auto" src={Logo} alt="Logo" />
@@ -169,36 +249,41 @@ const Navbar = ({ user, onLogout }) => {
                 </svg>
               </button>
             </div>
-            <nav className="flex flex-col space-y-4 p-6">
-              <Link to="/" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <span>Home</span>
+            <nav className="p-4">
+              <Link
+                to="/"
+                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
               </Link>
-              <Link to="/health-records" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <span>Health Records</span>
+              <Link
+                to="/health-records"
+                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Health Records
               </Link>
-              <Link to="/upload-reports" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-                <span>Upload Reports</span>
+              <Link
+                to="/upload"
+                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Upload Reports
               </Link>
-              <Link to="/about" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>About Us</span>
+              <Link
+                to="/about"
+                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About Us
               </Link>
-              <Link to="/dashboard" className="text-[#252A61] text-xl font-medium hover:bg-gray-50 p-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-md hover:translate-x-2 flex items-center space-x-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                <span>Dashboard</span>
+              <Link
+                to="/dashboard"
+                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Dashboard
               </Link>
             </nav>
           </div>

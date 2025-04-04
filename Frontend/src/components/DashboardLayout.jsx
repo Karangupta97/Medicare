@@ -255,7 +255,7 @@ const DashboardLayout = ({ children }) => {
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
                   >
-                    <div className="w-8 h-8 rounded-lg overflow-hidden">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF] flex items-center justify-center">
                       {user?.photoURL ? (
                         <img
                           src={user.photoURL}
@@ -263,16 +263,16 @@ const DashboardLayout = ({ children }) => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#252A61] to-[#4318FF] flex items-center justify-center text-white text-sm font-medium">
+                        <span className="text-white text-lg font-semibold">
                           {user?.name?.charAt(0) || 'U'}
-                        </div>
+                        </span>
                       )}
                     </div>
                     <div className="hidden md:block text-left">
                       <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
                         {user?.name || 'User'}
                       </p>
-                      <p className="text-xs text-gray-500">Super Admin</p>
+                      <p className="text-xs text-gray-500">Patient</p>
                     </div>
                     <FiChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                   </motion.button>
