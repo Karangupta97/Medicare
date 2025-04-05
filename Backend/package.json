@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon server.js",
+    "dev": "NODE_ENV=development nodemon --trace-warnings server.js",
     "start": "node server.js",
     "build": "echo 'No build step required for backend'"
   },

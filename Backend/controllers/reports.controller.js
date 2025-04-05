@@ -1,18 +1,5 @@
 import { Report } from "../models/report.model.js";
-import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import crypto from 'crypto';
-import path from 'path';
-
-// Initialize S3 client with additional configuration
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-  forcePathStyle: true, // Use path-style S3 URLs
-});
+import { uploadFile, deleteFile, getFileUrl } from "../services/s3.service.js";
 
 // Valid categories
 const VALID_CATEGORIES = ['xrays', 'lab', 'forms'];
@@ -40,14 +27,7 @@ export const getReports = async (req, res) => {
       try {
         console.log(`Generating signed URL for report ID: ${report._id}, S3 key: ${report.s3Key}`);
         
-        const fileUrl = await getSignedUrl(
-          s3Client,
-          new GetObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET,
-            Key: report.s3Key,
-          }),
-          { expiresIn: 3600 } // URL expires in 1 hour
-        );
+        const fileUrl = await getFileUrl(report.s3Key);
         
         console.log(`Successfully generated signed URL for report ID: ${report._id}`);
         
@@ -141,87 +121,22 @@ export const uploadReport = async (req, res) => {
       });
     }
 
-    const fileExtension = path.extname(file.originalname);
-    const randomString = crypto.randomBytes(16).toString('hex');
-    
-    // Create a formatted filename: name-originfilename-date-time
-    const now = new Date();
-    const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
-    const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS
-    
-    // Get the original filename without extension
-    const originalNameWithoutExt = path.basename(file.originalname, fileExtension);
-    
-    // Create the formatted filename
-    const formattedFilename = `${req.user.name}-${originalNameWithoutExt}-${dateStr}-${timeStr}${fileExtension}`;
-    
-    // Create a user-specific folder path using the user ID
-    const userFolder = `user-reports/${req.user.name}+${req.user.id}`;
-    const s3Key = `${userFolder}/${randomString}${fileExtension}`;
-
     try {
-      console.log("Uploading to S3 with key:", s3Key);
-      console.log("S3 bucket:", process.env.AWS_S3_BUCKET);
-      console.log("File buffer size:", file.buffer.length);
-      
-      // Upload to S3
-      try {
-        await s3Client.send(
-          new PutObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET,
-            Key: s3Key,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-          })
-        );
-        console.log("File uploaded to S3 successfully");
-      } catch (s3Error) {
-        console.error('S3 upload error:', s3Error);
-        console.error('S3 error details:', {
-          message: s3Error.message,
-          code: s3Error.code,
-          stack: s3Error.stack
-        });
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to upload file to storage. Please try again.',
-          error: process.env.NODE_ENV === 'development' ? s3Error.message : undefined
-        });
-      }
-
-      // Generate a signed URL for the uploaded file
-      let fileUrl;
-      try {
-        fileUrl = await getSignedUrl(
-          s3Client,
-          new GetObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET,
-            Key: s3Key,
-          }),
-          { expiresIn: 3600 } // URL expires in 1 hour
-        );
-        console.log("Generated signed URL for file");
-      } catch (urlError) {
-        console.error('Error generating signed URL:', urlError);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to generate file URL. Please try again.',
-          error: process.env.NODE_ENV === 'development' ? urlError.message : undefined
-        });
-      }
+      // Upload file to S3 using the service
+      const { s3Key, fileUrl, formattedFilename } = await uploadFile(file, req.user.id, req.user.name);
 
       // Create report in database
       const report = new Report({
         userId: req.user.id,
-        filename: formattedFilename, // Use the formatted filename
-        originalFilename: title || file.originalname, // Use title if provided, otherwise use original filename
+        filename: formattedFilename,
+        originalFilename: title || file.originalname,
         description: description || `Uploaded on ${new Date().toLocaleDateString()}`,
         reportType: file.mimetype,
         fileUrl,
         s3Key,
         fileSize: file.size,
         contentType: file.mimetype,
-        category: category || 'medical', // Add category field with default value
+        category: category || 'medical',
         tags: []
       });
 
@@ -276,14 +191,7 @@ export const getReportById = async (req, res) => {
     }
 
     // Generate a new signed URL for the file
-    const fileUrl = await getSignedUrl(
-      s3Client,
-      new GetObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET,
-        Key: report.s3Key,
-      }),
-      { expiresIn: 3600 }
-    );
+    const fileUrl = await getFileUrl(report.s3Key);
 
     // Update the report with the new signed URL
     report.fileUrl = fileUrl;
@@ -323,13 +231,8 @@ export const deleteReport = async (req, res) => {
     console.log(`Found report to delete: ${report.originalFilename}, S3 key: ${report.s3Key}`);
 
     try {
-      // Delete file from S3
-      await s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: process.env.AWS_S3_BUCKET,
-          Key: report.s3Key,
-        })
-      );
+      // Delete file from S3 using the service
+      await deleteFile(report.s3Key);
       console.log(`Successfully deleted file from S3: ${report.s3Key}`);
     } catch (s3Error) {
       console.error('Error deleting file from S3:', s3Error);
