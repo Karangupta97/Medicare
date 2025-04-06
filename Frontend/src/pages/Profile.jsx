@@ -1,16 +1,19 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import DashboardLayout from "../components/DashboardLayout";
-import { FaUserEdit, FaIdCard, FaCalendarAlt, FaEnvelope, FaPhone, FaShieldAlt, FaHistory, FaClock } from "react-icons/fa";
+import { FaUserEdit, FaIdCard, FaCalendarAlt, FaEnvelope, FaPhone, FaShieldAlt, FaHistory, FaClock, FaCamera } from "react-icons/fa";
 import { useAuthStore } from "../store/authStore";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
 const Profile = () => {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [editMode, setEditMode] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: "",
     lastname: "",
@@ -38,11 +41,74 @@ const Profile = () => {
     }));
   };
 
-  const handleSaveProfile = () => {
-    // Here you would typically make an API call to update the user profile
-    // For now, we'll just show a success message
-    toast.success("Profile updated successfully");
-    setEditMode(false);
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please select a valid image file (JPEG, JPG or PNG)');
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file); // Changed from 'photo' to 'file' to match backend expectation
+
+    try {
+      const response = await axios.put('/api/auth/update-profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log('Upload progress:', percentCompleted);
+        },
+      });
+
+      if (response.data.user) {
+        setUser(response.data.user);
+        toast.success('Profile photo updated successfully');
+      } else {
+        throw new Error('Invalid server response');
+      }
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      if (error.response?.status === 413) {
+        toast.error('Image size too large. Please select a smaller file.');
+      } else if (error.response?.status === 415) {
+        toast.error('Invalid file type. Please select a JPEG or PNG image.');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to update profile photo. Please try again.');
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const response = await axios.put('/api/auth/update-profile', formData);
+      setUser(response.data.user);
+      toast.success('Profile updated successfully');
+      setEditMode(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error(error.response?.data?.message || 'Failed to update profile');
+    }
   };
 
   const formatDate = (dateString) => {
@@ -291,12 +357,29 @@ const Profile = () => {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full -ml-32 -mb-32 blur-3xl"></div>
           
           <div className="relative flex flex-col md:flex-row items-center gap-6 z-10">
-            <div className="relative">
-              <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+            <div className="relative group">
+              <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center relative overflow-hidden">
                 <img
-                  src={user.photoURL || "/user.png"}
+                  src={user?.photoURL || "/user.png"}
                   alt="Profile"
-                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white dark:border-gray-900"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white dark:border-gray-900 transition-transform group-hover:scale-105"
+                />
+                <div 
+                  className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  onClick={handlePhotoClick}
+                >
+                  {uploading ? (
+                    <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <FaCamera className="text-white text-2xl" />
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
                 />
               </div>
               <div className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-4 border-white"></div>

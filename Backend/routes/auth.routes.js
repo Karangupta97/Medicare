@@ -7,11 +7,29 @@ import {
   forgotPassword,
   resetPassword,
   checkAuth,
-  resendOtp
+  resendOtp,
+  updateProfile
 } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
+import multer from "multer";
 
 const router = express.Router();
+
+// Configure multer for memory storage
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  },
+});
 
 router.get("/check-auth", verifyToken, checkAuth);
 
@@ -24,5 +42,8 @@ router.post("/forgot-password", forgotPassword);
 
 router.post("/reset-password/:token", resetPassword);
 router.post('/resend-otp', verifyToken, resendOtp);
+
+// Updated route to use 'file' instead of 'photo' for multer
+router.put("/update-profile", verifyToken, upload.single('file'), updateProfile);
 
 export default router;

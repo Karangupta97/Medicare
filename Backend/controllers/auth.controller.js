@@ -3,6 +3,7 @@ import crypto from "crypto";
 
 import { User } from "../models/user.model.js";
 import { generateTokenAndsendcookie } from "../utils/generateTokenAndsendcookie.js";
+import { uploadFile } from "../services/s3.service.js";
 import {
   sendVerificationEmail,
   sendWelcomeEmail,
@@ -284,5 +285,110 @@ export const resendOtp = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, lastname, phone } = req.body;
+    const userId = req.user.id;
+    
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (lastname) updateFields.lastname = lastname;
+    if (phone) updateFields.phone = phone;
+
+    // Handle profile photo upload
+    if (req.file) {
+      // Validate file presence and basic properties
+      if (!req.file.buffer || !req.file.mimetype || !req.file.size) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid file upload: Missing required file properties'
+        });
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (!allowedTypes.includes(req.file.mimetype)) {
+        return res.status(415).json({
+          success: false,
+          message: 'Invalid file type. Only JPEG, JPG and PNG images are allowed'
+        });
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (req.file.size > maxSize) {
+        return res.status(413).json({
+          success: false,
+          message: 'File too large. Maximum size is 5MB'
+        });
+      }
+
+      try {
+        // Upload to S3 with error handling
+        const { fileUrl } = await uploadFile(req.file, userId, req.user.name);
+        if (!fileUrl) {
+          throw new Error('Failed to get file URL after upload');
+        }
+        updateFields.photoURL = fileUrl;
+      } catch (uploadError) {
+        console.error('Profile photo upload error:', {
+          error: uploadError,
+          userId,
+          fileName: req.file.originalname
+        });
+        
+        // Handle specific S3 errors
+        if (uploadError.code === 'NoSuchBucket') {
+          return res.status(500).json({
+            success: false,
+            message: 'Storage configuration error'
+          });
+        } else if (uploadError.code === 'AccessDenied') {
+          return res.status(500).json({
+            success: false,
+            message: 'Storage access error'
+          });
+        }
+        
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to upload profile photo. Please try again later.'
+        });
+      }
+    }
+
+    // Update user in database
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateFields },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user
+    });
+  } catch (error) {
+    console.error('Error in updateProfile:', {
+      error: error.message,
+      userId: req.user?.id,
+      stack: error.stack
+    });
+    
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile. Please try again later.'
+    });
   }
 };

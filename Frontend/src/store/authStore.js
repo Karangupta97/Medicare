@@ -105,7 +105,7 @@ export const useAuthStore = create((set, get) => ({
     set({ user });
   },
 
-  signup: async (name, lastname, email, password) => {
+  signup: async (name, lastname, email, password, photoURL) => {
     set({ isLoading: true, error: null });
     try {
       const response = await axios.post(`${API_URL}/api/auth/signup`, {
@@ -113,6 +113,7 @@ export const useAuthStore = create((set, get) => ({
         lastname,
         email,
         password,
+        photoURL,
       });
       const userData = response.data.user;
       const token = response.data.token;

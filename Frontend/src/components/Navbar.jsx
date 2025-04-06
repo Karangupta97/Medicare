@@ -99,9 +99,9 @@ const Navbar = ({ user, onLogout }) => {
               className="w-[45px] h-[45px] rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
             >
               <img
-                src={UserIcon}
+                src={user.photoURL || UserIcon}
                 alt="User"
-                className="w-8 h-8 rounded-full"
+                className="w-8 h-8 rounded-full object-cover"
               />
             </button>
             <AnimatePresence>
@@ -180,7 +180,7 @@ const Navbar = ({ user, onLogout }) => {
               className="w-[60px] h-[60px] focus:outline-none"
             >
               <img
-                src={UserIcon}
+                src={user.photoURL || UserIcon}
                 alt="User Icon"
                 className="w-full h-full rounded-full object-cover hover:ring-2 hover:ring-[#252A61] transition-all duration-300"
               />
@@ -293,4 +293,4 @@ const Navbar = ({ user, onLogout }) => {
   );
 };
 
-export default Navbar; 
+export default Navbar;

@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
       type: String, 
       required: false,
     },
+    photoURL: {
+      type: String,
+      default: null,
+    },
     lastLOGIN: {
       type: Date,
       default: Date.now,
