@@ -201,7 +201,7 @@ const App = () => {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </>
   );
 };

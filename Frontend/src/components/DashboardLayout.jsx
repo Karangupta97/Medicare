@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiHome, FiFileText, FiUpload, FiUser, FiSettings, FiHelpCircle, 
   FiLogOut, FiMenu, FiSearch, FiBell, FiPlus, FiChevronDown, 
-  FiCalendar, FiGrid, FiList, FiMoreHorizontal, FiArrowLeft
+  FiCalendar, FiGrid, FiList, FiMoreHorizontal, FiArrowLeft, FiX
 } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import LogoutModal from './LogoutModal';
@@ -87,14 +87,22 @@ const DashboardLayout = ({ children }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#252A61] to-[#4318FF] text-white transform transition-transform duration-300 ease-in-out z-30 
+        className={`fixed top-0 left-0 h-full w-64 bg-[#4318FF] text-white transform transition-transform duration-300 ease-in-out z-50 
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6">
-            <h1 className="text-2xl font-bold">Medicare</h1>
-            <p className="text-sm text-gray-300">Medical Dashboard</p>
+          <div className="p-6 mb-2 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2">
+              <FiArrowLeft className="w-6 h-6" />
+              <h1 className="text-xl font-semibold">Medicare</h1>
+            </Link>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <FiX className="w-6 h-6" />
+            </button>
           </div>
 
           {/* Navigation */}
@@ -103,10 +111,10 @@ const DashboardLayout = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition-colors
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all
                   ${location.pathname === item.path
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                    ? 'bg-white/10 text-white font-medium'
+                    : 'text-white/70 hover:bg-white/5 hover:text-white'
                   }`}
               >
                 <item.icon className="w-5 h-5" />
@@ -116,20 +124,22 @@ const DashboardLayout = ({ children }) => {
           </nav>
 
           {/* Logout Button */}
-          <button
-            onClick={handleLogoutClick}
-            className="flex items-center space-x-3 px-8 py-6 text-gray-300 hover:text-white transition-colors"
-          >
-            <FiLogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
+          <div className="p-4">
+            <button
+              onClick={handleLogoutClick}
+              className="flex items-center space-x-3 px-4 py-3 w-full text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+            >
+              <FiLogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className="lg:ml-64">
         {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-40">
+        <header className="bg-white shadow-sm sticky top-0 z-10">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between px-4 py-3">
               {/* Left Section */}
@@ -180,7 +190,7 @@ const DashboardLayout = ({ children }) => {
               </div>
 
               {/* Right Section */}
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 z-20">
                 {/* Add Button */}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
