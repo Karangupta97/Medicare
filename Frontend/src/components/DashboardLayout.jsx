@@ -1,14 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FiHome, FiFileText, FiUpload, FiUser, FiSettings, FiHelpCircle, 
-  FiLogOut, FiMenu, FiSearch, FiBell, FiPlus, FiChevronDown, 
-  FiCalendar, FiGrid, FiList, FiMoreHorizontal, FiArrowLeft, FiX
-} from 'react-icons/fi';
-import { useAuthStore } from '../store/authStore';
-import LogoutModal from './LogoutModal';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import usericon from "../assets/user.png";
+import {
+  FiHome,
+  FiFileText,
+  FiUpload,
+  FiUser,
+  FiSettings,
+  FiHelpCircle,
+  FiLogOut,
+  FiMenu,
+  FiSearch,
+  FiBell,
+  FiPlus,
+  FiChevronDown,
+  FiCalendar,
+  FiGrid,
+  FiList,
+  FiMoreHorizontal,
+  FiArrowLeft,
+  FiX,
+} from "react-icons/fi";
+import { useAuthStore } from "../store/authStore";
+import LogoutModal from "./LogoutModal";
+import axios from "axios";
 
 const DashboardLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -16,29 +32,29 @@ const DashboardLayout = ({ children }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState("grid");
   const [notifications, setNotifications] = useState([]);
   const location = useLocation();
   const { user, logout } = useAuthStore();
 
   const menuItems = [
-    { icon: FiArrowLeft, label: 'Medicare', path: '/' },
-    { icon: FiHome, label: 'Overview', path: '/dashboard' },
-    { icon: FiFileText, label: 'Reports', path: '/reports' },
-    { icon: FiUpload, label: 'Upload', path: '/upload' },
-    { icon: FiUser, label: 'Profile', path: '/profile' },
-    { icon: FiSettings, label: 'Settings', path: '/settings' },
-    { icon: FiHelpCircle, label: 'Help', path: '/help' },
+    { icon: FiArrowLeft, label: "Medicare", path: "/" },
+    { icon: FiHome, label: "Overview", path: "/dashboard" },
+    { icon: FiFileText, label: "Reports", path: "/reports" },
+    { icon: FiUpload, label: "Upload", path: "/upload" },
+    { icon: FiUser, label: "Profile", path: "/profile" },
+    { icon: FiSettings, label: "Settings", path: "/settings" },
+    { icon: FiHelpCircle, label: "Help", path: "/help" },
   ];
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get('/api/notifications', {
+      const response = await axios.get("/api/notifications", {
         withCredentials: true,
       });
       setNotifications(response.data.notifications || []);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     }
   };
 
@@ -58,16 +74,16 @@ const DashboardLayout = ({ children }) => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.profile-menu')) {
+      if (!event.target.closest(".profile-menu")) {
         setIsProfileOpen(false);
       }
-      if (!event.target.closest('.notifications-menu')) {
+      if (!event.target.closest(".notifications-menu")) {
         setIsNotificationsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -88,7 +104,11 @@ const DashboardLayout = ({ children }) => {
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full w-64 bg-[#4318FF] text-white transform transition-transform duration-300 ease-in-out z-50 
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+          ${
+            isSidebarOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -112,9 +132,10 @@ const DashboardLayout = ({ children }) => {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all
-                  ${location.pathname === item.path
-                    ? 'bg-white/10 text-white font-medium'
-                    : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  ${
+                    location.pathname === item.path
+                      ? "bg-white/10 text-white font-medium"
+                      : "text-white/70 hover:bg-white/5 hover:text-white"
                   }`}
               >
                 <item.icon className="w-5 h-5" />
@@ -150,7 +171,7 @@ const DashboardLayout = ({ children }) => {
                 >
                   <FiMenu className="w-6 h-6" />
                 </button>
-                
+
                 {/* Search Bar */}
                 <div className="max-w-xl flex-1 relative">
                   <motion.div
@@ -171,17 +192,21 @@ const DashboardLayout = ({ children }) => {
                 {/* View Toggle */}
                 <div className="hidden md:flex items-center space-x-2 bg-gray-100 p-1 rounded-lg">
                   <button
-                    onClick={() => setViewMode('grid')}
+                    onClick={() => setViewMode("grid")}
                     className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-white/50'
+                      viewMode === "grid"
+                        ? "bg-white shadow-sm"
+                        : "hover:bg-white/50"
                     }`}
                   >
                     <FiGrid className="w-5 h-5 text-gray-600" />
                   </button>
                   <button
-                    onClick={() => setViewMode('list')}
+                    onClick={() => setViewMode("list")}
                     className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-white/50'
+                      viewMode === "list"
+                        ? "bg-white shadow-sm"
+                        : "hover:bg-white/50"
                     }`}
                   >
                     <FiList className="w-5 h-5 text-gray-600" />
@@ -233,7 +258,9 @@ const DashboardLayout = ({ children }) => {
                         className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg py-2 border border-gray-100"
                       >
                         <div className="px-4 py-2 border-b border-gray-100">
-                          <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                          <h3 className="text-sm font-semibold text-gray-900">
+                            Notifications
+                          </h3>
                         </div>
                         <div className="max-h-80 overflow-y-auto">
                           {notifications.map((notification) => (
@@ -241,9 +268,15 @@ const DashboardLayout = ({ children }) => {
                               key={notification.id}
                               className="px-4 py-3 hover:bg-gray-50 cursor-pointer"
                             >
-                              <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
-                              <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
-                              <span className="text-xs text-gray-400 mt-1">{notification.time}</span>
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {notification.title}
+                              </h4>
+                              <p className="text-xs text-gray-600 mt-1">
+                                {notification.message}
+                              </p>
+                              <span className="text-xs text-gray-400 mt-1">
+                                {notification.time}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -266,21 +299,23 @@ const DashboardLayout = ({ children }) => {
                     className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
                   >
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF] flex items-center justify-center">
-                      {user?.photoURL ? (
+                      {user && user.photoURL? (
                         <img
                           src={user.photoURL}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
+                          alt="User"
+                          className="w-8 h-8 rounded-full cursor-pointer object-cover"
                         />
                       ) : (
-                        <span className="text-white text-lg font-semibold">
-                          {user?.name?.charAt(0) || 'U'}
-                        </span>
+                        <img
+                          src={usericon}
+                          alt="Default User"
+                          className="w-8 h-8 rounded-full cursor-pointer object-cover"
+                        />
                       )}
                     </div>
                     <div className="hidden md:block text-left">
                       <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                        {user?.name || 'User'}
+                        {user?.name || "User"}
                       </p>
                       <p className="text-xs text-gray-500">Patient</p>
                     </div>
@@ -296,8 +331,12 @@ const DashboardLayout = ({ children }) => {
                         className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100"
                       >
                         <div className="px-4 py-2 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
-                          <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {user?.name || "User"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {user?.email || "user@example.com"}
+                          </p>
                         </div>
                         <Link
                           to="/profile"
@@ -333,9 +372,9 @@ const DashboardLayout = ({ children }) => {
                 <Link
                   to="/dashboard"
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === '/dashboard'
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50'
+                    location.pathname === "/dashboard"
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   Overview
@@ -343,9 +382,9 @@ const DashboardLayout = ({ children }) => {
                 <Link
                   to="/analytics"
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === '/analytics'
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50'
+                    location.pathname === "/analytics"
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   Analytics
@@ -353,9 +392,9 @@ const DashboardLayout = ({ children }) => {
                 <Link
                   to="/reports"
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === '/reports'
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50'
+                    location.pathname === "/reports"
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   Reports
@@ -366,9 +405,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
-          {children}
-        </main>
+        <main className="p-6">{children}</main>
       </div>
 
       {/* Logout Confirmation Modal */}
@@ -381,4 +418,4 @@ const DashboardLayout = ({ children }) => {
   );
 };
 
-export default DashboardLayout; 
+export default DashboardLayout;
