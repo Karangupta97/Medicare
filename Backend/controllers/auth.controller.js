@@ -3,12 +3,15 @@ import crypto from "crypto";
 
 import { User } from "../models/user.model.js";
 import { generateTokenAndsendcookie } from "../utils/generateTokenAndsendcookie.js";
-import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordResetSuccessEmail } from "../emails/emails.js";
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendPasswordResetSuccessEmail,
+} from "../emails/emails.js";
 import dotenv from "dotenv";
 
 dotenv.config();
-
-
 
 export const generateUID = () => {
   // Generate a random 16-digit number (divided into 4 groups)
@@ -23,11 +26,13 @@ export const generateUID = () => {
 };
 
 export const signup = async (req, res) => {
-  const { email, password, name, lastname } = req.body;
+  const { email, password, name, lastname, photoURL } = req.body;
   try {
     if (!email || !password || !name) {
-      return res.status(400).json({ success: false, message: "Please fill all fields" });
-    }    
+      return res
+        .status(400)
+        .json({ success: false, message: "Please fill all fields" });
+    }
     const userAlreadyExists = await User.findOne({ email });
     console.log("userAlreadyExists", userAlreadyExists);
     if (userAlreadyExists) {
@@ -49,7 +54,8 @@ export const signup = async (req, res) => {
       lastname,
       uid: uniqueUID,
       verificationToken,
-      verificationTokenExpiresAt:  Date.now() + 10 * 60 * 1000 // 10 min expiry
+      verificationTokenExpiresAt: Date.now() + 10 * 60 * 1000, // 10 min expiry
+      photoURL,
     });
     await user.save();
 
@@ -71,7 +77,6 @@ export const signup = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 export const verifyEmail = async (req, res) => {
   // 123456 ---- code
@@ -124,14 +129,14 @@ export const login = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
     }
-    
+
     // Generate token
     const token = await generateTokenAndsendcookie(res, user._id);
-    
+
     // Update last login
     user.lastLOGIN = new Date();
     await user.save();
-    
+
     // Send response with token
     res.status(200).json({
       success: true,
@@ -230,7 +235,6 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-
 export const checkAuth = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -243,7 +247,7 @@ export const checkAuth = async (req, res) => {
     res.status(200).json({
       success: true,
       user,
-      token: req.headers.authorization?.split(' ')[1]
+      token: req.headers.authorization?.split(" ")[1],
     });
   } catch (error) {
     console.log("Error in checkAuth", error);
@@ -260,25 +264,25 @@ export const resendOtp = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     if (user.isverified) {
-      return res.status(400).json({ message: 'Email already verified' });
+      return res.status(400).json({ message: "Email already verified" });
     }
 
     // Generate new OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
     user.verificationToken = otp;
-    user.verificationTokenExpiresAt = Date.now() + 10 * 60 * 1000 // 10 min expiry
+    user.verificationTokenExpiresAt = Date.now() + 10 * 60 * 1000; // 10 min expiry
     await user.save();
 
     // Send email
     await sendVerificationEmail(user.email, otp);
 
-    res.status(200).json({ message: 'Verification code resent to email' });
+    res.status(200).json({ message: "Verification code resent to email" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: "Server Error" });
   }
 };
