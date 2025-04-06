@@ -13,6 +13,7 @@ import Test1 from "./pages/Test1";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
 import Upload from "./pages/Upload";
+import Profile from "./pages/Profile";
 
 import Loading from "./components/Loading";
 
@@ -163,6 +164,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Upload />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
