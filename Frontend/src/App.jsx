@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
 import Upload from "./pages/Upload";
 import Profile from "./pages/Profile";
+import WorkingOnIt from "./pages/WorkingOnIt";
 
 import Loading from "./components/Loading";
 
@@ -176,6 +177,14 @@ const App = () => {
           }
         />
         <Route
+          path="*"
+          element={
+            <ProtectedRoute>
+              <WorkingOnIt />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/login"
           element={
             <RedirectAuthenticatedUser>
@@ -208,7 +217,7 @@ const App = () => {
             </RedirectAuthenticatedUser>
           }
         />
-        <Route path="*" element={<NotFound />} />
+        {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
       <Toaster position="top-center" />
     </>
