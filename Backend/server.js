@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./DB/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import reportsRoutes from "./routes/reports.routes.js";
+import notificationsRoutes from "./routes/notifications.routes.js";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/notifications", notificationsRoutes);
 
 // Log available routes
 app._router.stack.forEach(function(r){

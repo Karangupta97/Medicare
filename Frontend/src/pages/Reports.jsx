@@ -248,14 +248,13 @@ const Reports = () => {
   };
 
   const formatFileSize = (bytes) => {
-    if (!bytes || bytes < 0) return '0 Bytes';
+    if (!bytes) return '0 Bytes';
+    if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const size = bytes / Math.pow(k, i);
-    return `${size.toFixed(2)} ${sizes[i]}`;
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
-  
 
   // Update the preview handler to handle all file types
   const handlePreviewClick = (report) => {

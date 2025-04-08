@@ -96,13 +96,20 @@ export const useAuthStore = create((set, get) => ({
     set({ token });
   },
 
-  setUser: (user) => {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
+  setUser: (userData) => {
+    // Save to localStorage for persistence across refreshes
+    if (userData && !userData._tempPhotoURL) {
+      localStorage.setItem("user", JSON.stringify(userData));
     }
-    set({ user });
+    set({ user: userData });
+  },
+  
+  // Add this function to initialize user from localStorage on app start
+  initUser: () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      set({ user: JSON.parse(storedUser) });
+    }
   },
 
   signup: async (name, lastname, email, password, photoURL) => {

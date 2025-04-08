@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../assets/Medicare logo.jpg";
 import UserIcon from "../assets/user.png";
-import { FiUser, FiLogOut, FiHome } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiHome, FiChevronDown } from 'react-icons/fi';
 import { useAuthStore } from "../store/authStore";
 import LogoutModal from "./LogoutModal";
 
@@ -62,11 +62,11 @@ const Navbar = ({ user, onLogout }) => {
   };
 
   return (
-    <motion.header 
+    <motion.nav
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="w-full max-w-[1700px] flex justify-between items-center py-4 px-4 md:px-8 relative z-50"
+      className="w-full max-w-[1700px] flex justify-between items-center py-3 sm:py-4 px-4 sm:px-6 lg:px-8 relative z-50"
     >
       {/* Logout Modal */}
       <LogoutModal
@@ -76,115 +76,80 @@ const Navbar = ({ user, onLogout }) => {
       />
 
       {/* Mobile Controls */}
-      <div className="md:hidden flex justify-between items-center w-full">
-        {/* Mobile menu button */}
-        <button 
-          className="p-2 bg-white rounded-full shadow-md"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {isMenuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
+      <div className="flex justify-between items-center w-full lg:hidden">
+        <Link to="/" className="flex items-center">
+          <img className="w-24 sm:w-32 h-auto" src={Logo} alt="Logo" />
+        </Link>
 
-        {/* Mobile Login/User */}
-        {user ? (
-          <div className="relative user-menu">
-            <button
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="w-[45px] h-[45px] rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
-            >
-              <img
-                src={user.photoURL || UserIcon}
-                alt="User"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            </button>
-            <AnimatePresence>
-              {isUserMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100 z-50"
+        <div className="flex items-center space-x-3">
+          {user ? (
+            <>
+              <div className="relative user-menu">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
                 >
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{user.name || 'User'}</p>
-                    <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
-                  </div>
-                  <Link
-                    to="/profile"
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    <FiUser className="w-4 h-4" />
-                    <span>Profile</span>
-                  </Link>
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    <FiHome className="w-4 h-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                  <button
-                    onClick={handleLogoutClick}
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 w-full"
-                  >
-                    <FiLogOut className="w-4 h-4" />
-                    <span>Logout</span>
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <Link
-            to="/login"
-            className="h-[45px] flex items-center justify-center px-6 py-2 bg-[#252A61] text-white rounded-full text-base hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
-          >
-            Login
-          </Link>
-        )}
+                  <img
+                    src={user.photoURL || UserIcon}
+                    alt="User"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                </button>
+              </div>
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 bg-white rounded-full shadow-md"
+              >
+                <svg className="w-6 h-6 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="px-5 py-2 bg-[#252A61] text-white rounded-full text-sm sm:text-base hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
+            >
+              Login
+            </Link>
+          )}
+        </div>
       </div>
 
-      {/* Desktop Navigation and Controls */}
-      <div className="hidden md:flex items-center justify-between w-full">
-        <img className="w-40 h-auto" src={Logo} alt="Logo" />
-        <nav className="flex space-x-8 lg:space-x-12 text-base lg:text-lg font-[Montserrat Alternates] font-semibold">
-          <Link to="/" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
-            Home
-          </Link>
-          <Link to="/health-records" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
-            Health Records
-          </Link>
-          <Link to="/upload" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
-            Upload Reports
-          </Link>
-          <Link to="/about" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
-            About Us
-          </Link>
-          <Link to="/dashboard" className="text-black hover:text-[#252A61] transition-all duration-300 hover:scale-110 hover:bg-gray-50 px-4 py-2 rounded-lg">
-            Dashboard
-          </Link>
+      {/* Desktop Navigation */}
+      <div className="hidden lg:flex items-center justify-between w-full">
+        <Link to="/" className="flex items-center">
+          <img className="w-40 h-auto" src={Logo} alt="Logo" />
+        </Link>
+        
+        <nav className="flex space-x-6 xl:space-x-8 text-base xl:text-lg font-[Montserrat Alternates] font-semibold">
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/health-records" className="nav-link">Health Records</Link>
+          <Link to="/upload" className="nav-link">Upload Reports</Link>
+          <Link to="/about" className="nav-link">About Us</Link>
+          <Link to="/dashboard" className="nav-link">Dashboard</Link>
         </nav>
+
         {user ? (
           <div className="relative user-menu">
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="w-[60px] h-[60px] focus:outline-none"
+              className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
             >
-              <img
-                src={user.photoURL || UserIcon}
-                alt="User Icon"
-                className="w-full h-full rounded-full object-cover hover:ring-2 hover:ring-[#252A61] transition-all duration-300"
-              />
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF]">
+                <img
+                  src={user.photoURL || UserIcon}
+                  alt="User"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <FiChevronDown className="w-4 h-4 text-gray-600 group-hover:text-gray-800" />
             </button>
+            
             <AnimatePresence>
               {isUserMenuOpen && (
                 <motion.div
@@ -199,7 +164,7 @@ const Navbar = ({ user, onLogout }) => {
                   </div>
                   <Link
                     to="/profile"
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="menu-item"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
                     <FiUser className="w-4 h-4" />
@@ -207,7 +172,7 @@ const Navbar = ({ user, onLogout }) => {
                   </Link>
                   <Link
                     to="/dashboard"
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="menu-item"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
                     <FiHome className="w-4 h-4" />
@@ -215,7 +180,7 @@ const Navbar = ({ user, onLogout }) => {
                   </Link>
                   <button
                     onClick={handleLogoutClick}
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 w-full"
+                    className="menu-item text-red-600 hover:bg-red-50 w-full text-left"
                   >
                     <FiLogOut className="w-4 h-4" />
                     <span>Logout</span>
@@ -227,7 +192,7 @@ const Navbar = ({ user, onLogout }) => {
         ) : (
           <Link
             to="/login"
-            className="w-[200px] h-[60px] flex items-center justify-center px-6 py-2 bg-[#252A61] text-white rounded-full text-xl hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
+            className="px-8 py-3 bg-[#252A61] text-white rounded-full text-lg hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-lg"
           >
             Login
           </Link>
@@ -235,61 +200,48 @@ const Navbar = ({ user, onLogout }) => {
       </div>
 
       {/* Mobile Navigation Menu */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden">
-          <div className="absolute left-0 top-0 h-full w-[80%] bg-white rounded-r-[30px] shadow-xl">
-            <div className="flex justify-between items-center p-4 border-b">
-              <img className="w-32 h-auto" src={Logo} alt="Logo" />
-              <button 
-                onClick={() => setIsMenuOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full"
-              >
-                <svg className="w-8 h-8 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <nav className="p-4">
-              <Link
-                to="/"
-                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                to="/health-records"
-                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Health Records
-              </Link>
-              <Link
-                to="/upload"
-                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Upload Reports
-              </Link>
-              <Link
-                to="/about"
-                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About Us
-              </Link>
-              <Link
-                to="/dashboard"
-                className="block py-3 text-lg font-semibold text-gray-800 hover:text-[#252A61]"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-            </nav>
-          </div>
-        </div>
-      )}
-    </motion.header>
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'tween', duration: 0.3 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 lg:hidden"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.3 }}
+              className="absolute right-0 top-0 h-full w-[80%] max-w-sm bg-white shadow-xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center p-4 border-b">
+                <img className="w-32 h-auto" src={Logo} alt="Logo" />
+                <button 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <svg className="w-6 h-6 text-[#252A61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <nav className="p-4 space-y-2">
+                <Link to="/" className="mobile-nav-link">Home</Link>
+                <Link to="/health-records" className="mobile-nav-link">Health Records</Link>
+                <Link to="/upload" className="mobile-nav-link">Upload Reports</Link>
+                <Link to="/about" className="mobile-nav-link">About Us</Link>
+                <Link to="/dashboard" className="mobile-nav-link">Dashboard</Link>
+              </nav>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 

@@ -1,11 +1,23 @@
 import React from "react";
 import { useEffect, useState, useRef } from "react";
 import DashboardLayout from "../components/DashboardLayout";
-import { FaUserEdit, FaIdCard, FaCalendarAlt, FaEnvelope, FaPhone, FaShieldAlt, FaHistory, FaClock, FaCamera } from "react-icons/fa";
+import {
+  FaUserEdit,
+  FaIdCard,
+  FaCalendarAlt,
+  FaEnvelope,
+  FaPhone,
+  FaShieldAlt,
+  FaHistory,
+  FaClock,
+  FaCamera,
+} from "react-icons/fa";
+import { FiX, FiEye, FiEdit } from "react-icons/fi";
 import { useAuthStore } from "../store/authStore";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import PhotoEditorModal from "../components/PhotoEditorModal";
 
 const Profile = () => {
   const { user, setUser } = useAuthStore();
@@ -13,6 +25,8 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [editMode, setEditMode] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isPicModalOpen, setIsPicModalOpen] = useState(false);
+  const [showPicOptions, setShowPicOptions] = useState(false);
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -20,6 +34,7 @@ const Profile = () => {
     email: "",
     phone: "",
   });
+  const [isPhotoEditorOpen, setIsPhotoEditorOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -41,8 +56,13 @@ const Profile = () => {
     }));
   };
 
+  const handlePicView = () => {
+    // Always show the modal, even if using default image
+    setIsPicModalOpen(true);
+  };
+
   const handlePhotoClick = () => {
-    fileInputRef.current?.click();
+    setIsPhotoEditorOpen(true);
   };
 
   const handlePhotoChange = async (e) => {
@@ -50,70 +70,126 @@ const Profile = () => {
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Please select a valid image file (JPEG, JPG or PNG)');
+      toast.error("Please select a valid image file (JPEG, JPG or PNG)");
       return;
     }
 
     // Validate file size (5MB limit)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      toast.error('Image size should be less than 5MB');
+      toast.error("Image size should be less than 5MB");
       return;
     }
 
     setUploading(true);
+    // Create a temporary local URL to show immediate feedback
+    const localPreview = URL.createObjectURL(file);
+    // Update UI immediately with local preview
+    setUser(prev => ({...prev, photoURL: localPreview, _tempPhotoURL: true}));
+    
     const formData = new FormData();
-    formData.append('file', file); // Changed from 'photo' to 'file' to match backend expectation
+    formData.append("file", file);
 
     try {
-      const response = await axios.put('/api/auth/update-profile', formData, {
+      const response = await axios.put("/api/auth/update-profile", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log('Upload progress:', percentCompleted);
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          console.log("Upload progress:", percentCompleted);
         },
       });
 
-      if (response.data.user) {
+      if (response.data.user && response.data.user.photoURL) {
+        // Update user state with the permanent URL from server
         setUser(response.data.user);
-        toast.success('Profile photo updated successfully');
+        
+        // Also persist in localStorage to prevent loss on refresh
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+        localStorage.setItem("user", JSON.stringify({
+          ...currentUser,
+          photoURL: response.data.user.photoURL
+        }));
+        
+        toast.success("Profile photo updated successfully");
       } else {
-        throw new Error('Invalid server response');
+        throw new Error("Invalid server response: Missing photo URL");
       }
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      console.error("Error uploading photo:", error);
+      // Revert to previous photo if update fails
+      setUser(prev => ({...prev, photoURL: user.photoURL, _tempPhotoURL: false}));
+      
       if (error.response?.status === 413) {
-        toast.error('Image size too large. Please select a smaller file.');
+        toast.error("Image size too large. Please select a smaller file.");
       } else if (error.response?.status === 415) {
-        toast.error('Invalid file type. Please select a JPEG or PNG image.');
+        toast.error("Invalid file type. Please select a JPEG or PNG image.");
       } else {
-        toast.error(error.response?.data?.message || 'Failed to update profile photo. Please try again.');
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to update profile photo. Please try again."
+        );
       }
     } finally {
       setUploading(false);
+      // Revoke the temporary object URL to prevent memory leaks
+      if (localPreview) URL.revokeObjectURL(localPreview);
     }
   };
 
   const handleSaveProfile = async () => {
     try {
-      const response = await axios.put('/api/auth/update-profile', formData);
+      const response = await axios.put("/api/auth/update-profile", formData);
       setUser(response.data.user);
-      toast.success('Profile updated successfully');
+      toast.success("Profile updated successfully");
       setEditMode(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      console.error("Error updating profile:", error);
+      toast.error(error.response?.data?.message || "Failed to update profile");
+    }
+  };
+
+  const handlePhotoSave = async (editedImage) => {
+    setUploading(true);
+    try {
+      // Handle the edited image upload
+      const formData = new FormData();
+      formData.append("file", editedImage);
+      
+      const response = await axios.put("/api/auth/update-profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (response.data.user) {
+        setUser(response.data.user);
+        toast.success("Profile photo updated successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to update profile photo");
+    } finally {
+      setUploading(false);
+      setIsPhotoEditorOpen(false);
     }
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
@@ -128,90 +204,101 @@ const Profile = () => {
   }
 
   const renderOverviewTab = () => (
-    <div className="space-y-8">
+    <div className="space-y-3 sm:space-y-4 md:space-y-6">
       {/* Personal Information Card */}
       <motion.div 
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700"
+        className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-            <FaIdCard className="text-blue-500" />
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-4 md:mb-6">
+          <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-1.5 sm:gap-2">
+            <FaIdCard className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
             Personal Information
           </h3>
           <button 
             onClick={() => setEditMode(!editMode)}
-            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            className="flex items-center gap-1 text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
-            <FaUserEdit />
+            <FaUserEdit className="w-3 h-3 sm:w-4 sm:h-4" />
             {editMode ? "Cancel" : "Edit Profile"}
           </button>
         </div>
 
         {editMode ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="Enter your first name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Last Name
+              </label>
               <input
                 type="text"
                 name="lastname"
                 value={formData.lastname}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="Enter your last name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email Address
+              </label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 disabled
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-gray-50 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400"
               />
-              <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Email cannot be changed
+              </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Phone Number
+              </label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="Enter your phone number"
               />
             </div>
             <div className="md:col-span-2 flex justify-end mt-4">
               <button
                 onClick={handleSaveProfile}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
+                className="px-4 sm:px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md flex items-center gap-2"
               >
-                Save Changes
+                <span>Save Changes</span>
               </button>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                <FaIdCard className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
+                <FaIdCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Full Name</p>
-                <p className="font-medium text-gray-900 dark:text-white">{user.name} {user.lastname}</p>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Full Name</p>
+                <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">{user.name} {user.lastname}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -219,8 +306,12 @@ const Profile = () => {
                 <FaEnvelope className="w-5 h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Email Address</p>
-                <p className="font-medium text-gray-900 dark:text-white">{user.email}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Email Address
+                </p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {user.email}
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -228,8 +319,12 @@ const Profile = () => {
                 <FaPhone className="w-5 h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Phone Number</p>
-                <p className="font-medium text-gray-900 dark:text-white">{user.phone || "Not provided"}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Phone Number
+                </p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {user.phone || "Not provided"}
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -237,8 +332,12 @@ const Profile = () => {
                 <FaCalendarAlt className="w-5 h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Date Joined</p>
-                <p className="font-medium text-gray-900 dark:text-white">{user.createdAt ? formatDate(user.createdAt) : "N/A"}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Date Joined
+                </p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {user.createdAt ? formatDate(user.createdAt) : "N/A"}
+                </p>
               </div>
             </div>
           </div>
@@ -247,34 +346,34 @@ const Profile = () => {
 
       {/* Account Security Card */}
       <motion.div 
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700"
+        className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-6">
-          <FaShieldAlt className="text-green-500" />
+        <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 md:mb-6">
+          <FaShieldAlt className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
           Account Security
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <FaShieldAlt className="w-5 h-5 text-green-500 dark:text-green-400" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+              <FaShieldAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-500 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Email Verification</p>
-              <div className="flex items-center gap-2">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Email Verification</p>
+              <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
                 {user.isverified ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                     Verified
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
                     Not Verified
                   </span>
                 )}
                 {!user.isverified && (
-                  <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                  <button className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 font-medium">
                     Verify Now
                   </button>
                 )}
@@ -282,17 +381,21 @@ const Profile = () => {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <FaClock className="w-5 h-5 text-green-500 dark:text-green-400" />
+            <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+              <FaClock className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Last Login</p>
-              <p className="font-medium text-gray-900 dark:text-white">{formatDate(user.lastLOGIN)}</p>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                Last Login
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                {formatDate(user.lastLOGIN)}
+              </p>
             </div>
           </div>
         </div>
-        <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
-          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+        <div className="mt-3 sm:mt-4 md:mt-6 pt-3 sm:pt-4 md:pt-6 border-t border-gray-100 dark:border-gray-700">
+          <button className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium">
             Change Password
           </button>
         </div>
@@ -300,41 +403,55 @@ const Profile = () => {
 
       {/* Activity Overview */}
       <motion.div 
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700"
+        className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-6">
-          <FaHistory className="text-purple-500" />
+        <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 md:mb-6">
+          <FaHistory className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
           Recent Activity
         </h3>
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
-              <FaHistory className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+        <div className="space-y-2 sm:space-y-3 md:space-y-4">
+          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
+              <FaHistory className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-500 dark:text-purple-400" />
             </div>
-            <div>
-              <p className="font-medium text-gray-900 dark:text-white">Login from new device</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(user.lastLOGIN)}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
-              <FaHistory className="w-5 h-5 text-purple-500 dark:text-purple-400" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-900 dark:text-white">Profile updated</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(user.updatedAt || new Date(Date.now() - 7*24*60*60*1000))}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">Login from new device</p>
+              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">{formatDate(user.lastLOGIN)}</p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
-              <FaHistory className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
+              <FaHistory className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-500 dark:text-purple-400" />
             </div>
-            <div>
-              <p className="font-medium text-gray-900 dark:text-white">Account created</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(user.createdAt || new Date(Date.now() - 30*24*60*60*1000))}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">
+                Profile updated
+              </p>
+              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                {formatDate(
+                  user.updatedAt ||
+                    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
+              <FaHistory className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-500 dark:text-purple-400" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">
+                Account created
+              </p>
+              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                {formatDate(
+                  user.createdAt ||
+                    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                )}
+              </p>
             </div>
           </div>
         </div>
@@ -344,134 +461,201 @@ const Profile = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto p-4 sm:p-6">
-        {/* Profile Header */}
-        <motion.div
-          className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-lg p-6 sm:p-8 mb-8 relative overflow-hidden"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Abstract background elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full -ml-32 -mb-32 blur-3xl"></div>
-          
-          <div className="relative flex flex-col md:flex-row items-center gap-6 z-10">
-            <div className="relative group">
-              <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center relative overflow-hidden">
-                <img
-                  src={user?.photoURL || "/user.png"}
-                  alt="Profile"
-                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white dark:border-gray-900 transition-transform group-hover:scale-105"
-                />
-                <div 
-                  className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                  onClick={handlePhotoClick}
-                >
-                  {uploading ? (
-                    <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <FaCamera className="text-white text-2xl" />
-                  )}
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                />
-              </div>
-              <div className="absolute bottom-0 right-0 bg-green-500 w-6 h-6 rounded-full border-4 border-white"></div>
-            </div>
-            
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-                {user.name} {user.lastname}
-              </h1>
-              <p className="text-blue-100 mb-3">Account ID: {user.uid}</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-6">
+          <div className="space-y-3 sm:space-y-4 md:space-y-6">
+            {/* Profile Header Card */}
+            <motion.div 
+              className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-6 lg:p-8 mb-3 sm:mb-4 md:mb-6 relative overflow-hidden backdrop-blur-md bg-opacity-50"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Abstract background elements */}
+              <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-white/10 rounded-full -mr-10 sm:-mr-16 md:-mr-24 lg:-mr-32 -mt-10 sm:-mt-16 md:-mt-24 lg:-mt-32 blur-2xl"></div>
+              <div className="absolute bottom-0 left-0 w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-purple-500/20 rounded-full -ml-10 sm:-ml-16 md:-ml-24 lg:-ml-32 -mb-10 sm:-mb-16 md:-mb-24 lg:-mb-32 blur-3xl"></div>
               
-              <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                {user.isverified ? (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-50 border border-green-500/30">
-                    <FaShieldAlt className="mr-1" /> Verified Account
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-50 border border-yellow-500/30">
-                    <FaShieldAlt className="mr-1" /> Unverified Account
-                  </span>
-                )}
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-50 border border-blue-500/30">
-                  <FaCalendarAlt className="mr-1" /> Member since {new Date(user.createdAt || Date.now() - 30*24*60*60*1000).getFullYear()}
-                </span>
+              <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-4 z-10 w-full">
+                {/* Profile Picture Section */}
+                <div className="relative flex-shrink-0 mb-3 sm:mb-0 flex flex-col items-center">
+                  <div
+                    onClick={handlePhotoClick}
+                    className="group w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center relative overflow-hidden cursor-pointer"
+                  >
+                    <img
+                      src={user?.photoURL || "/user.png"}
+                      alt="Profile"
+                      className="w-[90%] h-[90%] rounded-full object-cover border-2 sm:border-3 md:border-4 border-white transition-all group-hover:opacity-80"
+                    />
+                    {/* WhatsApp-style camera overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all">
+                      <div className="transform translate-y-full group-hover:translate-y-0 transition-transform duration-200">
+                        <FaCamera className="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Profile Picture Options - Now only showing View */}
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={handlePicView}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-lg text-white text-xs hover:bg-white/20 transition-colors border border-white/20"
+                    >
+                      <FiEye className="w-3 h-3" />
+                      View
+                    </button>
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                  />
+                </div>
+                
+                {/* User Info Section */}
+                <div className="flex-1 text-center sm:text-left">
+                  <h1 className="text-lg sm:text-lg md:text-xl lg:text-2xl font-bold text-white mb-1 sm:mb-1">
+                    {user.name} {user.lastname}
+                  </h1>
+                  <p className="text-blue-100 text-sm sm:text-sm md:text-base mb-3 sm:mb-2">ID: {user.uid}</p>
+                  
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-1.5 md:gap-2">
+                    {user.isverified ? (
+                      <span className="inline-flex items-center px-2 sm:px-2 md:px-3 py-1 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-green-500/20 text-green-50 border border-green-500/30">
+                        <FaShieldAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" /> Verified
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 sm:px-2 md:px-3 py-1 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-yellow-500/20 text-yellow-50 border border-yellow-500/30">
+                        <FaShieldAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" /> Unverified
+                      </span>
+                    )}
+                    <span className="inline-flex items-center px-2 sm:px-2 md:px-3 py-1 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-500/20 text-blue-50 border border-blue-500/30">
+                      <FaCalendarAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" /> Member since {new Date(user.createdAt || Date.now() - 30*24*60*60*1000).getFullYear()}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Edit Profile Button */}
+                <div className="mt-4 sm:mt-0">
+                  <button 
+                    onClick={() => setEditMode(!editMode)}
+                    className="px-3 sm:px-3 md:px-4 py-1.5 sm:py-1.5 md:py-2 bg-white/10 text-white rounded-lg sm:rounded-xl hover:bg-white/20 transition-colors border border-white/20 backdrop-blur-sm flex items-center gap-1.5 sm:gap-1.5 md:gap-2 text-sm sm:text-sm"
+                  >
+                    <FaUserEdit className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
+                    {editMode ? "Cancel" : "Edit Profile"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Profile Tabs Navigation */}
+            <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 -mx-2 sm:mx-0 px-2 sm:px-0 py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
+                <div className="flex space-x-2 min-w-max">
+                  <button
+                    onClick={() => setActiveTab("overview")}
+                    className={`px-3 sm:px-3 md:px-4 py-1.5 sm:py-1.5 md:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                      activeTab === "overview"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <FaIdCard className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("reports")}
+                    className={`px-3 sm:px-3 md:px-4 py-1.5 sm:py-1.5 md:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                      activeTab === "reports"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <FaHistory className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Reports
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("settings")}
+                    className={`px-3 sm:px-3 md:px-4 py-1.5 sm:py-1.5 md:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                      activeTab === "settings"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <FaShieldAlt className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    Settings
+                  </button>
+                </div>
               </div>
             </div>
-            
-            <div className="mt-4 md:mt-0">
-              <button 
-                onClick={() => setEditMode(!editMode)}
-                className="px-5 py-2.5 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors border border-white/20 backdrop-blur-sm flex items-center gap-2"
+
+            {/* Tab Content */}
+            <div className="grid gap-3 sm:gap-4 md:gap-6">
+              {activeTab === "overview" && renderOverviewTab()}
+              {activeTab === "reports" && (
+                <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-6 border border-gray-100">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-4">
+                    Reports History
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    Your medical reports will appear here.
+                  </p>
+                </div>
+              )}
+              {activeTab === "settings" && (
+                <div className="bg-white rounded-lg sm:rounded-xl shadow-md p-4 sm:p-6 border border-gray-100">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-2 sm:mb-4">
+                    Account Settings
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    Configure your account preferences.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Profile Picture View Modal */}
+            {isPicModalOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 md:p-6"
+                onClick={() => setIsPicModalOpen(false)}
               >
-                <FaUserEdit />
-                {editMode ? "Cancel" : "Edit Profile"}
-              </button>
-            </div>
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.95 }}
+                  className="relative max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl w-full bg-white rounded-xl sm:rounded-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img
+                    src={user?.photoURL || "/user.png"}
+                    alt="Profile"
+                    className="w-full h-auto object-contain"
+                  />
+                  <button
+                    onClick={() => setIsPicModalOpen(false)}
+                    className="absolute top-2 right-2 sm:top-4 sm:right-4 p-1.5 sm:p-2 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-colors"
+                  >
+                    <FiX className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
           </div>
-        </motion.div>
-        
-        {/* Profile Tabs */}
-        <div className="mb-8">
-          <div className="flex space-x-1 overflow-x-auto pb-2 scrollbar-hide">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "overview"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab("reports")}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "reports"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              }`}
-            >
-              Reports
-            </button>
-            <button
-              onClick={() => setActiveTab("settings")}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                activeTab === "settings"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              }`}
-            >
-              Settings
-            </button>
-          </div>
-        </div>
-        
-        {/* Tab Content */}
-        <div>
-          {activeTab === "overview" && renderOverviewTab()}
-          {activeTab === "reports" && (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Your Reports</h3>
-              <p className="text-gray-500 dark:text-gray-400">View your reports in the Reports section.</p>
-            </div>
-          )}
-          {activeTab === "settings" && (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Account Settings</h3>
-              <p className="text-gray-500 dark:text-gray-400">Account settings will be available soon.</p>
-            </div>
-          )}
         </div>
       </div>
+      {/* Add the PhotoEditorModal */}
+      <PhotoEditorModal
+        isOpen={isPhotoEditorOpen}
+        onClose={() => setIsPhotoEditorOpen(false)}
+        onSave={handlePhotoSave}
+        imageUrl={user?.photoURL || "/user.png"}
+      />
     </DashboardLayout>
   );
 };

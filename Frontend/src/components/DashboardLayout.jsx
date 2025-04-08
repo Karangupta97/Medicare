@@ -31,15 +31,11 @@ const DashboardLayout = ({ children }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [viewMode, setViewMode] = useState("grid");
-  const [notifications, setNotifications] = useState([]);
   const location = useLocation();
   const { user, logout } = useAuthStore();
 
   const menuItems = [
-    { icon: FiArrowLeft, label: "Medicare", path: "/" },
-    { icon: FiHome, label: "Overview", path: "/dashboard" },
+    { icon: FiHome, label: "Dashboard", path: "/dashboard" },
     { icon: FiFileText, label: "Reports", path: "/reports" },
     { icon: FiUpload, label: "Upload", path: "/upload" },
     { icon: FiUser, label: "Profile", path: "/profile" },
@@ -47,31 +43,6 @@ const DashboardLayout = ({ children }) => {
     { icon: FiHelpCircle, label: "Help", path: "/help" },
   ];
 
-  const fetchNotifications = async () => {
-    try {
-      const response = await axios.get("/api/notifications", {
-        withCredentials: true,
-      });
-      setNotifications(response.data.notifications || []);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  const handleLogoutClick = () => {
-    setIsLogoutModalOpen(true);
-  };
-
-  const handleLogoutConfirm = () => {
-    logout();
-    setIsLogoutModalOpen(false);
-  };
-
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".profile-menu")) {
@@ -87,35 +58,25 @@ const DashboardLayout = ({ children }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Sidebar Backdrop */}
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Sidebar */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row">
+      {/* Enhanced Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-[#4318FF] text-white transform transition-transform duration-300 ease-in-out z-50 
-          ${
-            isSidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full lg:translate-x-0"
-          }`}
+        className={`fixed top-0 left-0 h-full w-[280px] sm:w-64 bg-gradient-to-b from-[#4318FF] to-[#9747FF] 
+          text-white transform transition-all duration-300 ease-in-out z-50 
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full relative overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mt-32 -mr-32 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-300/5 rounded-full -mb-24 -ml-24 blur-2xl"></div>
+          
           {/* Logo */}
-          <div className="p-6 mb-2 flex items-center justify-between">
+          <div className="p-6 mb-2 flex items-center justify-between relative z-10">
             <Link to="/" className="flex items-center gap-2">
-              <FiArrowLeft className="w-6 h-6" />
-              <h1 className="text-xl font-semibold">Medicare</h1>
+              <div className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-lg backdrop-blur-sm">
+                <FiArrowLeft className="w-5 h-5" />
+              </div>
+              <h1 className="text-xl font-bold tracking-tight">Medicare</h1>
             </Link>
             <button
               onClick={() => setIsSidebarOpen(false)}
@@ -125,239 +86,216 @@ const DashboardLayout = ({ children }) => {
             </button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4">
-            {menuItems.map((item) => (
+          {/* Enhanced Navigation */}
+          <nav className="flex-1 px-4 relative z-10">
+            <div className="mb-4 px-2">
+              <p className="text-white/40 text-xs uppercase font-semibold tracking-wider">Main Menu</p>
+            </div>
+            {menuItems.map((item, index) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-all
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl mb-2 transition-all duration-200
                   ${
                     location.pathname === item.path
-                      ? "bg-white/10 text-white font-medium"
+                      ? "bg-white/15 text-white font-medium backdrop-blur-sm shadow-sm"
                       : "text-white/70 hover:bg-white/5 hover:text-white"
                   }`}
               >
-                <item.icon className="w-5 h-5" />
+                <motion.div
+                  animate={{ 
+                    scale: location.pathname === item.path ? [1, 1.2, 1] : 1,
+                    rotate: location.pathname === item.path ? [0, 5, 0] : 0
+                  }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <item.icon className="w-5 h-5" />
+                </motion.div>
                 <span>{item.label}</span>
+                {location.pathname === item.path && (
+                  <motion.div
+                    className="w-1.5 h-1.5 rounded-full bg-white ml-auto"
+                    layoutId="nav-indicator"
+                  />
+                )}
               </Link>
             ))}
           </nav>
 
-          {/* Logout Button */}
-          <div className="p-4">
-            <button
-              onClick={handleLogoutClick}
-              className="flex items-center space-x-3 px-4 py-3 w-full text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+          {/* Enhanced Logout Button */}
+          <div className="p-4 relative z-10">
+            <motion.button
+              onClick={() => setIsLogoutModalOpen(true)}
+              className="flex items-center justify-between space-x-3 px-4 py-3 w-full 
+                text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl 
+                transition-all duration-200 border border-white/5 backdrop-blur-sm"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
-              <FiLogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
+              <div className="flex items-center space-x-3">
+                <FiLogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </div>
+              <div className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-lg">
+                <FiArrowLeft className="w-4 h-4" />
+              </div>
+            </motion.button>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="lg:ml-64">
-        {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-10">
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
+        {/* Enhanced Header */}
+        <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex flex-row items-start sm:items-center justify-between p-4">
               {/* Left Section */}
-              <div className="flex items-center flex-1 space-x-4">
-                <button
+              <div className="flex items-center w-full space-x-4">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setIsSidebarOpen(true)}
-                  className="p-2 rounded-lg lg:hidden hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-lg lg:hidden hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <FiMenu className="w-6 h-6" />
-                </button>
+                </motion.button>
 
-                {/* Search Bar */}
-                <div className="max-w-xl flex-1 relative">
+                {/* Enhanced Search Bar */}
+                <div className="w-full max-w-5xl relative">
                   <motion.div
-                    animate={searchFocused ? { scale: 1.02 } : { scale: 1 }}
-                    className="relative"
+                    animate={{ scale: 1 }}
+                    className="relative group"
                   >
-                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5 group-hover:text-blue-500 transition-colors" />
                     <input
                       type="text"
                       placeholder="Search here..."
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all"
-                      onFocus={() => setSearchFocused(true)}
-                      onBlur={() => setSearchFocused(false)}
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 
+                        rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 
+                        focus:border-blue-300 dark:focus:border-blue-700 transition-all text-base placeholder:text-gray-400 
+                        dark:placeholder:text-gray-500 shadow-sm hover:shadow-md"
                     />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs">
+                      <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">⌘ K</kbd>
+                    </div>
                   </motion.div>
-                </div>
-
-                {/* View Toggle */}
-                <div className="hidden md:flex items-center space-x-2 bg-gray-100 p-1 rounded-lg">
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === "grid"
-                        ? "bg-white shadow-sm"
-                        : "hover:bg-white/50"
-                    }`}
-                  >
-                    <FiGrid className="w-5 h-5 text-gray-600" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === "list"
-                        ? "bg-white shadow-sm"
-                        : "hover:bg-white/50"
-                    }`}
-                  >
-                    <FiList className="w-5 h-5 text-gray-600" />
-                  </button>
                 </div>
               </div>
 
-              {/* Right Section */}
-              <div className="flex items-center space-x-3 z-20">
-                {/* Add Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-4 py-2 bg-[#252A61] text-white rounded-xl hover:bg-[#4318FF] transition-colors shadow-sm"
-                >
-                  <FiPlus className="w-5 h-5" />
-                  <span className="hidden sm:inline">Add New</span>
-                  <FiChevronDown className="w-4 h-4" />
-                </motion.button>
-
-                {/* Calendar Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-2 hover:bg-gray-100 rounded-lg relative hidden sm:flex items-center space-x-2"
-                >
-                  <FiCalendar className="w-5 h-5 text-gray-600" />
-                  <span className="text-sm text-gray-600">Today</span>
-                </motion.button>
-
-                {/* Notifications */}
+              {/* Right Section - Always in one row */}
+              <div className="flex items-center ml-4 space-x-3">
+                {/* Enhanced Notifications */}
                 <div className="relative notifications-menu">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className="p-2 hover:bg-gray-100 rounded-lg relative"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl relative"
                   >
-                    <FiBell className="w-5 h-5 text-gray-600" />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    <FiBell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
                   </motion.button>
 
                   <AnimatePresence>
                     {isNotificationsOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg py-2 border border-gray-100"
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-2 w-[320px] bg-white dark:bg-gray-800 rounded-xl shadow-xl 
+                          py-2 border border-gray-100 dark:border-gray-700 max-h-[80vh] overflow-y-auto"
                       >
-                        <div className="px-4 py-2 border-b border-gray-100">
-                          <h3 className="text-sm font-semibold text-gray-900">
-                            Notifications
-                          </h3>
+                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                          <button className="text-xs text-blue-600 dark:text-blue-400">Mark all as read</button>
                         </div>
-                        <div className="max-h-80 overflow-y-auto">
-                          {notifications.map((notification) => (
-                            <div
-                              key={notification.id}
-                              className="px-4 py-3 hover:bg-gray-50 cursor-pointer"
-                            >
-                              <h4 className="text-sm font-medium text-gray-900">
-                                {notification.title}
-                              </h4>
-                              <p className="text-xs text-gray-600 mt-1">
-                                {notification.message}
-                              </p>
-                              <span className="text-xs text-gray-400 mt-1">
-                                {notification.time}
-                              </span>
+                        <div className="max-h-80 overflow-y-auto p-2">
+                          {/* Sample Notifications */}
+                          {[1,2,3].map(i => (
+                            <div key={i} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors mb-1">
+                              <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                  <FiBell className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-800 dark:text-gray-200">New notification example</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Just now</p>
+                                </div>
+                              </div>
                             </div>
                           ))}
-                        </div>
-                        <div className="px-4 py-2 border-t border-gray-100">
-                          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                            View All Notifications
-                          </button>
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
 
-                {/* Profile */}
+                {/* Enhanced User Profile */}
                 <div className="relative profile-menu">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
+                    className="flex items-center space-x-2 p-1.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl group"
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF] flex items-center justify-center">
-                      {user && user.photoURL? (
-                        <img
-                          src={user.photoURL}
-                          alt="User"
-                          className="w-8 h-8 rounded-full cursor-pointer object-cover"
-                        />
-                      ) : (
-                        <img
-                          src={usericon}
-                          alt="Default User"
-                          className="w-8 h-8 rounded-full cursor-pointer object-cover"
-                        />
-                      )}
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF] ring-2 ring-white/10 dark:ring-black/10">
+                      <img
+                        src={user?.photoURL || usericon}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    <div className="hidden md:block text-left">
-                      <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                        {user?.name || "User"}
-                      </p>
-                      <p className="text-xs text-gray-500">Patient</p>
+                    <div className="hidden sm:block text-left">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-tight">{user?.name || "User"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 leading-tight">{user?.email || "user@example.com"}</p>
                     </div>
-                    <FiChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
+                    <FiChevronDown className="hidden sm:block w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200" />
                   </motion.button>
 
                   <AnimatePresence>
                     {isProfileOpen && (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100"
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl py-2 border border-gray-100 dark:border-gray-700"
                       >
-                        <div className="px-4 py-2 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900">
+                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {user?.name || "User"}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {user?.email || "user@example.com"}
                           </p>
                         </div>
                         <Link
                           to="/profile"
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                         >
-                          <FiUser className="w-4 h-4" />
-                          <span>Profile</span>
+                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            <FiUser className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <span>Your Profile</span>
                         </Link>
                         <Link
                           to="/settings"
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                         >
-                          <FiSettings className="w-4 h-4" />
+                          <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                            <FiSettings className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          </div>
                           <span>Settings</span>
                         </Link>
+                        <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
                         <button
-                          onClick={handleLogoutClick}
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 w-full"
+                          onClick={() => setIsLogoutModalOpen(true)}
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 w-full"
                         >
-                          <FiLogOut className="w-4 h-4" />
-                          <span>Logout</span>
+                          <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                            <FiLogOut className="w-4 h-4 text-red-600 dark:text-red-400" />
+                          </div>
+                          <span>Sign Out</span>
                         </button>
                       </motion.div>
                     )}
@@ -365,54 +303,20 @@ const DashboardLayout = ({ children }) => {
                 </div>
               </div>
             </div>
-
-            {/* Secondary Navigation */}
-            <div className="border-t border-gray-200 px-4 py-2">
-              <nav className="flex space-x-4">
-                <Link
-                  to="/dashboard"
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === "/dashboard"
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  Overview
-                </Link>
-                <Link
-                  to="/analytics"
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === "/analytics"
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  Analytics
-                </Link>
-                <Link
-                  to="/reports"
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    location.pathname === "/reports"
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  Reports
-                </Link>
-              </nav>
-            </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="p-6">{children}</main>
+        <main className="p-4 sm:p-6 max-w-[2000px] mx-auto">
+          {children}
+        </main>
       </div>
 
       {/* Logout Confirmation Modal */}
       <LogoutModal
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
-        onConfirm={handleLogoutConfirm}
+        onConfirm={logout}
       />
     </div>
   );

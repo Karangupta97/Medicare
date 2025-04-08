@@ -57,10 +57,15 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 const App = () => {
-  const { isCheckingAuth, isAuthenticated, checkAuth, user } = useAuthStore();
+  const { isCheckingAuth, isAuthenticated, checkAuth, user, initUser } = useAuthStore();
   const location = useLocation();
   const [currentPath, setCurrentPath] = useState(location.pathname);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    // Initialize user from localStorage when app loads
+    initUser();
+  }, []);
 
   useEffect(() => {
     // Store the current path when it changes
