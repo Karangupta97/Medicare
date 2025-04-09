@@ -87,8 +87,12 @@ const Profile = () => {
     // Create a temporary local URL to show immediate feedback
     const localPreview = URL.createObjectURL(file);
     // Update UI immediately with local preview
-    setUser(prev => ({...prev, photoURL: localPreview, _tempPhotoURL: true}));
-    
+    setUser((prev) => ({
+      ...prev,
+      photoURL: localPreview,
+      _tempPhotoURL: true,
+    }));
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -108,15 +112,22 @@ const Profile = () => {
 
       if (response.data.user && response.data.user.photoURL) {
         // Update user state with the permanent URL from server
-        setUser(response.data.user);
-        
+        setUser({
+          ...response.data.user,
+          _tempPhotoURL: false
+        });
+
         // Also persist in localStorage to prevent loss on refresh
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-        localStorage.setItem("user", JSON.stringify({
-          ...currentUser,
-          photoURL: response.data.user.photoURL
-        }));
-        
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...currentUser,
+            photoURL: response.data.user.photoURL,
+            _tempPhotoURL: false
+          })
+        );
+
         toast.success("Profile photo updated successfully");
       } else {
         throw new Error("Invalid server response: Missing photo URL");
@@ -124,8 +135,12 @@ const Profile = () => {
     } catch (error) {
       console.error("Error uploading photo:", error);
       // Revert to previous photo if update fails
-      setUser(prev => ({...prev, photoURL: user.photoURL, _tempPhotoURL: false}));
-      
+      setUser((prev) => ({
+        ...prev,
+        photoURL: user.photoURL,
+        _tempPhotoURL: false,
+      }));
+
       if (error.response?.status === 413) {
         toast.error("Image size too large. Please select a smaller file.");
       } else if (error.response?.status === 415) {
@@ -161,7 +176,7 @@ const Profile = () => {
       // Handle the edited image upload
       const formData = new FormData();
       formData.append("file", editedImage);
-      
+
       const response = await axios.put("/api/auth/update-profile", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -170,10 +185,27 @@ const Profile = () => {
       });
 
       if (response.data.user) {
-        setUser(response.data.user);
+        // Update user state with the server response
+        setUser({
+          ...response.data.user,
+          _tempPhotoURL: false  // Ensure it's not marked as temporary
+        });
+        
+        // Manually update the localStorage to ensure persistence
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...currentUser,
+            photoURL: response.data.user.photoURL,
+            _tempPhotoURL: false
+          })
+        );
+        
         toast.success("Profile photo updated successfully");
       }
     } catch (error) {
+      console.error("Error updating profile photo:", error);
       toast.error("Failed to update profile photo");
     } finally {
       setUploading(false);
@@ -206,7 +238,7 @@ const Profile = () => {
   const renderOverviewTab = () => (
     <div className="space-y-3 sm:space-y-4 md:space-y-6">
       {/* Personal Information Card */}
-      <motion.div 
+      <motion.div
         className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -217,7 +249,7 @@ const Profile = () => {
             <FaIdCard className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
             Personal Information
           </h3>
-          <button 
+          <button
             onClick={() => setEditMode(!editMode)}
             className="flex items-center gap-1 text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
@@ -229,7 +261,9 @@ const Profile = () => {
         {editMode ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                First Name
+              </label>
               <input
                 type="text"
                 name="name"
@@ -297,8 +331,12 @@ const Profile = () => {
                 <FaIdCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Full Name</p>
-                <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">{user.name} {user.lastname}</p>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  Full Name
+                </p>
+                <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                  {user.name} {user.lastname}
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -345,7 +383,7 @@ const Profile = () => {
       </motion.div>
 
       {/* Account Security Card */}
-      <motion.div 
+      <motion.div
         className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -361,7 +399,9 @@ const Profile = () => {
               <FaShieldAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-500 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Email Verification</p>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                Email Verification
+              </p>
               <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
                 {user.isverified ? (
                   <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
@@ -400,9 +440,8 @@ const Profile = () => {
           </button>
         </div>
       </motion.div>
-
       {/* Activity Overview */}
-      <motion.div 
+      <motion.div
         className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -418,8 +457,12 @@ const Profile = () => {
               <FaHistory className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-500 dark:text-purple-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">Login from new device</p>
-              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">{formatDate(user.lastLOGIN)}</p>
+              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">
+                Login from new device
+              </p>
+              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                {formatDate(user.lastLOGIN)}
+              </p>
             </div>
           </div>
           <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
@@ -465,7 +508,7 @@ const Profile = () => {
         <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-6">
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
             {/* Profile Header Card */}
-            <motion.div 
+            <motion.div
               className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-6 lg:p-8 mb-3 sm:mb-4 md:mb-6 relative overflow-hidden backdrop-blur-md bg-opacity-50"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -474,7 +517,7 @@ const Profile = () => {
               {/* Abstract background elements */}
               <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-white/10 rounded-full -mr-10 sm:-mr-16 md:-mr-24 lg:-mr-32 -mt-10 sm:-mt-16 md:-mt-24 lg:-mt-32 blur-2xl"></div>
               <div className="absolute bottom-0 left-0 w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-purple-500/20 rounded-full -ml-10 sm:-ml-16 md:-ml-24 lg:-ml-32 -mb-10 sm:-mb-16 md:-mb-24 lg:-mb-32 blur-3xl"></div>
-              
+
               <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-4 z-10 w-full">
                 {/* Profile Picture Section */}
                 <div className="relative flex-shrink-0 mb-3 sm:mb-0 flex flex-col items-center">
@@ -494,7 +537,7 @@ const Profile = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Profile Picture Options - Now only showing View */}
                   <div className="flex gap-2 mt-3">
                     <button
@@ -513,33 +556,41 @@ const Profile = () => {
                     onChange={handlePhotoChange}
                   />
                 </div>
-                
+
                 {/* User Info Section */}
                 <div className="flex-1 text-center sm:text-left">
                   <h1 className="text-lg sm:text-lg md:text-xl lg:text-2xl font-bold text-white mb-1 sm:mb-1">
                     {user.name} {user.lastname}
                   </h1>
-                  <p className="text-blue-100 text-sm sm:text-sm md:text-base mb-3 sm:mb-2">ID: {user.uid}</p>
-                  
+                  <p className="text-blue-100 text-sm sm:text-sm md:text-base mb-3 sm:mb-2">
+                    ID: {user.uid}
+                  </p>
+
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-1.5 md:gap-2">
                     {user.isverified ? (
                       <span className="inline-flex items-center px-2 sm:px-2 md:px-3 py-1 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-green-500/20 text-green-50 border border-green-500/30">
-                        <FaShieldAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" /> Verified
+                        <FaShieldAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" />{" "}
+                        Verified
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2 sm:px-2 md:px-3 py-1 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-yellow-500/20 text-yellow-50 border border-yellow-500/30">
-                        <FaShieldAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" /> Unverified
+                        <FaShieldAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" />{" "}
+                        Unverified
                       </span>
                     )}
                     <span className="inline-flex items-center px-2 sm:px-2 md:px-3 py-1 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-500/20 text-blue-50 border border-blue-500/30">
-                      <FaCalendarAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" /> Member since {new Date(user.createdAt || Date.now() - 30*24*60*60*1000).getFullYear()}
+                      <FaCalendarAlt className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" />{" "}
+                      Member since{" "}
+                      {new Date(
+                        user.createdAt || Date.now() - 30 * 24 * 60 * 60 * 1000
+                      ).getFullYear()}
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Edit Profile Button */}
                 <div className="mt-4 sm:mt-0">
-                  <button 
+                  <button
                     onClick={() => setEditMode(!editMode)}
                     className="px-3 sm:px-3 md:px-4 py-1.5 sm:py-1.5 md:py-2 bg-white/10 text-white rounded-lg sm:rounded-xl hover:bg-white/20 transition-colors border border-white/20 backdrop-blur-sm flex items-center gap-1.5 sm:gap-1.5 md:gap-2 text-sm sm:text-sm"
                   >
