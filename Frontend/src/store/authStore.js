@@ -68,7 +68,7 @@ axios.interceptors.response.use(
     if (error.response?.status === 401) {
       console.log('Unauthorized request, clearing auth state');
       localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -77,11 +77,38 @@ axios.interceptors.response.use(
 
 // Initialize token and user from localStorage
 const initialToken = localStorage.getItem('token');
-const initialUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+const initialUserId = localStorage.getItem('userId');
+
+// Only store essential user data, not profile pictures
+const getUserEssentialData = (userData) => {
+  if (!userData) return null;
+  
+  // Extract only the essential user data - exclude large binary data like images
+  const { 
+    _id, 
+    name, 
+    lastname, 
+    email, 
+    verified, 
+    photoURL, // Store only the URL/path, not the actual image data
+    createdAt
+  } = userData;
+  
+  return { 
+    _id, 
+    name, 
+    lastname, 
+    email, 
+    verified, 
+    photoURL,
+    createdAt
+  };
+};
 
 export const useAuthStore = create((set, get) => ({
-  user: initialUser,
+  user: null,
   token: initialToken,
+  userId: initialUserId,
   isAuthenticated: !!initialToken,
   error: null,
   isLoading: false,
@@ -97,18 +124,33 @@ export const useAuthStore = create((set, get) => ({
   },
 
   setUser: (userData) => {
-    // Save to localStorage for persistence across refreshes
-    if (userData && !userData._tempPhotoURL) {
-      localStorage.setItem("user", JSON.stringify(userData));
+    if (userData) {
+      // Store only the user ID in localStorage for persistence
+      localStorage.setItem('userId', userData._id);
+      
+      // Keep user data in memory (state) only, not in localStorage
+      set({ user: userData, userId: userData._id });
+    } else {
+      localStorage.removeItem('userId');
+      set({ user: null, userId: null });
     }
-    set({ user: userData });
   },
   
-  // Add this function to initialize user from localStorage on app start
-  initUser: () => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      set({ user: JSON.parse(storedUser) });
+  // Fetch fresh user data from the server
+  refreshUserData: async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        return;
+      }
+      
+      const response = await axios.get(`${API_URL}/api/auth/user`);
+      set({ user: response.data.user });
+      return response.data.user;
+    } catch (error) {
+      console.error("Failed to refresh user data:", error);
     }
   },
 
@@ -125,13 +167,14 @@ export const useAuthStore = create((set, get) => ({
       const userData = response.data.user;
       const token = response.data.token;
       
-      // Save user and token to localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Save token and userId to localStorage
       localStorage.setItem('token', token);
+      localStorage.setItem('userId', userData._id);
       
       set({
         user: userData,
         token: token,
+        userId: userData._id,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -153,13 +196,14 @@ export const useAuthStore = create((set, get) => ({
       const userData = response.data.user;
       const token = response.data.token;
       
-      // Save user and token to localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Save token and userId to localStorage
       localStorage.setItem('token', token);
+      localStorage.setItem('userId', userData._id);
       
       set({
         user: userData,
         token: token,
+        userId: userData._id,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -202,23 +246,23 @@ export const useAuthStore = create((set, get) => ({
     set({ isCheckingAuth: true });
     
     try {
-      // Get token and user from localStorage
+      // Get token from localStorage
       const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+      const userId = localStorage.getItem('userId');
       
       console.log('Auth state:', {
         hasToken: !!token,
         tokenLength: token?.length,
-        hasStoredUser: !!storedUser,
-        storedUserData: storedUser
+        hasUserId: !!userId
       });
       
       // If no token exists, we're not authenticated
-      if (!token) {
-        console.log('No token found in localStorage');
+      if (!token || !userId) {
+        console.log('No token or userId found in localStorage');
         set({ 
           user: null,
           token: null,
+          userId: null,
           isAuthenticated: false,
           isCheckingAuth: false
         });
@@ -234,14 +278,11 @@ export const useAuthStore = create((set, get) => ({
       // Update the state with the user data and token
       const userData = response.data.user;
       
-      // Save user to localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', token);
-      
       console.log('Setting authenticated state with user data');
       set({
         user: userData,
         token: token,
+        userId: userData._id,
         isAuthenticated: true,
         isCheckingAuth: false,
       });
@@ -259,10 +300,11 @@ export const useAuthStore = create((set, get) => ({
       if (error.response?.status === 401) {
         console.log('Token invalid or expired, clearing auth state');
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('userId');
         set({ 
           user: null,
           token: null,
+          userId: null,
           isAuthenticated: false,
           isCheckingAuth: false,
           error: "Session expired. Please login again."
@@ -287,14 +329,15 @@ export const useAuthStore = create((set, get) => ({
       const userData = response.data.user;
       const token = response.data.token;
       
-      // Save user and token to localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
+      // Save token and userId to localStorage (not the user object with photo)
       localStorage.setItem('token', token);
+      localStorage.setItem('userId', userData._id);
       
       set({
         isAuthenticated: true,
         user: userData,
         token: token,
+        userId: userData._id,
         error: null,
         isLoading: false,
       });
@@ -313,12 +356,13 @@ export const useAuthStore = create((set, get) => ({
       await axios.post(`${API_URL}/api/auth/logout`);
       
       // Clear localStorage
-      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
       localStorage.removeItem('token');
       
       set({
         user: null,
         token: null,
+        userId: null,
         isAuthenticated: false,
         isLoading: false,
       });
@@ -330,6 +374,7 @@ export const useAuthStore = create((set, get) => ({
       throw error;
     }
   },
+  
   forgotPassword: async (email) => {
     set({ isLoading: true, error: null });
     try {
@@ -363,4 +408,38 @@ export const useAuthStore = create((set, get) => ({
       throw error;
     }
   },
+  
+  // Add method to update profile picture
+  updateProfilePhoto: async (photoFile) => {
+    set({ isLoading: true, error: null });
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('photo', photoFile);
+      
+      // Set proper headers for multipart/form-data
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      };
+      
+      const response = await axios.post(`${API_URL}/api/auth/update-photo`, formData, config);
+      
+      // Update user in state with new photo URL
+      const userData = response.data.user;
+      set({
+        user: userData,
+        isLoading: false
+      });
+      
+      return userData;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Error updating profile photo",
+        isLoading: false,
+      });
+      throw error;
+    }
+  }
 }));
