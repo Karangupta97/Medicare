@@ -107,7 +107,7 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row">
-      {/* Sidebar */}
+      {/* Sidebar - Fixed position to prevent scrolling with page content */}
       <aside
         className={`fixed ${
           // Responsive height and position: use 90vh for small/mobile, 98vh for larger screens
@@ -118,14 +118,15 @@ const DashboardLayout = ({ children }) => {
         } bg-[#252A61] text-white transition-all duration-300 ease-in-out z-50 
           rounded-[35px] ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
+        {/* Sidebar content container with fixed height and scrollable content */}
         <div className="flex flex-col h-full relative overflow-hidden">
-          {/* Logo Section - Reduced vertical padding for small screens */}
+          {/* Logo Section - Fixed at top, not scrollable */}
           <div className="flex items-center justify-between p-3 mb-2 sm:p-4 sm:mb-6 relative z-10">
             <Link to="/" className="flex items-center gap-2">
               {!isSidebarCollapsed && (
                 <>
-                  <FiArrowLeft className="w-5 h-5 text-white" /> {/* Left arrow */}
-                  <img src={MedicareLogo} alt="Medicare Logo" className="w-24 sm:w-32" /> {/* Resized logo */}
+                  <FiArrowLeft className="w-5 h-5 text-white" />
+                  <img src={MedicareLogo} alt="Medicare Logo" className="w-24 sm:w-32" />
                 </>
               )}
             </Link>
@@ -138,7 +139,7 @@ const DashboardLayout = ({ children }) => {
             </button>
           </div>
 
-          {/* Navigation - Optimized spacing and text size for small screens */}
+          {/* Navigation - Scrollable area with fixed height */}
           <nav className="flex-1 px-2 sm:px-4 relative z-10 overflow-y-auto">
             <div className="mb-2 sm:mb-4 px-2">
               {!isSidebarCollapsed && (
@@ -172,7 +173,7 @@ const DashboardLayout = ({ children }) => {
             ))}
           </nav>
 
-          {/* Collapse Sidebar Option - Reduced bottom padding */}
+          {/* Footer section - Fixed at bottom, not scrollable */}
           <div className="p-2 sm:p-4 relative z-10">
             <motion.button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -190,7 +191,7 @@ const DashboardLayout = ({ children }) => {
             </motion.button>
           </div>
 
-          {/* Logout Button - with additional bottom margin for mobile */}
+          {/* Logout Button - Fixed at bottom */}
           <div className="p-2 sm:p-4 relative z-10 mt-0 sm:mt-auto mb-4 sm:mb-2">
             <motion.button
               onClick={() => setIsLogoutModalOpen(true)}
@@ -210,10 +211,10 @@ const DashboardLayout = ({ children }) => {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content - Add proper margin to prevent content from going under sidebar */}
       <div className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? "lg:ml-16" : "lg:ml-64"}`}>
-        {/* Header - Restored to original UI */}
-        <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80">
+        {/* Header - Sticky position */}
+        <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-40 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-row items-center justify-between p-4">
               {/* Left Section */}
@@ -361,7 +362,7 @@ const DashboardLayout = ({ children }) => {
           </div>
         </header>
 
-        {/* Page Content */}
+        {/* Scrollable Page Content */}
         <main className="p-4 sm:p-6 max-w-[2000px] mx-auto">
           {children}
         </main>
