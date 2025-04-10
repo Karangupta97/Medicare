@@ -4,6 +4,8 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect, useState } from "react";
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
+
 
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
@@ -227,6 +229,7 @@ const App = () => {
       </Routes>
       <Toaster position="top-center" />
       <SpeedInsights />
+      <Analytics />
     </>
   );
 };
