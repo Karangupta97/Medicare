@@ -16,61 +16,7 @@ const Loading = () => {
           backgroundSize: '32px 32px'
         }} />
         
-        {/* Logo Background Effects */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* Large Outer Circle */}
-          <motion.div
-            className="absolute w-[80vw] h-[80vw] sm:w-[80vh] sm:h-[80vh] max-w-3xl max-h-3xl"
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.1, 0.15, 0.1],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            style={{
-              background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(99,102,241,0.05) 50%, transparent 70%)'
-            }}
-          />
-          
-          {/* Middle Glow */}
-          <motion.div
-            className="absolute w-[60vw] h-[60vw] sm:w-[60vh] sm:h-[60vh] max-w-2xl max-h-2xl"
-            animate={{
-              scale: [1.1, 1, 1.1],
-              opacity: [0.2, 0.3, 0.2],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.5
-            }}
-            style={{
-              background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(219,234,254,0.3) 40%, transparent 60%)'
-            }}
-          />
-
-          {/* Inner Glow */}
-          <motion.div
-            className="absolute w-[40vw] h-[40vw] sm:w-[40vh] sm:h-[40vh] max-w-xl max-h-xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.4, 0.3],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            }}
-            style={{
-              background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(219,234,254,0.4) 50%, transparent 70%)'
-            }}
-          />
-        </div>
+        {/* Logo Background Effects - Removed large stretched background circles */}
       </div>
 
       {/* Main Content */}

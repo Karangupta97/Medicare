@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../assets/Medicare logo.jpg";
 import UserIcon from "../assets/user.png";
-import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus, FiSettings } from 'react-icons/fi';
 import { useAuthStore } from "../store/authStore";
 import LogoutModal from "./LogoutModal";
 
@@ -13,7 +13,34 @@ const Navbar = ({ user, onLogout }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuthStore();
+  const { logout, refreshUserData } = useAuthStore();
+  const authUser = useAuthStore((state) => state.user) || user;
+  
+  // Refresh user data to get fresh profile picture when component mounts
+  useEffect(() => {
+    refreshUserData();
+  }, [refreshUserData]);
+
+  // Profile picture component with error handling
+  const ProfilePicture = ({ className }) => {
+    const [imgError, setImgError] = useState(false);
+    
+    // Reset error state when photoURL changes
+    useEffect(() => {
+      if (authUser?.photoURL) {
+        setImgError(false);
+      }
+    }, [authUser?.photoURL]);
+    
+    return (
+      <img
+        src={imgError || !authUser?.photoURL ? UserIcon : authUser.photoURL}
+        alt="User"
+        className={className || "w-full h-full object-cover"}
+        onError={() => setImgError(true)}
+      />
+    );
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -26,6 +53,11 @@ const Navbar = ({ user, onLogout }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+  
+  // Close user menu when route changes
+  useEffect(() => {
+    setIsUserMenuOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try {
@@ -91,18 +123,63 @@ const Navbar = ({ user, onLogout }) => {
           </Link>
 
           <div className="flex items-center space-x-3">
-            {user ? (
+            {authUser ? (
               <div className="relative user-menu">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
                 >
-                  <img
-                    src={user.photoURL || UserIcon}
-                    alt="User"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
+                  <ProfilePicture className="w-8 h-8 rounded-full object-cover" />
                 </button>
+                
+                {/* Mobile Profile Dropdown Menu */}
+                <AnimatePresence>
+                  {isUserMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 top-12 mt-2 w-48 bg-white rounded-xl shadow-xl 
+                        py-2 border border-gray-100 z-50"
+                    >
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-900">{authUser?.name || 'User'}</p>
+                        <p className="text-xs text-gray-500">{authUser?.email || 'user@example.com'}</p>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiUser className="w-4 h-4 text-gray-500" />
+                        <span>Profile</span>
+                      </Link>
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiHome className="w-4 h-4 text-gray-500" />
+                        <span>Dashboard</span>
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiSettings className="w-4 h-4 text-gray-500" />
+                        <span>Settings</span>
+                      </Link>
+                      <button
+                        onClick={handleLogoutClick}
+                        className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <FiLogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <Link
@@ -129,18 +206,14 @@ const Navbar = ({ user, onLogout }) => {
             <Link to="/dashboard" className="nav-link">Dashboard</Link>
           </nav>
 
-          {user ? (
+          {authUser ? (
             <div className="relative user-menu">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
               >
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF]">
-                  <img
-                    src={user.photoURL || UserIcon}
-                    alt="User"
-                    className="w-full h-full object-cover"
-                  />
+                  <ProfilePicture />
                 </div>
                 <FiChevronDown className="w-4 h-4 text-gray-600 group-hover:text-gray-800" />
               </button>
@@ -154,28 +227,36 @@ const Navbar = ({ user, onLogout }) => {
                     className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100 z-50"
                   >
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user.name || 'User'}</p>
-                      <p className="text-xs text-gray-500">{user.email || 'user@example.com'}</p>
+                      <p className="text-sm font-medium text-gray-900">{authUser?.name || 'User'}</p>
+                      <p className="text-xs text-gray-500">{authUser?.email || 'user@example.com'}</p>
                     </div>
                     <Link
                       to="/profile"
-                      className="menu-item"
+                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <FiUser className="w-4 h-4" />
+                      <FiUser className="w-4 h-4 text-gray-500" />
                       <span>Profile</span>
                     </Link>
                     <Link
                       to="/dashboard"
-                      className="menu-item"
+                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <FiHome className="w-4 h-4" />
+                      <FiHome className="w-4 h-4 text-gray-500" />
                       <span>Dashboard</span>
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <FiSettings className="w-4 h-4 text-gray-500" />
+                      <span>Settings</span>
                     </Link>
                     <button
                       onClick={handleLogoutClick}
-                      className="menu-item text-red-600 hover:bg-red-50 w-full text-left"
+                      className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50"
                     >
                       <FiLogOut className="w-4 h-4" />
                       <span>Logout</span>
@@ -230,7 +311,7 @@ const Navbar = ({ user, onLogout }) => {
                   <Link to="/health-records" className="mobile-nav-link">Health Records</Link>
                   <Link to="/upload" className="mobile-nav-link">Upload Reports</Link>
                   <Link to="/about" className="mobile-nav-link">About Us</Link>
-                  <Link to="/dashboard" className="mobile-nav-link">Dashboard</Link>
+                  <Link to="/profile" className="mobile-nav-link">Profile</Link>
                 </nav>
               </motion.div>
             </motion.div>
@@ -315,7 +396,7 @@ const Navbar = ({ user, onLogout }) => {
             
             {/* Profile Button */}
             <Link 
-              to="/dashboard" 
+              to="/profile" 
               className={`flex flex-col items-center justify-center w-1/5 h-full relative ${
                 isActive('/dashboard') 
                   ? 'text-[#252A61]' 

@@ -57,15 +57,15 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 const App = () => {
-  const { isCheckingAuth, isAuthenticated, checkAuth, user, initUser } = useAuthStore();
+  const { isCheckingAuth, isAuthenticated, checkAuth, user, refreshUserData } = useAuthStore();
   const location = useLocation();
   const [currentPath, setCurrentPath] = useState(location.pathname);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Initialize user from localStorage when app loads
-    initUser();
-  }, []);
+    // Initialize user data from the server when app loads
+    refreshUserData();
+  }, [refreshUserData]);
 
   useEffect(() => {
     // Store the current path when it changes
@@ -222,7 +222,7 @@ const App = () => {
             </RedirectAuthenticatedUser>
           }
         />
-        {/* <Route path="*" element={<NotFound />} /> */}
+        <Route path="/loading" element={<Loading />} />
       </Routes>
       <Toaster position="top-center" />
     </>

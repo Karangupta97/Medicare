@@ -52,7 +52,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-Background overflow-hidden">
+    <div className="min-h-screen bg-Background">
       {/* Background gradients and blurs - only show on desktop */}
       <motion.div 
         style={{ opacity }}
@@ -65,239 +65,242 @@ const Home = () => {
       </motion.div>
 
       {/* Main content container */}
-      <div className="relative z-10 flex flex-col items-center px-4 py-8 space-y-8">
-        <Navbar user={user} onLogout={handleLogout} />
+      <div className="relative z-10 flex flex-col items-center w-full max-w-full overflow-x-hidden">
+        <div className="w-full px-4 py-8 space-y-8 max-w-[1700px] mx-auto">
+          <Navbar user={user} onLogout={handleLogout} />
 
-        {/* Hero Section */}
-        <motion.div 
-          style={{ scale }}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-          className="w-full max-w-[1703px] relative"
-        >
-          {/* Mobile Hero */}
-          <div className="md:hidden w-full h-[180px] bg-[#252a61] rounded-[30px] relative overflow-hidden">
-            <h1 className="absolute inset-0 flex items-center justify-center text-[75px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] -translate-y-12">
-              Medicare
-            </h1>
-            <div className="relative z-10 h-full flex items-end justify-center">
-              <img
-                src={nurse}
-                alt="nurse"
-                className="h-[160px] w-auto object-contain"
-              />
-            </div>
-          </div>
-
-          {/* Desktop Hero */}
-          <div className="hidden md:block h-[800px] lg:h-[1000px]">
-            <div className="w-full h-full bg-[#252a61] rounded-[50px] relative overflow-hidden flex flex-col items-center justify-center">
-              <div className="w-full flex justify-center mb-8">
-                <h1 className="text-[150px] lg:text-[200px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] text-center">
-                  Medicare
-                </h1>
-              </div>
-              <div className="w-full flex justify-center mt-8">
+          {/* Hero Section */}
+          <motion.div 
+            style={{ scale }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="w-full relative"
+          >
+            {/* Mobile Hero */}
+            <div className="md:hidden w-full h-[180px] bg-[#252a61] rounded-[30px] relative overflow-hidden">
+              <h1 className="absolute inset-0 flex items-center justify-center text-[75px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] -translate-y-12">
+                Medicare
+              </h1>
+              <div className="relative z-10 h-full flex items-end justify-center">
                 <img
                   src={nurse}
                   alt="nurse"
-                  className="w-[400px] lg:w-[500px] h-auto"
+                  className="h-[160px] w-auto object-contain"
                 />
               </div>
             </div>
-          </div>
-        </motion.div>
 
-        {/* Services Section */}
-        <motion.section 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-[1700px] grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-10 py-4 md:py-8 px-4"
-        >
-          <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link
-              to="/find-hospital"
-              className="w-full flex items-center space-x-4 md:justify-center bg-[#CDEBF1] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
-            >
-              <motion.img
-                whileHover={{ rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="w-12 h-12 md:w-16 md:h-16"
-                src={FindHospitalimage}
-                alt="Find Hospital"
-              />
-              <span className="text-lg md:text-2xl font-bold text-[#252a61]">
-                Find Hospital
-              </span>
-            </Link>
+            {/* Desktop Hero */}
+            <div className="hidden md:block h-[800px] lg:h-[1000px]">
+              <div className="w-full h-full bg-[#252a61] rounded-[50px] relative overflow-hidden flex flex-col items-center justify-center">
+                <div className="w-full flex justify-center mb-8">
+                  <h1 className="text-[150px] lg:text-[200px] font-bold font-['Montserrat Alternate'] leading-none text-[#d9e7ff] text-center">
+                    Medicare
+                  </h1>
+                </div>
+                <div className="w-full flex justify-center mt-8">
+                  <img
+                    src={nurse}
+                    alt="nurse"
+                    className="w-[400px] lg:w-[500px] h-auto"
+                  />
+                </div>
+              </div>
+            </div>
           </motion.div>
 
-          <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link
-              to="/upload"
-              className="w-full flex items-center space-x-4 md:justify-center bg-[#DEF1D0] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
-            >
-              <svg className="w-12 h-12 md:w-16 md:h-16 text-[#252a61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              <span className="text-lg md:text-2xl font-bold text-[#252a61]">
-                Upload Reports
-              </span>
-            </Link>
-          </motion.div>
-
-          <motion.div
-            whileHover={{ scale: 1.05, y: -5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link
-              to="/health-records"
-              className="w-full flex items-center space-x-4 md:justify-center bg-[#f8e5e5] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
-            >
-              <img
-                className="w-12 h-12 md:w-16 md:h-16"
-                src={HealthRecordsimage}
-                alt="Health Records"
-              />
-              <span className="text-lg md:text-2xl font-bold text-[#252a61]">
-                Health Records
-              </span>
-            </Link>
-          </motion.div>
-        </motion.section>
-
-        {/* What We Do */}
-        <motion.section 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-[1700px] text-center py-4 md:py-8"
-        >
-          <motion.h2 
-            variants={fadeInUp}
-            className="text-xl md:text-3xl lg:text-5xl font-normal text-Text mb-8"
-          >
-            What We Do
-          </motion.h2>
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
+          {/* Services Section */}
+          <motion.section 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4"
+            transition={{ duration: 0.6 }}
+            className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-10 py-4 md:py-8"
           >
-            {[
-              {
-                icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
-                title: "Digital Health Records",
-                description: "Securely store and manage your medical records in one place. Access your health information anytime, anywhere.",
-                bgColor: "bg-[#CDEBF1]"
-              },
-              {
-                icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-                title: "Report Management",
-                description: "Upload and organize your medical reports, test results, and prescriptions in a structured format.",
-                bgColor: "bg-[#DEF1D0]"
-              },
-              {
-                icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z",
-                title: "Hospital Locator",
-                description: "Find nearby hospitals, clinics, and healthcare facilities with detailed information and ratings.",
-                bgColor: "bg-[#f8e5e5]"
-              },
-              {
-                icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-                title: "Appointment Scheduling",
-                description: "Book appointments with healthcare providers, receive reminders, and manage your medical schedule.",
-                bgColor: "bg-[#CDEBF1]"
-              },
-              {
-                icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
-                title: "Secure Data Storage",
-                description: "Your health information is protected with advanced encryption and security measures.",
-                bgColor: "bg-[#DEF1D0]"
-              },
-              {
-                icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-                title: "Healthcare Network",
-                description: "Connect with healthcare providers and share your medical information securely.",
-                bgColor: "bg-[#f8e5e5]"
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                variants={fadeInUp}
-                whileHover={{ 
-                  scale: 1.05,
-                  y: -5,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  transition: { duration: 0.1 }
-                }}
-                transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-200"
+            <motion.div
+              whileHover={{ scale: 1.05, y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full"
+            >
+              <Link
+                to="/find-hospital"
+                className="w-full flex items-center space-x-4 md:justify-center bg-[#CDEBF1] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
               >
-                <motion.div 
+                <motion.img
+                  whileHover={{ rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="w-12 h-12 md:w-16 md:h-16"
+                  src={FindHospitalimage}
+                  alt="Find Hospital"
+                />
+                <span className="text-lg md:text-2xl font-bold text-[#252a61]">
+                  Find Hospital
+                </span>
+              </Link>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.05, y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link
+                to="/upload"
+                className="w-full flex items-center space-x-4 md:justify-center bg-[#DEF1D0] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+              >
+                <svg className="w-12 h-12 md:w-16 md:h-16 text-[#252a61]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span className="text-lg md:text-2xl font-bold text-[#252a61]">
+                  Upload Reports
+                </span>
+              </Link>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.05, y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link
+                to="/health-records"
+                className="w-full flex items-center space-x-4 md:justify-center bg-[#f8e5e5] rounded-2xl md:rounded-[30px] p-4 md:p-6 hover:shadow-xl transition-all duration-300"
+              >
+                <img
+                  className="w-12 h-12 md:w-16 md:h-16"
+                  src={HealthRecordsimage}
+                  alt="Health Records"
+                />
+                <span className="text-lg md:text-2xl font-bold text-[#252a61]">
+                  Health Records
+                </span>
+              </Link>
+            </motion.div>
+          </motion.section>
+
+          {/* What We Do */}
+          <motion.section 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="w-full text-center py-4 md:py-8"
+          >
+            <motion.h2 
+              variants={fadeInUp}
+              className="text-xl md:text-3xl lg:text-5xl font-normal text-Text mb-8"
+            >
+              What We Do
+            </motion.h2>
+            <motion.div 
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {[
+                {
+                  icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+                  title: "Digital Health Records",
+                  description: "Securely store and manage your medical records in one place. Access your health information anytime, anywhere.",
+                  bgColor: "bg-[#CDEBF1]"
+                },
+                {
+                  icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+                  title: "Report Management",
+                  description: "Upload and organize your medical reports, test results, and prescriptions in a structured format.",
+                  bgColor: "bg-[#DEF1D0]"
+                },
+                {
+                  icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z",
+                  title: "Hospital Locator",
+                  description: "Find nearby hospitals, clinics, and healthcare facilities with detailed information and ratings.",
+                  bgColor: "bg-[#f8e5e5]"
+                },
+                {
+                  icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+                  title: "Appointment Scheduling",
+                  description: "Book appointments with healthcare providers, receive reminders, and manage your medical schedule.",
+                  bgColor: "bg-[#CDEBF1]"
+                },
+                {
+                  icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+                  title: "Secure Data Storage",
+                  description: "Your health information is protected with advanced encryption and security measures.",
+                  bgColor: "bg-[#DEF1D0]"
+                },
+                {
+                  icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+                  title: "Healthcare Network",
+                  description: "Connect with healthcare providers and share your medical information securely.",
+                  bgColor: "bg-[#f8e5e5]"
+                }
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  variants={fadeInUp}
                   whileHover={{ 
-                    rotate: 360,
-                    scale: 1.1,
-                    transition: { duration: 0.2 }
+                    scale: 1.05,
+                    y: -5,
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                    transition: { duration: 0.1 }
                   }}
-                  className={`w-16 h-16 ${feature.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-white p-6 rounded-[30px] shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  <motion.svg 
+                  <motion.div 
                     whileHover={{ 
-                      scale: 1.2,
-                      rotate: 180,
+                      rotate: 360,
+                      scale: 1.1,
                       transition: { duration: 0.2 }
                     }}
-                    className="w-8 h-8 text-[#252A61]" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
+                    className={`w-16 h-16 ${feature.bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={feature.icon} />
-                  </motion.svg>
+                    <motion.svg 
+                      whileHover={{ 
+                        scale: 1.2,
+                        rotate: 180,
+                        transition: { duration: 0.2 }
+                      }}
+                      className="w-8 h-8 text-[#252A61]" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={feature.icon} />
+                    </motion.svg>
+                  </motion.div>
+                  <motion.h3 
+                    whileHover={{ 
+                      color: "#252A61",
+                      scale: 1.05,
+                      transition: { duration: 0.1 }
+                    }}
+                    className="text-xl font-semibold text-[#252A61] mb-2"
+                  >
+                    {feature.title}
+                  </motion.h3>
+                  <motion.p 
+                    whileHover={{ 
+                      color: "#4a5568",
+                      scale: 1.02,
+                      transition: { duration: 0.1 }
+                    }}
+                    className="text-gray-600"
+                  >
+                    {feature.description}
+                  </motion.p>
                 </motion.div>
-                <motion.h3 
-                  whileHover={{ 
-                    color: "#252A61",
-                    scale: 1.05,
-                    transition: { duration: 0.1 }
-                  }}
-                  className="text-xl font-semibold text-[#252A61] mb-2"
-                >
-                  {feature.title}
-                </motion.h3>
-                <motion.p 
-                  whileHover={{ 
-                    color: "#4a5568",
-                    scale: 1.02,
-                    transition: { duration: 0.1 }
-                  }}
-                  className="text-gray-600"
-                >
-                  {feature.description}
-                </motion.p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.section>
+              ))}
+            </motion.div>
+          </motion.section>
+        </div>
 
-        {/* Footer */}
+        {/* Footer - Full width but contained content */}
         <motion.footer 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -305,7 +308,9 @@ const Home = () => {
           transition={{ duration: 0.6 }}
           className="w-full bg-Primary rounded-tl-[20px] rounded-tr-[20px] py-8"
         >
-          {/* Footer content */}
+          <div className="max-w-[1700px] mx-auto px-4">
+            {/* Footer content */}
+          </div>
         </motion.footer>
       </div>
     </div>

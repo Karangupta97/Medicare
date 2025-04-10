@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global styles to prevent horizontal scrolling */
+html, body, #root {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+}
+
 @layer components {
   /* Navigation Links */
   .nav-link {
