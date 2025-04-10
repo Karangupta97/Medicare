@@ -107,12 +107,12 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row">
-      {/* Sidebar */}
+      {/* Sidebar - Updated for small/medium screens to respect top and bottom navbars */}
       <aside
         className={`fixed lg:top-1/2 lg:left-[0.2%] lg:transform lg:-translate-y-1/2 
-          top-[5vh] left-0 h-[90vh] lg:h-[98vh] ${
+          top-[3.5rem] sm:top-[4rem] left-0 h-[calc(100vh-3.5rem-4rem)] sm:h-[calc(100vh-4rem-4rem)] md:h-[calc(100vh-4rem-4rem)] lg:h-[98vh] ${
           isSidebarCollapsed ? "w-16" : "w-[220px] sm:w-64"
-        } bg-[#252A61] text-white transition-all duration-300 ease-in-out z-50 
+        } bg-[#252A61] text-white transition-all duration-300 ease-in-out z-40 
           lg:rounded-[35px] rounded-r-[35px] ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         <div className="flex flex-col h-full relative overflow-hidden">
