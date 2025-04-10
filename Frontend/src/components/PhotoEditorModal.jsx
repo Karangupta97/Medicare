@@ -401,4 +401,32 @@ const PhotoEditorModal = ({ isOpen, onClose, onSave, imageUrl }) => {
   );
 };
 
-export default PhotoEditorModal;
+// Add cache busting parameter to prevent image expiration
+const addCacheBuster = (url) => {
+  if (!url) return "/user.png";
+  
+  // If it's already a URL or a data URL, add a cache busting parameter
+  if (url.startsWith('http') || url.startsWith('https') || url.startsWith('data:')) {
+    // For data URLs, we don't need to modify them
+    if (url.startsWith('data:')) return url;
+    
+    // Add timestamp as cache buster
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${Date.now()}`;
+  }
+  
+  return url;
+};
+
+// Modify the default export to wrap the component and handle cache busting
+const PhotoEditorModalWithNonExpiringImages = (props) => {
+  // Apply cache busting to the imageUrl prop
+  const modifiedProps = {
+    ...props,
+    imageUrl: addCacheBuster(props.imageUrl)
+  };
+  
+  return <PhotoEditorModal {...modifiedProps} />;
+};
+
+export default PhotoEditorModalWithNonExpiringImages;

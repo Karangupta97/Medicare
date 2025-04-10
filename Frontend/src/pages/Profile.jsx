@@ -57,7 +57,6 @@ const Profile = () => {
   };
 
   const handlePicView = () => {
-    // Always show the modal, even if using default image
     setIsPicModalOpen(true);
   };
 
@@ -69,24 +68,20 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Please select a valid image file (JPEG, JPG or PNG)");
       return;
     }
 
-    // Validate file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error("Image size should be less than 5MB");
       return;
     }
 
     setUploading(true);
-    // Create a temporary local URL to show immediate feedback
     const localPreview = URL.createObjectURL(file);
-    // Update UI immediately with local preview
     setUser((prev) => ({
       ...prev,
       photoURL: localPreview,
@@ -111,20 +106,18 @@ const Profile = () => {
       });
 
       if (response.data.user && response.data.user.photoURL) {
-        // Update user state with the permanent URL from server
         setUser({
           ...response.data.user,
-          _tempPhotoURL: false
+          _tempPhotoURL: false,
         });
 
-        // Also persist in localStorage to prevent loss on refresh
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
         localStorage.setItem(
           "user",
           JSON.stringify({
             ...currentUser,
             photoURL: response.data.user.photoURL,
-            _tempPhotoURL: false
+            _tempPhotoURL: false,
           })
         );
 
@@ -134,7 +127,6 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("Error uploading photo:", error);
-      // Revert to previous photo if update fails
       setUser((prev) => ({
         ...prev,
         photoURL: user.photoURL,
@@ -153,7 +145,6 @@ const Profile = () => {
       }
     } finally {
       setUploading(false);
-      // Revoke the temporary object URL to prevent memory leaks
       if (localPreview) URL.revokeObjectURL(localPreview);
     }
   };
@@ -173,7 +164,6 @@ const Profile = () => {
   const handlePhotoSave = async (editedImage) => {
     setUploading(true);
     try {
-      // Handle the edited image upload
       const formData = new FormData();
       formData.append("file", editedImage);
 
@@ -185,23 +175,21 @@ const Profile = () => {
       });
 
       if (response.data.user) {
-        // Update user state with the server response
         setUser({
           ...response.data.user,
-          _tempPhotoURL: false  // Ensure it's not marked as temporary
+          _tempPhotoURL: false,
         });
-        
-        // Manually update the localStorage to ensure persistence
+
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
         localStorage.setItem(
           "user",
           JSON.stringify({
             ...currentUser,
             photoURL: response.data.user.photoURL,
-            _tempPhotoURL: false
+            _tempPhotoURL: false,
           })
         );
-        
+
         toast.success("Profile photo updated successfully");
       }
     } catch (error) {
@@ -237,7 +225,6 @@ const Profile = () => {
 
   const renderOverviewTab = () => (
     <div className="space-y-3 sm:space-y-4 md:space-y-6">
-      {/* Personal Information Card */}
       <motion.div
         className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
@@ -382,121 +369,207 @@ const Profile = () => {
         )}
       </motion.div>
 
-      {/* Account Security Card */}
       <motion.div
         className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 md:mb-6">
-          <FaShieldAlt className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-          Account Security
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-          <div className="flex items-start gap-2 sm:gap-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-4 md:mb-6">
+          <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-1.5 sm:gap-2">
             <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
-              <FaShieldAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-green-500 dark:text-green-400" />
+              <FaShieldAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
             </div>
-            <div>
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Email Verification
-              </p>
-              <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
-                {user.isverified ? (
-                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    Verified
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                    Not Verified
-                  </span>
-                )}
-                {!user.isverified && (
-                  <button className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 font-medium">
-                    Verify Now
-                  </button>
-                )}
+            Account Security
+          </h3>
+          <button className="flex items-center gap-1 text-xs sm:text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+            <FaShieldAlt className="w-3 h-3 sm:w-4 sm:h-4" />
+            Security Settings
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+                <FaShieldAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  Email Verification
+                </p>
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
+                  {user.isverified ? (
+                    <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      <svg
+                        className="w-3 h-3 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                      Verified
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                      <svg
+                        className="w-3 h-3 mr-1"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        ></path>
+                      </svg>
+                      Not Verified
+                    </span>
+                  )}
+                  {!user.isverified && (
+                    <button className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 font-medium ml-2 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                      Verify Now
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
-              <FaClock className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 dark:text-green-400" />
+
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+                <FaClock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  Last Login
+                </p>
+                <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                  {formatDate(user.lastLOGIN)}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Last Login
-              </p>
-              <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
-                {formatDate(user.lastLOGIN)}
-              </p>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+                <svg
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  Password Status
+                </p>
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
+                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <svg
+                      className="w-3 h-3 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      ></path>
+                    </svg>
+                    Secure
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+                <svg
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  Two-Factor Authentication
+                </p>
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
+                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                    Not Enabled
+                  </span>
+                  <button className="text-[10px] sm:text-xs text-green-600 hover:text-green-700 font-medium">
+                    Enable
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="mt-3 sm:mt-4 md:mt-6 pt-3 sm:pt-4 md:pt-6 border-t border-gray-100 dark:border-gray-700">
-          <button className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium">
+
+        <div className="mt-4 sm:mt-5 md:mt-6 pt-4 sm:pt-5 md:pt-6 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-2 sm:gap-3">
+          <button className="inline-flex items-center px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+            <svg
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+              ></path>
+            </svg>
             Change Password
           </button>
-        </div>
-      </motion.div>
-      {/* Activity Overview */}
-      <motion.div
-        className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl shadow-md p-3 sm:p-4 md:p-6 border border-gray-100 dark:border-gray-700"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
-        <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 md:mb-6">
-          <FaHistory className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
-          Recent Activity
-        </h3>
-        <div className="space-y-2 sm:space-y-3 md:space-y-4">
-          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
-              <FaHistory className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-500 dark:text-purple-400" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">
-                Login from new device
-              </p>
-              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">
-                {formatDate(user.lastLOGIN)}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
-              <FaHistory className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-500 dark:text-purple-400" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">
-                Profile updated
-              </p>
-              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">
-                {formatDate(
-                  user.updatedAt ||
-                    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-                )}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg shrink-0">
-              <FaHistory className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-500 dark:text-purple-400" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">
-                Account created
-              </p>
-              <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 dark:text-gray-400">
-                {formatDate(
-                  user.createdAt ||
-                    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-                )}
-              </p>
-            </div>
-          </div>
+          <button className="inline-flex items-center px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+            <svg
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              ></path>
+            </svg>
+            Enable 2FA
+          </button>
         </div>
       </motion.div>
     </div>
@@ -507,19 +580,16 @@ const Profile = () => {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-6">
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
-            {/* Profile Header Card */}
             <motion.div
               className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-6 lg:p-8 mb-3 sm:mb-4 md:mb-6 relative overflow-hidden backdrop-blur-md bg-opacity-50"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Abstract background elements */}
               <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-white/10 rounded-full -mr-10 sm:-mr-16 md:-mr-24 lg:-mr-32 -mt-10 sm:-mt-16 md:-mt-24 lg:-mt-32 blur-2xl"></div>
               <div className="absolute bottom-0 left-0 w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-purple-500/20 rounded-full -ml-10 sm:-ml-16 md:-ml-24 lg:-ml-32 -mb-10 sm:-mb-16 md:-mb-24 lg:-mb-32 blur-3xl"></div>
 
               <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-4 z-10 w-full">
-                {/* Profile Picture Section */}
                 <div className="relative flex-shrink-0 mb-3 sm:mb-0 flex flex-col items-center">
                   <div
                     onClick={handlePhotoClick}
@@ -530,7 +600,6 @@ const Profile = () => {
                       alt="Profile"
                       className="w-[90%] h-[90%] rounded-full object-cover border-2 sm:border-3 md:border-4 border-white transition-all group-hover:opacity-80"
                     />
-                    {/* WhatsApp-style camera overlay */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all">
                       <div className="transform translate-y-full group-hover:translate-y-0 transition-transform duration-200">
                         <FaCamera className="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -538,7 +607,6 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  {/* Profile Picture Options - Now only showing View */}
                   <div className="flex gap-2 mt-3">
                     <button
                       onClick={handlePicView}
@@ -557,7 +625,6 @@ const Profile = () => {
                   />
                 </div>
 
-                {/* User Info Section */}
                 <div className="flex-1 text-center sm:text-left">
                   <h1 className="text-lg sm:text-lg md:text-xl lg:text-2xl font-bold text-white mb-1 sm:mb-1">
                     {user.name} {user.lastname}
@@ -588,7 +655,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Edit Profile Button */}
                 <div className="mt-4 sm:mt-0">
                   <button
                     onClick={() => setEditMode(!editMode)}
@@ -601,7 +667,6 @@ const Profile = () => {
               </div>
             </motion.div>
 
-            {/* Profile Tabs Navigation */}
             <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 -mx-2 sm:mx-0 px-2 sm:px-0 py-2 border-b border-gray-200 dark:border-gray-700">
               <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
                 <div className="flex space-x-2 min-w-max">
@@ -642,7 +707,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Tab Content */}
             <div className="grid gap-3 sm:gap-4 md:gap-6">
               {activeTab === "overview" && renderOverviewTab()}
               {activeTab === "reports" && (
@@ -667,7 +731,6 @@ const Profile = () => {
               )}
             </div>
 
-            {/* Profile Picture View Modal */}
             {isPicModalOpen && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -700,7 +763,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      {/* Add the PhotoEditorModal */}
       <PhotoEditorModal
         isOpen={isPhotoEditorOpen}
         onClose={() => setIsPhotoEditorOpen(false)}
