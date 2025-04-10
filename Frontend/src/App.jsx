@@ -3,8 +3,8 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect, useState } from "react";
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 
 import Home from "./pages/Home";
@@ -228,8 +228,8 @@ const App = () => {
         <Route path="/loading" element={<Loading />} />
       </Routes>
       <Toaster position="top-center" />
-      <SpeedInsights />
       <Analytics />
+      <SpeedInsights />
     </>
   );
 };
