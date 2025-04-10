@@ -1,5 +1,9 @@
 import React from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { useAuthStore } from "./store/authStore";
+import { useEffect, useState } from "react";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
@@ -18,9 +22,6 @@ import WorkingOnIt from "./pages/WorkingOnIt";
 
 import Loading from "./components/Loading";
 
-import { Toaster } from "react-hot-toast";
-import { useAuthStore } from "./store/authStore";
-import { useEffect, useState } from "react";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
@@ -225,6 +226,7 @@ const App = () => {
         <Route path="/loading" element={<Loading />} />
       </Routes>
       <Toaster position="top-center" />
+      <SpeedInsights />
     </>
   );
 };
