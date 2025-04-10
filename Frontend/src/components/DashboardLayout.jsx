@@ -109,7 +109,11 @@ const DashboardLayout = ({ children }) => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row">
       {/* Sidebar */}
       <aside
-        className={`fixed top-1/2 left-[0.2%] transform -translate-y-1/2 h-[98vh] ${
+        className={`fixed ${
+          // Responsive height and position: use 90vh for small/mobile, 98vh for larger screens
+          // Center on larger screens, position at 5vh from top on small/mobile
+          "top-[5vh] h-[90vh] lg:top-1/2 lg:-translate-y-1/2 lg:h-[98vh]"
+        } left-[0.2%] transform ${
           isSidebarCollapsed ? "w-16" : "w-[220px] sm:w-64"
         } bg-[#252A61] text-white transition-all duration-300 ease-in-out z-50 
           rounded-[35px] ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
