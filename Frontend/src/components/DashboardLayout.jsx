@@ -137,106 +137,59 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row">
-      {/* Sidebar - Fixed position to prevent scrolling with page content */}
+      {/* Sidebar - Optimized with rounded corners and better icon arrangement */}
       <aside
-        className={`fixed ${
-          // Responsive height and position: use 90vh for small/mobile, 98vh for larger screens
-          // Center on larger screens, position at 5vh from top on small/mobile
-          "top-[5vh] h-[90vh] lg:top-1/2 lg:-translate-y-1/2 lg:h-[98vh]"
-        } left-[0.2%] transform ${
-          isSidebarCollapsed ? "w-16" : "w-[220px] sm:w-64"
-        } bg-[#252A61] text-white transition-all duration-300 ease-in-out z-50 
-          rounded-[35px] ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        className={`fixed top-0 left-0 h-screen ${isSidebarCollapsed ? "w-16" : "w-[80%] max-w-xs lg:w-64"} bg-[#252A61] text-white z-50 transform transition-all duration-300 ease-in-out 
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 overflow-y-auto flex flex-col rounded-tr-2xl rounded-br-2xl shadow-xl`}
       >
-        {/* Sidebar content container with fixed height and scrollable content */}
-        <div className="flex flex-col h-full relative overflow-hidden">
-          {/* Logo Section - Fixed at top, not scrollable */}
-          <div className="flex items-center justify-between p-3 mb-2 sm:p-4 sm:mb-6 relative z-10">
+        <div className="flex flex-col min-h-full">
+          {/* Logo Section - increased logo size */}
+          <div className="flex items-center justify-between p-2 sm:p-4">
             <Link to="/" className="flex items-center gap-2">
-              {!isSidebarCollapsed && (
-                <>
-                  <FiArrowLeft className="w-5 h-5 text-white" />
-                  <img src={MedicareLogo} alt="Medicare Logo" className="w-24 sm:w-32" />
-                </>
-              )}
+              <img src={MedicareLogo} alt="Medicare Logo" className={`transition-all duration-300 ${isSidebarCollapsed ? "w-10 mx-auto" : "w-28 sm:w-32"}`} />
             </Link>
-            {/* Close Sidebar Button for Small and Medium Devices */}
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="lg:hidden p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
             >
-              <FiX className="w-6 h-6 text-white" />
+              <FiX className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Navigation - Scrollable area with fixed height */}
-          <nav className="flex-1 px-2 sm:px-4 relative z-10 overflow-y-auto">
-            <div className="mb-2 sm:mb-4 px-2">
-              {!isSidebarCollapsed && (
-                <p className="text-white/40 text-[10px] xs:text-xs sm:text-sm md:text-base lg:text-lg uppercase font-semibold tracking-wider">Main Menu</p>
-              )}
-            </div>
-            {menuItems.map((item, index) => (
+          {/* Navigation Menu - increased text size */}
+          <nav className="flex-1 px-2 py-1">
+            {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={handleMenuClick}
-                className={`flex items-center ${
-                  isSidebarCollapsed ? "justify-center" : "space-x-3"
-                } px-3 py-2 sm:px-4 sm:py-3 rounded-xl mb-1 sm:mb-2 transition-all duration-200 ${
-                  location.pathname === item.path
-                    ? "bg-white/15 text-white font-medium backdrop-blur-sm shadow-sm"
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
-                }`}
+                className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center space-x-2"} px-2 py-2 rounded-lg transition-all duration-200 mb-3
+                  ${location.pathname === item.path ? "bg-white/15 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
               >
-                <motion.div
-                  animate={{
-                    scale: location.pathname === item.path ? [1, 1.2, 1] : 1,
-                    rotate: location.pathname === item.path ? [0, 5, 0] : 0,
-                  }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <item.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" /> {/* Render the icon */}
-                </motion.div>
-                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-lg lg:text-xl font-medium">{item.label}</span>}
+                <item.icon className={`${isSidebarCollapsed ? "w-7 h-7" : "w-6 h-6"}`} />
+                {!isSidebarCollapsed && <span className="text-base md:text-lg font-medium">{item.label}</span>}
               </Link>
             ))}
           </nav>
 
-          {/* Footer section - Fixed at bottom, not scrollable */}
-          <div className="p-2 sm:p-4 relative z-10">
-            <motion.button
+          {/* Footer Section - increased text size and icon size */}
+          <div className="p-2 mb-2">
+            <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className={`flex items-center ${
-                isSidebarCollapsed ? "justify-center" : "justify-between"
-              } space-x-3 px-3 py-2 sm:px-4 sm:py-3 w-full text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl 
-                transition-all duration-200 border border-white/5 backdrop-blur-sm`}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-2 py-2 text-base text-white bg-white/10 rounded-lg hover:bg-white/20 transition-colors mb-3`}
             >
-              <div className="flex items-center space-x-3">
-                <FiMenu className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-lg lg:text-xl">Collapse Sidebar</span>}
-              </div>
-            </motion.button>
-          </div>
+              <FiMenu className={`${isSidebarCollapsed ? "w-7 h-7" : "w-6 h-6"}`} />
+              {!isSidebarCollapsed && <span className="ml-2">Collapse</span>}
+            </button>
 
-          {/* Logout Button - Fixed at bottom */}
-          <div className="p-2 sm:p-4 relative z-10 mt-0 sm:mt-auto mb-4 sm:mb-2">
-            <motion.button
+            {/* Logout Option - consistent with other elements */}
+            <button
               onClick={() => setIsLogoutModalOpen(true)}
-              className={`flex items-center ${
-                isSidebarCollapsed ? "justify-center" : "justify-between"
-              } space-x-3 px-3 py-2 sm:px-4 sm:py-3 w-full text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl 
-                transition-all duration-200 border border-white/5 backdrop-blur-sm`}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-2 py-2 text-base text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors`}
             >
-              <div className="flex items-center space-x-3">
-                <FiLogOut className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-lg lg:text-xl">Logout</span>}
-              </div>
-            </motion.button>
+              <FiLogOut className={`${isSidebarCollapsed ? "w-7 h-7" : "w-6 h-6"}`} />
+              {!isSidebarCollapsed && <span className="ml-2">Logout</span>}
+            </button>
           </div>
         </div>
       </aside>
