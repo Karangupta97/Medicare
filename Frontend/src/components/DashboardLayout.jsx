@@ -84,24 +84,54 @@ const DashboardLayout = ({ children }) => {
     // Do NOT change isSidebarCollapsed state here
   };
   
-  // Profile picture with error handling
+  // Profile picture with error handling and cache busting
   const ProfilePicture = ({ className }) => {
     const [imgError, setImgError] = useState(false);
+    const [imgSrc, setImgSrc] = useState(usericon);
     
-    // Reset error state if photoURL changes
     useEffect(() => {
+      // Reset error state and update image source when user data changes
       if (user?.photoURL) {
         setImgError(false);
+        
+        // Add a timestamp parameter to the URL to prevent caching if it's not already there
+        if (!user.photoURL.includes('?')) {
+          setImgSrc(`${user.photoURL}?t=${new Date().getTime()}`);
+        } else {
+          setImgSrc(user.photoURL);
+        }
+      } else {
+        setImgSrc(usericon);
       }
     }, [user?.photoURL]);
     
     return (
       <img
-        src={imgError || !user?.photoURL ? usericon : user.photoURL}
+        src={imgError ? usericon : imgSrc}
         alt="Profile"
         className={className || "w-full h-full object-cover"}
         onError={() => setImgError(true)}
       />
+    );
+  };
+
+  // Adjust the sidebar layout for mobile devices
+  const Sidebar = () => {
+    return (
+      <div className="w-full md:w-64 h-auto md:h-full bg-[#252a61] text-white flex flex-col">
+        {/* Ensure the sidebar fits within the viewport for mobile devices */}
+        <div className="flex flex-col items-center justify-center py-4">
+          <img src="/logo.png" alt="Medicare Logo" className="w-16 h-16" />
+          <h1 className="text-lg font-bold mt-2">Medicare</h1>
+        </div>
+        <nav className="flex flex-col space-y-2 px-4">
+          {/* Add navigation links */}
+          <a href="/dashboard" className="text-sm md:text-base py-2 px-3 rounded hover:bg-[#3b3b98]">Dashboard</a>
+          <a href="/profile" className="text-sm md:text-base py-2 px-3 rounded hover:bg-[#3b3b98]">Profile</a>
+          <a href="/reports" className="text-sm md:text-base py-2 px-3 rounded hover:bg-[#3b3b98]">Reports</a>
+          <a href="/settings" className="text-sm md:text-base py-2 px-3 rounded hover:bg-[#3b3b98]">Settings</a>
+        </nav>
+      </div>
     );
   };
 
@@ -143,7 +173,7 @@ const DashboardLayout = ({ children }) => {
           <nav className="flex-1 px-2 sm:px-4 relative z-10 overflow-y-auto">
             <div className="mb-2 sm:mb-4 px-2">
               {!isSidebarCollapsed && (
-                <p className="text-white/40 text-[10px] xs:text-xs md:text-sm lg:text-base uppercase font-semibold tracking-wider">Main Menu</p>
+                <p className="text-white/40 text-[10px] xs:text-xs sm:text-sm md:text-base lg:text-lg uppercase font-semibold tracking-wider">Main Menu</p>
               )}
             </div>
             {menuItems.map((item, index) => (
@@ -168,7 +198,7 @@ const DashboardLayout = ({ children }) => {
                 >
                   <item.icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" /> {/* Render the icon */}
                 </motion.div>
-                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-base lg:text-lg font-medium">{item.label}</span>}
+                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-lg lg:text-xl font-medium">{item.label}</span>}
               </Link>
             ))}
           </nav>
@@ -186,7 +216,7 @@ const DashboardLayout = ({ children }) => {
             >
               <div className="flex items-center space-x-3">
                 <FiMenu className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-base lg:text-lg">Collapse Sidebar</span>}
+                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-lg lg:text-xl">Collapse Sidebar</span>}
               </div>
             </motion.button>
           </div>
@@ -204,7 +234,7 @@ const DashboardLayout = ({ children }) => {
             >
               <div className="flex items-center space-x-3">
                 <FiLogOut className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-base lg:text-lg">Logout</span>}
+                {!isSidebarCollapsed && <span className="text-[11px] xs:text-xs sm:text-sm md:text-lg lg:text-xl">Logout</span>}
               </div>
             </motion.button>
           </div>
