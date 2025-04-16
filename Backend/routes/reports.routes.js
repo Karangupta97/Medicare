@@ -4,7 +4,10 @@ import {
   getReports,
   uploadReport,
   deleteReport,
-  getReportById
+  getReportById,
+  moveReport,
+  updateReport,
+  refreshReportUrl
 } from "../controllers/reports.controller.js";
 import multer from "multer";
 
@@ -62,10 +65,19 @@ router.get("/", getReports);
 // Upload a new report
 router.post("/upload", upload.single('file'), handleMulterError, uploadReport);
 
+// Refresh the signed URL for a report (when URL expires)
+router.get("/:id/refresh-url", refreshReportUrl);
+
 // Get a specific report by ID
 router.get("/:id", getReportById);
 
 // Delete a report
 router.delete("/:id", deleteReport);
 
-export default router; 
+// Move a report to a different category
+router.patch("/:id/move", moveReport);
+
+// Update report title and description
+router.patch("/:id", updateReport);
+
+export default router;

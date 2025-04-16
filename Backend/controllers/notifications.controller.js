@@ -1,16 +1,54 @@
 import Notification from '../models/notification.model.js';
 import asyncHandler from 'express-async-handler';
+import { sendNotificationToUser } from '../utils/socket.js';
 
 // Get all notifications for a user
 const getNotifications = asyncHandler(async (req, res) => {
-  const notifications = await Notification.find({ userId: req.user._id })
+  const { page = 1, limit = 20, type, search } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+  
+  // Build filter query
+  const filter = { userId: req.user.id }; // Changed from req.user._id to req.user.id
+  
+  // Add type filter if provided
+  if (type && type !== 'all') {
+    filter.type = type;
+  }
+  
+  // Add search filter if provided
+  if (search) {
+    filter.$or = [
+      { message: { $regex: search, $options: 'i' } },
+      { title: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  // Get notifications with filters and pagination
+  const notifications = await Notification.find(filter)
     .sort({ createdAt: -1 })
-    .limit(20);
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  // Get total count for pagination
+  const totalItems = await Notification.countDocuments(filter);
+  const totalPages = Math.ceil(totalItems / parseInt(limit));
+  
+  // Get unread count
+  const unreadCount = await Notification.countDocuments({ 
+    userId: req.user.id, // Changed from req.user._id to req.user.id
+    read: false 
+  });
 
   res.status(200).json({
     success: true,
     notifications,
-    unreadCount: await Notification.countDocuments({ userId: req.user._id, read: false })
+    unreadCount,
+    pagination: {
+      currentPage: parseInt(page),
+      totalPages,
+      totalItems,
+      limit: parseInt(limit)
+    }
   });
 });
 
@@ -18,7 +56,7 @@ const getNotifications = asyncHandler(async (req, res) => {
 const markNotificationRead = asyncHandler(async (req, res) => {
   const notification = await Notification.findOne({
     _id: req.params.id,
-    userId: req.user._id
+    userId: req.user.id // Changed from req.user._id to req.user.id
   });
 
   if (!notification) {
@@ -38,7 +76,7 @@ const markNotificationRead = asyncHandler(async (req, res) => {
 // Mark all notifications as read
 const markAllNotificationsRead = asyncHandler(async (req, res) => {
   await Notification.updateMany(
-    { userId: req.user._id, read: false },
+    { userId: req.user.id, read: false }, // Changed from req.user._id to req.user.id
     { read: true }
   );
 
@@ -58,6 +96,10 @@ const createNotification = async (userId, title, message, type = 'info', link = 
       type,
       link
     });
+    
+    // Emit socket event for real-time notification
+    sendNotificationToUser(userId, notification);
+    
     return notification;
   } catch (error) {
     console.error('Error creating notification:', error);
@@ -65,11 +107,34 @@ const createNotification = async (userId, title, message, type = 'info', link = 
   }
 };
 
+// Create a notification (API endpoint)
+const createNotificationEndpoint = asyncHandler(async (req, res) => {
+  const { userId, title, message, type, link } = req.body;
+
+  // Check authorization - only admins or system can create notifications for others
+  if (userId !== req.user.id && req.user.role !== 'admin') { // Changed from req.user._id.toString() to req.user.id
+    res.status(403);
+    throw new Error('Not authorized to create notifications for other users');
+  }
+
+  const notification = await createNotification(userId, title, message, type, link);
+  
+  if (!notification) {
+    res.status(500);
+    throw new Error('Failed to create notification');
+  }
+
+  res.status(201).json({
+    success: true,
+    notification
+  });
+});
+
 // Delete a notification
 const deleteNotification = asyncHandler(async (req, res) => {
   const notification = await Notification.findOne({
     _id: req.params.id,
-    userId: req.user._id
+    userId: req.user.id // Changed from req.user._id to req.user.id
   });
 
   if (!notification) {
@@ -90,5 +155,6 @@ export {
   markNotificationRead,
   markAllNotificationsRead,
   createNotification,
+  createNotificationEndpoint,
   deleteNotification
 };

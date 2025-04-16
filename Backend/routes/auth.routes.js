@@ -8,7 +8,8 @@ import {
   resetPassword,
   checkAuth,
   resendOtp,
-  updateProfile
+  updateProfile,
+  getUserData
 } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import multer from "multer";
@@ -32,6 +33,7 @@ const upload = multer({
 });
 
 router.get("/check-auth", verifyToken, checkAuth);
+router.get("/user", verifyToken, getUserData);
 
 router.post("/signup", signup);
 router.post("/login", login);
@@ -45,5 +47,6 @@ router.post('/resend-otp', verifyToken, resendOtp);
 
 // Updated route to use 'file' instead of 'photo' for multer
 router.put("/update-profile", verifyToken, upload.single('file'), updateProfile);
+
 
 export default router;

@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import usericon from "../assets/user.png";
 import MedicareLogo from "../assets/Medicare logo 1.png"; // Import the Medicare logo
+import HandLogo from "../assets/hand logo.png"; // Import the hand logo
 import {
   FiGrid,
   FiHome,
@@ -51,6 +52,19 @@ const DashboardLayout = ({ children }) => {
       setIsSidebarOpen(false);
     }
   }, [location.pathname]);
+
+  // Add event listener for sidebar toggle from Dashboard
+  useEffect(() => {
+    const handleToggleSidebar = () => {
+      setIsSidebarOpen(true);
+    };
+    
+    window.addEventListener('toggle-sidebar', handleToggleSidebar);
+    
+    return () => {
+      window.removeEventListener('toggle-sidebar', handleToggleSidebar);
+    };
+  }, []);
 
   const menuItems = [
     { icon: FiGrid, label: "Dashboard", path: "/dashboard" },
@@ -136,214 +150,117 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row relative">
       {/* Sidebar - Optimized with rounded corners and better icon arrangement */}
       <aside
-        className={`fixed top-0 left-0 h-screen ${isSidebarCollapsed ? "w-16" : "w-[80%] max-w-xs lg:w-64"} bg-[#252A61] text-white z-50 transform transition-all duration-300 ease-in-out 
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 overflow-y-auto flex flex-col rounded-tr-2xl rounded-br-2xl shadow-xl`}
+        className={`fixed top-0 left-0 h-screen ${
+          isSidebarCollapsed 
+            ? "w-16 xs:w-18 sm:w-20 lg:w-20" // Increased width for collapsed state
+            : "w-[75%] xs:w-[70%] sm:w-[65%] max-w-[280px] lg:w-72"  // Increased width for expanded state
+        } bg-[#252A61] text-white z-50 transform transition-all duration-300 ease-in-out 
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 flex flex-col rounded-tr-3xl rounded-br-3xl shadow-xl`}
       >
-        <div className="flex flex-col min-h-full">
-          {/* Logo Section - increased logo size */}
-          <div className="flex items-center justify-between p-2 sm:p-4">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={MedicareLogo} alt="Medicare Logo" className={`transition-all duration-300 ${isSidebarCollapsed ? "w-10 mx-auto" : "w-28 sm:w-32"}`} />
-            </Link>
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-            >
-              <FiX className="w-5 h-5" />
-            </button>
+        <div className="flex flex-col h-full max-h-screen">
+          {/* Logo Section - Conditionally showing logos based on sidebar state and device size */}
+          <div className="relative flex items-center justify-center p-2 xs:p-3 sm:p-4 border-b border-white/10">
+            {/* Normal logo when sidebar is expanded */}
+            {!isSidebarCollapsed && (
+              <Link to="/" className="flex items-center justify-center">
+                <img 
+                  src={MedicareLogo} 
+                  alt="Medicare Logo" 
+                  className="w-24 xs:w-28 sm:w-32 h-auto" 
+                />
+              </Link>
+            )}
+            
+            {/* When sidebar is collapsed */}
+            {isSidebarCollapsed && (
+              <>
+                {/* Hand logo for large devices only */}
+                <Link to="/" className="hidden lg:flex items-center justify-center">
+                  <img 
+                    src={HandLogo} 
+                    alt="Medicare Hand Logo" 
+                    className="w-10 h-10 object-contain" 
+                  />
+                </Link>
+                
+                {/* X icon for small/medium devices when collapsed */}
+                <div className="lg:hidden flex items-center justify-center">
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="p-1.5 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                  >
+                    <FiX className="w-5 h-5" />
+                  </button>
+                </div>
+              </>
+            )}
+            
+            {/* X icon when sidebar is expanded (only for small/medium devices) */}
+            {!isSidebarCollapsed && (
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="lg:hidden absolute top-2 right-2 p-1.5 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+              >
+                <FiX className="w-4 h-4 xs:w-5 xs:h-5" />
+              </button>
+            )}
           </div>
 
-          {/* Navigation Menu - increased text size */}
-          <nav className="flex-1 px-2 py-1">
+          {/* Navigation Menu - Optimized for very small screens */}
+          <nav className="flex-1 px-1 xs:px-2 py-0.5 xs:py-1 overflow-y-auto">
             {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={handleMenuClick}
-                className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center space-x-2"} px-2 py-2 rounded-lg transition-all duration-200 mb-3
-                  ${location.pathname === item.path ? "bg-white/15 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
+                className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center space-x-1 xs:space-x-2"} 
+                px-1.5 xs:px-2 py-1 xs:py-1.5 sm:py-2 rounded-lg transition-all duration-200 mb-1.5 xs:mb-2 sm:mb-3
+                ${location.pathname === item.path ? "bg-white/15 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
               >
-                <item.icon className={`${isSidebarCollapsed ? "w-7 h-7" : "w-6 h-6"}`} />
-                {!isSidebarCollapsed && <span className="text-base md:text-lg font-medium">{item.label}</span>}
+                <item.icon className={`${isSidebarCollapsed ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6"}`} />
+                {!isSidebarCollapsed && <span className="text-xs xs:text-sm sm:text-base md:text-lg font-medium truncate">{item.label}</span>}
               </Link>
             ))}
           </nav>
 
-          {/* Footer Section - increased text size and icon size */}
-          <div className="p-2 mb-2">
+          {/* Footer Section - Optimized for small screens */}
+          <div className="p-1 xs:p-2 mb-1 xs:mb-2">
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-2 py-2 text-base text-white bg-white/10 rounded-lg hover:bg-white/20 transition-colors mb-3`}
+              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-1.5 xs:px-2 py-1 xs:py-1.5 sm:py-2 text-xs xs:text-sm sm:text-base text-white bg-white/10 rounded-lg hover:bg-white/20 transition-colors mb-2`}
             >
-              <FiMenu className={`${isSidebarCollapsed ? "w-7 h-7" : "w-6 h-6"}`} />
-              {!isSidebarCollapsed && <span className="ml-2">Collapse</span>}
+              <FiMenu className={`${isSidebarCollapsed ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6"}`} />
+              {!isSidebarCollapsed && <span className="ml-1 xs:ml-2 truncate">Collapse</span>}
             </button>
 
-            {/* Logout Option - consistent with other elements */}
+            {/* Logout Option - Optimized for small screens */}
             <button
               onClick={() => setIsLogoutModalOpen(true)}
-              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-2 py-2 text-base text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors`}
+              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center"} w-full px-1.5 xs:px-2 py-1 xs:py-1.5 sm:py-2 text-xs xs:text-sm sm:text-base text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors`}
             >
-              <FiLogOut className={`${isSidebarCollapsed ? "w-7 h-7" : "w-6 h-6"}`} />
-              {!isSidebarCollapsed && <span className="ml-2">Logout</span>}
+              <FiLogOut className={`${isSidebarCollapsed ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6"}`} />
+              {!isSidebarCollapsed && <span className="ml-1 xs:ml-2 truncate">Logout</span>}
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Main Content - Add proper margin to prevent content from going under sidebar */}
-      <div className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? "lg:ml-16" : "lg:ml-64"}`}>
-        {/* Header - Sticky position */}
-        <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-40 backdrop-blur-sm bg-white/80 dark:bg-gray-800/80">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-row items-center justify-between p-4">
-              {/* Left Section */}
-              <div className="flex items-center w-full space-x-4">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="p-2 rounded-lg lg:hidden hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <FiMenu className="w-6 h-6" />
-                </motion.button>
-
-                {/* Enhanced Search Bar */}
-                <div className="w-full max-w-5xl relative">
-                  <motion.div
-                    animate={{ scale: 1 }}
-                    className="relative group"
-                  >
-                    <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5 group-hover:text-blue-500 transition-colors" />
-                    <input
-                      type="text"
-                      placeholder="Search here..."
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 
-                        rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 
-                        focus:border-blue-300 dark:focus:border-blue-700 transition-all text-sm sm:text-base md:text-lg placeholder:text-gray-400 
-                        dark:placeholder:text-gray-500 shadow-sm hover:shadow-md"
-                    />
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* Right Section */}
-              <div className="flex items-center space-x-3">
-                {/* Notifications */}
-                <div className="relative notifications-menu">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl relative"
-                  >
-                    <FiBell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
-                  </motion.button>
-                  {/* Notifications Dropdown */}
-                  <AnimatePresence>
-                    {isNotificationsOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-[320px] bg-white dark:bg-gray-800 rounded-xl shadow-xl 
-                          py-2 border border-gray-100 dark:border-gray-700 max-h-[80vh] overflow-y-auto"
-                      >
-                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                          <h3 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white">Notifications</h3>
-                          <button className="text-xs md:text-sm text-blue-600 dark:text-blue-400">Mark all as read</button>
-                        </div>
-                        <div className="max-h-80 overflow-y-auto p-2">
-                          {/* Sample Notifications */}
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors mb-1">
-                              <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                                  <FiBell className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div>
-                                  <p className="text-sm md:text-base text-gray-800 dark:text-gray-200">New notification example</p>
-                                  <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">Just now</p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* User Profile - Updated with better image handling */}
-                <div className="relative profile-menu">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className="flex items-center space-x-2 p-1.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl group"
-                  >
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF] ring-2 ring-white/10 dark:ring-black/10">
-                      <ProfilePicture />
-                    </div>
-                    <div className="hidden sm:block text-left">
-                      <p className="text-sm md:text-base font-medium text-gray-700 dark:text-gray-300 leading-tight">{user?.name || "User"}</p>
-                      <p className="text-xs md:text-sm text-gray-500 dark:text-gray-500 leading-tight">{user?.email || "user@example.com"}</p>
-                    </div>
-                    <FiChevronDown className="hidden sm:block w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200" />
-                  </motion.button>
-                  
-                  {/* Profile Dropdown Menu */}
-                  <AnimatePresence>
-                    {isProfileOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl 
-                          py-2 border border-gray-100 dark:border-gray-700 z-50"
-                      >
-                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || "User"}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || "user@example.com"}</p>
-                        </div>
-                        <Link
-                          to="/profile"
-                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                          onClick={() => setIsProfileOpen(false)}
-                        >
-                          <FiUser className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          <span>Profile</span>
-                        </Link>
-                        <Link
-                          to="/settings"
-                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                          onClick={() => setIsProfileOpen(false)}
-                        >
-                          <FiSettings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          <span>Settings</span>
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setIsProfileOpen(false);
-                            setIsLogoutModalOpen(true);
-                          }}
-                          className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        >
-                          <FiLogOut className="w-4 h-4" />
-                          <span>Logout</span>
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+      <div className={`flex-1 transition-all duration-300 ${
+        isSidebarCollapsed 
+          ? "lg:ml-20 xl:ml-20" 
+          : "lg:ml-[280px] xl:ml-72"
+      }`}>
+        {/* Mobile Menu Button - Floating in the corner */}
+        <button 
+          onClick={() => setIsSidebarOpen(true)}
+          className="fixed top-4 left-4 z-40 lg:hidden p-2 rounded-full bg-[#252A61] text-white shadow-lg hover:bg-[#3b3b98] transition-all duration-300"
+          aria-label="Open menu"
+        >
+          <FiMenu className="w-6 h-6" />
+        </button>
 
         {/* Scrollable Page Content */}
         <main className="p-4 sm:p-6 max-w-[2000px] mx-auto">

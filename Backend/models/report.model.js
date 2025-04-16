@@ -41,7 +41,7 @@ const reportSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["medical", "xrays", "lab", "forms"],
+      enum: ["medical", "lab", "prescription", "other"],
       default: "medical",
     },
     tags: [{
@@ -53,4 +53,4 @@ const reportSchema = new mongoose.Schema(
   }
 );
 
-export const Report = mongoose.model("Report", reportSchema); 
+export const Report = mongoose.model("Report", reportSchema);

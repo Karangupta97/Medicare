@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState, useRef } from "react";
-import DashboardLayout from "../components/DashboardLayout";
+import DashboardLayout from "../../components/DashboardLayout";
 import {
   FaUserEdit,
   FaIdCard,
@@ -11,13 +11,16 @@ import {
   FaHistory,
   FaClock,
   FaCamera,
+  FaSpinner,
+  FaChevronDown,
+  FaBirthdayCake,
 } from "react-icons/fa";
 import { FiX, FiEye, FiEdit } from "react-icons/fi";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../../store/authStore";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import axios from "axios";
-import PhotoEditorModal from "../components/PhotoEditorModal";
+import PhotoEditorModal from "../../components/PhotoEditorModal";
 
 const Profile = () => {
   const { user, setUser } = useAuthStore();
@@ -28,11 +31,27 @@ const Profile = () => {
   const [isPicModalOpen, setIsPicModalOpen] = useState(false);
   const [showPicOptions, setShowPicOptions] = useState(false);
   const fileInputRef = useRef(null);
+  
+  // Address data states
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: "",
     lastname: "",
     email: "",
     phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    district: "",
+    state: "",
+    postalCode: "",
+    dob: "",
   });
   const [isPhotoEditorOpen, setIsPhotoEditorOpen] = useState(false);
 
@@ -44,6 +63,13 @@ const Profile = () => {
         lastname: user.lastname || "",
         email: user.email || "",
         phone: user.phone || "",
+        dob: user.dob || "",
+        addressLine1: user.addressLine1 || "",
+        addressLine2: user.addressLine2 || "",
+        state: user.state || "",
+        district: user.district || "",
+        city: user.city || "",
+        postalCode: user.postalCode || "",
       });
     }
   }, [user]);
@@ -151,13 +177,52 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
+      // Show loading toast
+      const loadingToast = toast.loading('Updating your profile...');
+      
+      // First check if we have address fields to validate
+      const hasAddressData = formData.addressLine1 || formData.addressLine2 || 
+                            formData.city || formData.district || 
+                            formData.state || formData.postalCode;
+
+      // If address data exists, show address validation message
+      if (hasAddressData) {
+        toast.loading('Validating address...', { id: 'address-validation' });
+      }
+      
+      // Send update request to the backend which will handle address validation
       const response = await axios.put("/api/auth/update-profile", formData);
-      setUser(response.data.user);
-      toast.success("Profile updated successfully");
-      setEditMode(false);
+      
+      if (response.data.user) {
+        setUser(response.data.user);
+        
+        // Dismiss loading toasts
+        toast.dismiss(loadingToast);
+        if (hasAddressData) {
+          toast.dismiss('address-validation');
+        }
+        
+        // Show appropriate success message
+        if (hasAddressData && response.data.user.addressValidated) {
+          toast.success('Profile updated with validated address!');
+        } else if (hasAddressData) {
+          toast.success('Profile updated. Address saved but could not be fully validated.');
+        } else {
+          toast.success('Profile updated successfully');
+        }
+        
+        setEditMode(false);
+      } else {
+        throw new Error('Invalid response from server');
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error(error.response?.data?.message || "Failed to update profile");
+      
+      if (error.response?.data?.message?.includes('address')) {
+        toast.error(`Address error: ${error.response.data.message}`);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to update profile");
+      }
     }
   };
 
@@ -211,6 +276,34 @@ const Profile = () => {
       minute: "2-digit",
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const formatDOB = (dateString) => {
+    if (!dateString) return "N/A";
+    const options = {
+      year: "numeric",
+      month: "long", 
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const calculateAge = (dateString) => {
+    if (!dateString) return null;
+    
+    const birthDate = new Date(dateString);
+    if (isNaN(birthDate.getTime())) return null;
+    
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
   };
 
   if (loading) {
@@ -302,6 +395,127 @@ const Profile = () => {
                 placeholder="Enter your phone number"
               />
             </div>
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                name="dob"
+                value={formData.dob}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
+            
+            <div className="md:col-span-2 mt-5">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Address Information
+                  <span className="ml-2 text-xs text-gray-500">(This information helps us provide better service)</span>
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Address Line 1 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="addressLine1"
+                      value={formData.addressLine1}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="Street address"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Address Line 2
+                    </label>
+                    <input
+                      type="text"
+                      name="addressLine2"
+                      value={formData.addressLine2}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="Apt, suite, unit, etc. (optional)"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="City"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      District
+                    </label>
+                    <input
+                      type="text"
+                      name="district"
+                      value={formData.district}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="District/County"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="state"
+                      value={formData.state}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="State/Province"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Postal Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      placeholder="ZIP/Postal code"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-4 text-xs text-gray-500">
+                  <p className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Fields marked with <span className="text-red-500 mx-1">*</span> are required for address validation
+                  </p>
+                </div>
+              </div>
+            </div>
+            
             <div className="md:col-span-2 flex justify-end mt-4">
               <button
                 onClick={handleSaveProfile}
@@ -365,6 +579,108 @@ const Profile = () => {
                 </p>
               </div>
             </div>
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                <FaBirthdayCake className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Date of Birth
+                </p>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {user.dob ? (
+                    <>
+                      {formatDOB(user.dob)}
+                      {calculateAge(user.dob) && (
+                        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                          ({calculateAge(user.dob)} years old)
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    "Not provided"
+                  )}
+                </p>
+              </div>
+            </div>
+            
+            {/* Address information section in view mode */}
+            {(user.addressLine1 || user.city || user.state || user.postalCode) && (
+              <div className="md:col-span-2 mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Address Information
+                  {user.addressValidated && (
+                    <span className="inline-flex items-center ml-2 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                      </svg>
+                      Verified
+                    </span>
+                  )}
+                </h4>
+                
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700 shadow-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {user.addressLine1 && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Address Line 1</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{user.addressLine1}</p>
+                      </div>
+                    )}
+                    
+                    {user.addressLine2 && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Address Line 2</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{user.addressLine2}</p>
+                      </div>
+                    )}
+                    
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">State</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{user.state || "—"}</p>
+                    </div>
+                    
+                    {user.district && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">District</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{user.district}</p>
+                      </div>
+                    )}
+                    
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">City</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{user.city || "—"}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Postal Code</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{user.postalCode || "—"}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 flex items-center">
+                    {user.addressValidated ? (
+                      <div className="flex items-center text-green-600 text-sm">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                        </svg>
+                        This address has been verified and validated
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-gray-500 text-sm">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Address not validated yet
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </motion.div>
@@ -597,8 +913,8 @@ const Profile = () => {
                   >
                     <img
                       src={user?.photoURL || "/user.png"}
-                      alt="Profile"
-                      className="w-[90%] h-[90%] rounded-full object-cover border-2 sm:border-3 md:border-4 border-white transition-all group-hover:opacity-80"
+                      alt={user.name}
+                      className="w-[90%] h-[90%] rounded-full object-cover border-2 sm:border-3 md:border-4 border-white transition-all group-hover:opacity- text-center"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all">
                       <div className="transform translate-y-full group-hover:translate-y-0 transition-transform duration-200">
@@ -630,7 +946,7 @@ const Profile = () => {
                     {user.name} {user.lastname}
                   </h1>
                   <p className="text-blue-100 text-sm sm:text-sm md:text-base mb-3 sm:mb-2">
-                    ID: {user.uid}
+                    UMID: {user.umid}
                   </p>
 
                   <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-1.5 md:gap-2">
@@ -652,6 +968,15 @@ const Profile = () => {
                         user.createdAt || Date.now() - 30 * 24 * 60 * 60 * 1000
                       ).getFullYear()}
                     </span>
+                    {user.addressValidated && (
+                      <span className="inline-flex items-center px-2 sm:px-2 md:px-3 py-1 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-teal-500/20 text-teal-50 border border-teal-500/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="mr-1 w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Verified Address
+                      </span>
+                    )}
                   </div>
                 </div>
 

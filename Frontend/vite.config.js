@@ -16,10 +16,10 @@ export default defineConfig({
         // target: "http://localhost:4000", 
         target: "https://medicare-backend-pdci8.ondigitalocean.app", 
         // target: "https://medicare-3c0t.onrender.com", 
-
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
+        ws: true, // Enable WebSocket proxying
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.error('Proxy error:', err);

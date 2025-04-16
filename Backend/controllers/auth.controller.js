@@ -14,16 +14,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const generateUID = () => {
-  // Generate a random 16-digit number (divided into 4 groups)
-  const randomNumbers = Array.from(
-    { length: 4 },
-    () => Math.floor(10000 + Math.random() * 90000) // Generates a number between 10000-99999
-  ).join(" ");
+export const generateUMID = () => {
+  // Generate 4 groups of 5-digit numbers
+  const group1 = String(Math.floor(10000 + Math.random() * 90000));
+  const group2 = String(Math.floor(10000 + Math.random() * 90000));
+  const group3 = String(Math.floor(10000 + Math.random() * 90000));
+  const group4 = String(Math.floor(10000 + Math.random() * 90000));
 
-  const uid = `MED-${randomNumbers}`;
-  console.log("Generated UID:", uid);
-  return uid;
+  // Format in required pattern: MED-XXXXX XXXXX XXXXX XXXXX
+  const umid = `MED-${group1} ${group2} ${group3} ${group4}`;
+  console.log("Generated UMID:", umid);
+  return umid;
 };
 
 export const signup = async (req, res) => {
@@ -44,8 +45,8 @@ export const signup = async (req, res) => {
     const verificationToken = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    // Generate a Unique UID
-    const uniqueUID = generateUID();
+    // Generate a Unique UMID
+    const uniqueUMID = generateUMID();
 
     // Create a new user
     const user = new User({
@@ -53,7 +54,7 @@ export const signup = async (req, res) => {
       password: hashedPassword,
       name,
       lastname,
-      uid: uniqueUID,
+      umid: uniqueUMID,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 10 * 60 * 1000, // 10 min expiry
       photoURL,
@@ -261,7 +262,7 @@ export const checkAuth = async (req, res) => {
 
 export const resendOtp = async (req, res) => {
   try {
-    const userId = req.userId; // From verifyToken middleware
+    const userId = req.user.id; // Changed from req.userId to req.user.id to match the standard format
     const user = await User.findById(userId);
 
     if (!user) {
@@ -283,20 +284,91 @@ export const resendOtp = async (req, res) => {
 
     res.status(200).json({ message: "Verification code resent to email" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error" });
+    console.error('Error in resendOtp:', err);
+    res.status(500).json({ message: "Failed to send verification code. Please try again." });
   }
 };
 
 export const updateProfile = async (req, res) => {
   try {
-    const { name, lastname, phone } = req.body;
+    const {
+      phone, 
+      dob, 
+      addressLine1, 
+      addressLine2, 
+      state, 
+      district,
+      city, 
+      postalCode,
+    } = req.body;
     const userId = req.user.id;
     
     const updateFields = {};
-    if (name) updateFields.name = name;
-    if (lastname) updateFields.lastname = lastname;
     if (phone) updateFields.phone = phone;
+    if (dob) updateFields.dob = dob;
+
+    // Process address data if provided
+    const hasAddressData = addressLine1 || addressLine2 || state || district || city || postalCode;
+    
+    if (hasAddressData) {
+      const addressData = {
+        addressLine1: addressLine1 || '',
+        addressLine2: addressLine2 || '',
+        state: state || '',
+        district: district || '',
+        city: city || '',
+        postalCode: postalCode || ''
+      };
+
+      try {
+        // First validate the address
+        const validationResult = await validateAddress(addressData);
+        
+        if (!validationResult.is_valid) {
+          // If address is not valid but we still want to save it
+          console.log('Address validation warning:', validationResult.message || 'Address may be incomplete or invalid');
+          
+          // Add the raw address fields
+          if (addressLine1) updateFields.addressLine1 = addressLine1;
+          if (addressLine2) updateFields.addressLine2 = addressLine2;
+          if (state) updateFields.state = state;
+          if (district) updateFields.district = district;
+          if (city) updateFields.city = city;
+          if (postalCode) updateFields.postalCode = postalCode;
+        } else {
+          // Address is valid, standardize it
+          const standardizedAddress = await standardizeAddress(addressData);
+          
+          // Add the standardized address fields
+          updateFields.addressLine1 = standardizedAddress.addressLine1;
+          updateFields.addressLine2 = standardizedAddress.addressLine2;
+          updateFields.city = standardizedAddress.city;
+          updateFields.district = standardizedAddress.district;
+          updateFields.state = standardizedAddress.state;
+          updateFields.postalCode = standardizedAddress.postalCode;
+          
+          // Add geocoding data if available
+          if (standardizedAddress.latitude && standardizedAddress.longitude) {
+            updateFields.geoLocation = {
+              latitude: standardizedAddress.latitude,
+              longitude: standardizedAddress.longitude
+            };
+            updateFields.addressValidated = true;
+          }
+        }
+      } catch (addressError) {
+        console.error('Address validation error:', addressError);
+        
+        // Still update with raw address data if validation fails
+        if (addressLine1) updateFields.addressLine1 = addressLine1;
+        if (addressLine2) updateFields.addressLine2 = addressLine2;
+        if (city) updateFields.city = city;
+        if (district) updateFields.district = district;
+        if (state) updateFields.state = state;
+        if (postalCode) updateFields.postalCode = postalCode;
+        updateFields.addressValidated = false;
+      }
+    }
 
     // Handle profile photo upload
     if (req.file) {
@@ -389,6 +461,28 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to update profile. Please try again later.'
+    });
+  }
+};
+
+export const getUserData = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.log("Error in getUserData", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
     });
   }
 };

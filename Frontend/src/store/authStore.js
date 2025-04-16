@@ -113,6 +113,7 @@ export const useAuthStore = create((set, get) => ({
   error: null,
   isLoading: false,
   isCheckingAuth: false,
+  refreshInterval: null,
 
   setToken: (token) => {
     if (token) {
@@ -130,9 +131,23 @@ export const useAuthStore = create((set, get) => ({
       
       // Keep user data in memory (state) only, not in localStorage
       set({ user: userData, userId: userData._id });
+
+      // Start the refresh interval when setting user
+      if (!get().refreshInterval) {
+        const interval = setInterval(() => {
+          get().refreshUserData();
+        }, 60000); // Refresh every minute
+        set({ refreshInterval: interval });
+      }
     } else {
       localStorage.removeItem('userId');
-      set({ user: null, userId: null });
+      
+      // Clear the refresh interval when removing user
+      if (get().refreshInterval) {
+        clearInterval(get().refreshInterval);
+      }
+      
+      set({ user: null, userId: null, refreshInterval: null });
     }
   },
   
@@ -147,10 +162,28 @@ export const useAuthStore = create((set, get) => ({
       }
       
       const response = await axios.get(`${API_URL}/api/auth/user`);
-      set({ user: response.data.user });
-      return response.data.user;
+      
+      if (response.data && response.data.user) {
+        // Cache timestamp to track when user data was last refreshed
+        const userData = {
+          ...response.data.user,
+          _lastRefreshed: new Date().getTime()
+        };
+
+        // Append a timestamp to the photoURL to prevent caching issues
+        if (userData.photoURL && !userData.photoURL.includes('?')) {
+          userData.photoURL = `${userData.photoURL}?t=${new Date().getTime()}`;
+        }
+
+        set({ user: userData });
+        return userData;
+      }
     } catch (error) {
       console.error("Failed to refresh user data:", error);
+      // If there's a 401 Unauthorized error, clear the auth state
+      if (error.response && error.response.status === 401) {
+        get().logout();
+      }
     }
   },
 
@@ -171,12 +204,18 @@ export const useAuthStore = create((set, get) => ({
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userData._id);
       
+      // Start the periodic user data refresh
+      const interval = setInterval(() => {
+        get().refreshUserData();
+      }, 60000); // Refresh every minute
+      
       set({
         user: userData,
         token: token,
         userId: userData._id,
         isAuthenticated: true,
         isLoading: false,
+        refreshInterval: interval
       });
     } catch (error) {
       set({
@@ -333,6 +372,11 @@ export const useAuthStore = create((set, get) => ({
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userData._id);
       
+      // Start the periodic user data refresh
+      const interval = setInterval(() => {
+        get().refreshUserData();
+      }, 60000); // Refresh every minute
+      
       set({
         isAuthenticated: true,
         user: userData,
@@ -340,6 +384,7 @@ export const useAuthStore = create((set, get) => ({
         userId: userData._id,
         error: null,
         isLoading: false,
+        refreshInterval: interval
       });
     } catch (error) {
       set({
@@ -359,12 +404,18 @@ export const useAuthStore = create((set, get) => ({
       localStorage.removeItem('userId');
       localStorage.removeItem('token');
       
+      // Clear the refresh interval
+      if (get().refreshInterval) {
+        clearInterval(get().refreshInterval);
+      }
+      
       set({
         user: null,
         token: null,
         userId: null,
         isAuthenticated: false,
         isLoading: false,
+        refreshInterval: null
       });
     } catch (error) {
       set({
@@ -428,6 +479,12 @@ export const useAuthStore = create((set, get) => ({
       
       // Update user in state with new photo URL
       const userData = response.data.user;
+      
+      // Add timestamp to the photoURL to force the browser to reload the image
+      if (userData.photoURL && !userData.photoURL.includes('?')) {
+        userData.photoURL = `${userData.photoURL}?t=${new Date().getTime()}`;
+      }
+      
       set({
         user: userData,
         isLoading: false

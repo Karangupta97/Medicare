@@ -15,7 +15,7 @@ export const generateTokenAndsendcookie = async (res, userid) => {
       email: user.email,
       name: user.name,
       lastname: user.lastname,
-      uid: user.uid
+      umid: user.umid
     }, 
     process.env.JWT_SECRET,
     {

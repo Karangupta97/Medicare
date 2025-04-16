@@ -1,8 +1,11 @@
 import { Report } from "../models/report.model.js";
 import { uploadFile, deleteFile, getFileUrl } from "../services/s3.service.js";
+import { io } from "../server.js";
+import { sendNotificationToUser } from "../server.js";
+import { createNotification } from "./notifications.controller.js";
 
 // Valid categories
-const VALID_CATEGORIES = ['xrays', 'lab', 'forms'];
+const VALID_CATEGORIES = ['medical', 'lab', 'prescription', 'other'];
 
 // Get all reports for the authenticated user
 export const getReports = async (req, res) => {
@@ -144,6 +147,31 @@ export const uploadReport = async (req, res) => {
       const savedReport = await report.save();
       console.log("Report saved successfully:", savedReport);
 
+      // Create notification in database and send real-time notification
+      await createNotification(
+        req.user.id,
+        "Document Uploaded",
+        `You uploaded a new document: ${savedReport.originalFilename}`,
+        "info",
+        `/reports/${savedReport._id}`
+      );
+      
+      // Send real-time notification to connected user
+      const socketId = Array.from(io.sockets.sockets.values()).find(
+        socket => socket.userId === req.user.id
+      )?.id;
+      
+      if (socketId) {
+        io.to(socketId).emit('notification', {
+          id: `upload-${Date.now()}`,
+          type: 'info',
+          title: 'Document Uploaded',
+          message: `You uploaded a new document: ${savedReport.originalFilename}`,
+          link: `/reports/${savedReport._id}`,
+          createdAt: new Date().toISOString()
+        });
+      }
+
       res.status(201).json({
         success: true,
         message: 'Report uploaded successfully',
@@ -244,6 +272,39 @@ export const deleteReport = async (req, res) => {
     await report.deleteOne();
     console.log(`Successfully deleted report from database: ${req.params.id}`);
 
+    // Create notification in database for delete action
+    await createNotification(
+      req.user.id,
+      "Document Deleted",
+      `You deleted the document: ${report.originalFilename}`,
+      "info",
+      null
+    );
+    
+    // Send real-time notification for delete action
+    const socketId = Array.from(io.sockets.sockets.values()).find(
+      socket => socket.userId === req.user.id
+    )?.id;
+    
+    if (socketId) {
+      io.to(socketId).emit('notification', {
+        id: `delete-${Date.now()}`,
+        type: 'warning',
+        title: 'Document Deleted',
+        message: `You deleted the document: ${report.originalFilename}`,
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    // Emit WebSocket event for report deletion
+    io.emit("recent-activity", {
+      type: "delete",
+      message: `${req.user.name} deleted a report: ${report.originalFilename}`,
+      title: "Report Deleted",
+      createdAt: new Date().toISOString(),
+      link: null,
+    });
+
     res.json({
       success: true,
       message: 'Report deleted successfully',
@@ -255,4 +316,188 @@ export const deleteReport = async (req, res) => {
       message: `Failed to delete report: ${error.message}`,
     });
   }
-}; 
+};
+
+// Move a report to a different category
+export const moveReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category } = req.body;
+    
+    console.log(`Attempting to move report ${id} to category: ${category}`);
+    
+    // Validate the category
+    if (!VALID_CATEGORIES.includes(category)) {
+      console.error(`Invalid category: ${category}`);
+      return res.status(400).json({
+        success: false,
+        message: `Invalid category. Valid categories are: ${VALID_CATEGORIES.join(', ')}`,
+      });
+    }
+    
+    // Find the report
+    const report = await Report.findOne({
+      _id: id,
+      userId: req.user.id,
+    });
+    
+    if (!report) {
+      console.log(`Report not found with ID: ${id}`);
+      return res.status(404).json({
+        success: false,
+        message: 'Report not found.',
+      });
+    }
+    
+    console.log(`Found report: ${report.originalFilename}, current category: ${report.category}`);
+    
+    // Update the category
+    report.category = category;
+    await report.save();
+    
+    console.log(`Successfully moved report ${id} to category: ${category}`);
+    
+    res.json({
+      success: true,
+      message: 'Report moved successfully',
+      report,
+    });
+  } catch (error) {
+    console.error('Error moving report:', error);
+    res.status(500).json({
+      success: false,
+      message: `Failed to move report: ${error.message}`,
+    });
+  }
+};
+
+// Update report title and description
+export const updateReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description } = req.body;
+    
+    console.log(`Attempting to update report ${id} with title: "${title}", description: "${description}"`);
+    
+    // Validate the title
+    if (!title || !title.trim()) {
+      console.error(`Invalid title: ${title}`);
+      return res.status(400).json({
+        success: false,
+        message: 'Title cannot be empty',
+      });
+    }
+    
+    // Find the report
+    const report = await Report.findOne({
+      _id: id,
+      userId: req.user.id,
+    });
+    
+    if (!report) {
+      console.log(`Report not found with ID: ${id}`);
+      return res.status(404).json({
+        success: false,
+        message: 'Report not found.',
+      });
+    }
+    
+    console.log(`Found report: ${report.originalFilename}`);
+    
+    // Update the title and description
+    report.originalFilename = title;
+    report.description = description || '';
+    await report.save();
+    
+    console.log(`Successfully updated report ${id} with new title: "${title}"`);
+    
+    // Create notification in database and send real-time notification
+    await createNotification(
+      req.user.id,
+      "Report Updated",
+      `You updated the details of: ${title}`,
+      "info",
+      `/reports/${report._id}`
+    );
+    
+    // Send real-time notification to connected user
+    const socketId = Array.from(io.sockets.sockets.values()).find(
+      socket => socket.userId === req.user.id
+    )?.id;
+    
+    if (socketId) {
+      io.to(socketId).emit('notification', {
+        id: `update-${Date.now()}`,
+        type: 'info',
+        title: 'Report Updated',
+        message: `You updated the details of: ${title}`,
+        link: `/reports/${report._id}`,
+        createdAt: new Date().toISOString()
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Report updated successfully',
+      report,
+    });
+  } catch (error) {
+    console.error('Error updating report:', error);
+    res.status(500).json({
+      success: false,
+      message: `Failed to update report: ${error.message}`,
+    });
+  }
+};
+
+// Refresh the signed URL for a report (for when URLs expire)
+export const refreshReportUrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`Attempting to refresh URL for report ID: ${id}`);
+    
+    // Find the report
+    const report = await Report.findById(id);
+    
+    if (!report) {
+      console.log(`Report not found with ID: ${id}`);
+      return res.status(404).json({
+        success: false,
+        message: 'Report not found.'
+      });
+    }
+
+    // For security, verify the hospital has access to this report 
+    // This is a different security model than personal reports
+    // Hospital users can access any patient report, but we should log the access
+    console.log(`Refreshing URL for report: ${report.originalFilename}, S3 key: ${report.s3Key}`);
+    
+    // Generate a new signed URL
+    try {
+      const newFileUrl = await getFileUrl(report.s3Key);
+      
+      console.log(`Successfully refreshed signed URL for report ID: ${id}`);
+      
+      res.json({
+        success: true,
+        message: 'URL refreshed successfully',
+        fileUrl: newFileUrl
+      });
+    } catch (s3Error) {
+      console.error(`Error generating new signed URL for report ${id}:`, s3Error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to refresh URL. Please try again.',
+        error: process.env.NODE_ENV === 'development' ? s3Error.message : undefined
+      });
+    }
+  } catch (error) {
+    console.error('Error refreshing report URL:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to refresh URL. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

@@ -3,27 +3,39 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect, useState } from "react";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
-
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
+//Admin
+//User
+import Dashboard from "./pages/User/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
+import Reports from "./pages/User/Reports";
+import Upload from "./pages/User/Upload";
+import Profile from "./pages/User/Profile";
+import Notifications from "./pages/User/Notifications";
+import AllDigitalPrescriptions from "./pages/User/AllDigitalPrescriptions";
+import DigitalPrescriptionDetail from "./pages/User/DigitalPrescriptionDetail";
+//Hospital
+import FindPatient from "./pages/Hospital/FindPatient";
+import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
+//Medical
+//piblic
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
+import WorkingOnIt from "./pages/WorkingOnIt";
+import UserDetails from "./pages/User/UserDetails";
+import About from "./pages/About";
+import About2 from "./pages/About2";
 import Test from "./pages/Test";
 import Test1 from "./pages/Test1";
-import NotFound from "./pages/NotFound";
-import Reports from "./pages/Reports";
-import Upload from "./pages/Upload";
-import Profile from "./pages/Profile";
-import WorkingOnIt from "./pages/WorkingOnIt";
-
+import Team from "./pages/Team";
+//components
 import Loading from "./components/Loading";
-
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
@@ -60,7 +72,8 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 
 const App = () => {
-  const { isCheckingAuth, isAuthenticated, checkAuth, user, refreshUserData } = useAuthStore();
+  const { isCheckingAuth, isAuthenticated, checkAuth, user, refreshUserData } =
+    useAuthStore();
   const location = useLocation();
   const [currentPath, setCurrentPath] = useState(location.pathname);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -142,7 +155,7 @@ const App = () => {
   }
 
   // If user is not verified and not on verify-email page, redirect to verify-email
-  if (user && !user.isverified && currentPath !== "/verify-email") {
+  if (user && user.isverified === false && currentPath !== "/verify-email") {
     console.log("User not verified, redirecting to verify-email");
     return <Navigate to="/verify-email" replace />;
   }
@@ -151,7 +164,8 @@ const App = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Admin */}
+        {/* User */}
         <Route
           path="/dashboard"
           element={
@@ -185,13 +199,22 @@ const App = () => {
           }
         />
         <Route
-          path="*"
+          path="/digital-prescriptions"
           element={
             <ProtectedRoute>
-              <WorkingOnIt />
+              <AllDigitalPrescriptions />
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/digital-prescriptions/:id"
+          element={
+            <ProtectedRoute>
+              <DigitalPrescriptionDetail />
+            </ProtectedRoute>
+          }
+        />
+        
         <Route
           path="/login"
           element={
@@ -225,7 +248,35 @@ const App = () => {
             </RedirectAuthenticatedUser>
           }
         />
+        <Route path="/notifications" element={<Notifications />} />
+        {/* Hospital */}
+        <Route
+          path="/hospital/hospital-dashboard/find-patient"
+          element={
+            <ProtectedRoute>
+              <FindPatient />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hospital/hospital-dashboard"
+          element={
+            <ProtectedRoute>
+              <HospitalDashboard />
+            </ProtectedRoute>
+          }
+        />
+        {/* Medical */}
+        {/* Public */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/about2" element={<About2 />} />
+        <Route path="/team" element={<Team />} />
         <Route path="/loading" element={<Loading />} />
+        <Route path="/user/:umid" element={<UserDetails />} />
+        <Route path="*" element={<WorkingOnIt />} />
+        <Route path="/test" element={<Test />} />
+        <Route path="/test1" element={<Test1 />} />
       </Routes>
       <Toaster position="top-center" />
       <Analytics />

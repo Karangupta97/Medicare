@@ -3,17 +3,19 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../assets/Medicare logo.jpg";
 import UserIcon from "../assets/user.png";
-import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus, FiSettings } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus, FiSettings, FiBell } from 'react-icons/fi';
 import { useAuthStore } from "../store/authStore";
 import LogoutModal from "./LogoutModal";
+import axios from "axios";
 
 const Navbar = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout, refreshUserData } = useAuthStore();
+  const { logout, refreshUserData, token } = useAuthStore();
   const authUser = useAuthStore((state) => state.user) || user;
   
   // Refresh user data to get fresh profile picture when component mounts
@@ -21,20 +23,69 @@ const Navbar = ({ user, onLogout }) => {
     refreshUserData();
   }, [refreshUserData]);
 
-  // Profile picture component with error handling
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadNotificationCount = async () => {
+      if (!token) return;
+      
+      try {
+        const response = await axios.get('/api/notifications?limit=1', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        if (response.data && response.data.unreadCount !== undefined) {
+          setUnreadNotifications(response.data.unreadCount);
+        }
+      } catch (error) {
+        console.error('Error fetching notification count:', error);
+      }
+    };
+    
+    fetchUnreadNotificationCount();
+    
+    // Set up WebSocket listener for real-time notification updates
+    if (window.socket && token) {
+      window.socket.on('notification', (notification) => {
+        // Ignore "Connection Established" notifications
+        if (notification.title !== 'Connection Established') {
+          fetchUnreadNotificationCount();
+        }
+      });
+    }
+    
+    return () => {
+      if (window.socket) {
+        window.socket.off('notification');
+      }
+    };
+  }, [token, location.pathname]);
+
+  // Profile picture component with error handling and cache busting
   const ProfilePicture = ({ className }) => {
     const [imgError, setImgError] = useState(false);
+    const [imgSrc, setImgSrc] = useState(UserIcon);
     
-    // Reset error state when photoURL changes
     useEffect(() => {
+      // Reset error state and update image source when user data changes
       if (authUser?.photoURL) {
         setImgError(false);
+        
+        // Add a timestamp parameter to the URL to prevent caching if it's not already there
+        if (!authUser.photoURL.includes('?')) {
+          setImgSrc(`${authUser.photoURL}?t=${new Date().getTime()}`);
+        } else {
+          setImgSrc(authUser.photoURL);
+        }
+      } else {
+        setImgSrc(UserIcon);
       }
     }, [authUser?.photoURL]);
     
     return (
       <img
-        src={imgError || !authUser?.photoURL ? UserIcon : authUser.photoURL}
+        src={imgError ? UserIcon : imgSrc}
         alt="User"
         className={className || "w-full h-full object-cover"}
         onError={() => setImgError(true)}
@@ -170,6 +221,19 @@ const Navbar = ({ user, onLogout }) => {
                         <FiSettings className="w-4 h-4 text-gray-500" />
                         <span>Settings</span>
                       </Link>
+                      <Link
+                        to="/notifications"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiBell className="w-4 h-4 text-gray-500" />
+                        <span>Notifications</span>
+                        {unreadNotifications > 0 && (
+                          <span className="ml-auto bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full font-medium">
+                            {unreadNotifications}
+                          </span>
+                        )}
+                      </Link>
                       <button
                         onClick={handleLogoutClick}
                         className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -207,63 +271,88 @@ const Navbar = ({ user, onLogout }) => {
           </nav>
 
           {authUser ? (
-            <div className="relative user-menu">
-              <button
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
-              >
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF]">
-                  <ProfilePicture />
-                </div>
-                <FiChevronDown className="w-4 h-4 text-gray-600 group-hover:text-gray-800" />
-              </button>
-              
-              <AnimatePresence>
-                {isUserMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100 z-50"
-                  >
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{authUser?.name || 'User'}</p>
-                      <p className="text-xs text-gray-500">{authUser?.email || 'user@example.com'}</p>
-                    </div>
-                    <Link
-                      to="/profile"
-                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <FiUser className="w-4 h-4 text-gray-500" />
-                      <span>Profile</span>
-                    </Link>
-                    <Link
-                      to="/dashboard"
-                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <FiHome className="w-4 h-4 text-gray-500" />
-                      <span>Dashboard</span>
-                    </Link>
-                    <Link
-                      to="/settings"
-                      className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <FiSettings className="w-4 h-4 text-gray-500" />
-                      <span>Settings</span>
-                    </Link>
-                    <button
-                      onClick={handleLogoutClick}
-                      className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <FiLogOut className="w-4 h-4" />
-                      <span>Logout</span>
-                    </button>
-                  </motion.div>
+            <div className="flex items-center space-x-4">
+              {/* Notification Bell */}
+              <Link to="/notifications" className="relative p-2 hover:bg-gray-50 rounded-xl">
+                <FiBell className="w-6 h-6 text-gray-600" />
+                {unreadNotifications > 0 && (
+                  <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold">
+                    {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                  </span>
                 )}
-              </AnimatePresence>
+              </Link>
+              
+              <div className="relative user-menu">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
+                >
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF]">
+                    <ProfilePicture />
+                  </div>
+                  <FiChevronDown className="w-4 h-4 text-gray-600 group-hover:text-gray-800" />
+                </button>
+                
+                <AnimatePresence>
+                  {isUserMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 border border-gray-100 z-50"
+                    >
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-900">{authUser?.name || 'User'}</p>
+                        <p className="text-xs text-gray-500">{authUser?.email || 'user@example.com'}</p>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiUser className="w-4 h-4 text-gray-500" />
+                        <span>Profile</span>
+                      </Link>
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiHome className="w-4 h-4 text-gray-500" />
+                        <span>Dashboard</span>
+                      </Link>
+                      <Link
+                        to="/notifications"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiBell className="w-4 h-4 text-gray-500" />
+                        <span>Notifications</span>
+                        {unreadNotifications > 0 && (
+                          <span className="ml-auto bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full font-medium">
+                            {unreadNotifications}
+                          </span>
+                        )}
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FiSettings className="w-4 h-4 text-gray-500" />
+                        <span>Settings</span>
+                      </Link>
+                      <button
+                        onClick={handleLogoutClick}
+                        className="flex items-center space-x-3 px-4 py-2.5 w-full text-left text-sm text-red-600 hover:bg-red-50"
+                      >
+                        <FiLogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           ) : (
             <Link
