@@ -33,13 +33,37 @@ const DashboardLayout = ({ children }) => {
     const stored = localStorage.getItem('sidebarCollapsed');
     return stored === 'true';
   });
+  const [refreshError, setRefreshError] = useState(false);
   const location = useLocation();
-  const { user, logout, refreshUserData } = useAuthStore();
+  const { user, logout, refreshUserData, isAuthenticated } = useAuthStore();
 
-  // Refresh user data on component mount to get the latest profile picture
+  // Refresh user data on component mount with error handling
   useEffect(() => {
-    refreshUserData();
-  }, [refreshUserData]);
+    const fetchUserData = async () => {
+      try {
+        await refreshUserData();
+        setRefreshError(false);
+      } catch (error) {
+        console.error("Error refreshing user data:", error);
+        setRefreshError(true);
+        
+        // If we get a 404 and the user is supposedly authenticated,
+        // there might be an invalid session - auto logout after 3 seconds
+        if (error?.response?.status === 404 && isAuthenticated) {
+          console.log("User data not found, scheduling auto-logout");
+          const timer = setTimeout(() => {
+            logout();
+          }, 3000);
+          
+          return () => clearTimeout(timer);
+        }
+      }
+    };
+    
+    if (isAuthenticated) {
+      fetchUserData();
+    }
+  }, [refreshUserData, isAuthenticated, logout]);
 
   // When sidebar collapse state changes, save to localStorage
   useEffect(() => {
@@ -128,6 +152,29 @@ const DashboardLayout = ({ children }) => {
       />
     );
   };
+
+  // Show authentication error message if needed
+  if (refreshError && isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <div className="text-red-500 text-5xl mb-4">
+            <FiX className="mx-auto" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Authentication Error</h1>
+          <p className="text-gray-600 mb-6">
+            We couldn't retrieve your user data. You'll be redirected to the login page shortly.
+          </p>
+          <button
+            onClick={logout}
+            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+          >
+            Return to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Adjust the sidebar layout for mobile devices
   const Sidebar = () => {

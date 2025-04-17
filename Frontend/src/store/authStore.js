@@ -1,9 +1,9 @@
 import axios from "axios";
 import { create } from "zustand";
 
-const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
+// const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
 // const API_URL = "http://localhost:4000";
-// const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;
@@ -158,7 +158,8 @@ export const useAuthStore = create((set, get) => ({
       const userId = localStorage.getItem('userId');
       
       if (!token || !userId) {
-        return;
+        console.log('Cannot refresh user data: missing token or userId');
+        return null;
       }
       
       const response = await axios.get(`${API_URL}/api/auth/user`);
@@ -177,13 +178,26 @@ export const useAuthStore = create((set, get) => ({
 
         set({ user: userData });
         return userData;
+      } else {
+        console.warn('User data missing in response', response.data);
+        return null;
       }
     } catch (error) {
       console.error("Failed to refresh user data:", error);
+      
+      // If we get a 404 Not Found, the user might have been deleted
+      if (error.response && error.response.status === 404) {
+        console.warn('User not found on server (404). User may have been deleted.');
+        // Don't automatically logout here, let the DashboardLayout handle this
+      }
+      
       // If there's a 401 Unauthorized error, clear the auth state
       if (error.response && error.response.status === 401) {
+        console.warn('Unauthorized (401) during user refresh. Logging out.');
         get().logout();
       }
+      
+      throw error; // Re-throw so calling code can handle the error
     }
   },
 
