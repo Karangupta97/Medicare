@@ -1,5 +1,6 @@
 import axios from "axios";
 import { create } from "zustand";
+import { safeStorageAccess } from "../utils/errorHandling";
 
 // const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
 // const API_URL = "http://localhost:4000";
@@ -13,7 +14,7 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 // Add axios interceptor to add token to all requests
 axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = safeStorageAccess.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -67,8 +68,8 @@ axios.interceptors.response.use(
     
     if (error.response?.status === 401) {
       console.log('Unauthorized request, clearing auth state');
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
+      safeStorageAccess.removeItem('token');
+      safeStorageAccess.removeItem('userId');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -76,8 +77,8 @@ axios.interceptors.response.use(
 );
 
 // Initialize token and user from localStorage
-const initialToken = localStorage.getItem('token');
-const initialUserId = localStorage.getItem('userId');
+const initialToken = safeStorageAccess.getItem('token');
+const initialUserId = safeStorageAccess.getItem('userId');
 
 // Only store essential user data, not profile pictures
 const getUserEssentialData = (userData) => {
@@ -117,9 +118,9 @@ export const useAuthStore = create((set, get) => ({
 
   setToken: (token) => {
     if (token) {
-      localStorage.setItem('token', token);
+      safeStorageAccess.setItem('token', token);
     } else {
-      localStorage.removeItem('token');
+      safeStorageAccess.removeItem('token');
     }
     set({ token });
   },
@@ -127,7 +128,7 @@ export const useAuthStore = create((set, get) => ({
   setUser: (userData) => {
     if (userData) {
       // Store only the user ID in localStorage for persistence
-      localStorage.setItem('userId', userData._id);
+      safeStorageAccess.setItem('userId', userData._id);
       
       // Keep user data in memory (state) only, not in localStorage
       set({ user: userData, userId: userData._id });
@@ -140,7 +141,7 @@ export const useAuthStore = create((set, get) => ({
         set({ refreshInterval: interval });
       }
     } else {
-      localStorage.removeItem('userId');
+      safeStorageAccess.removeItem('userId');
       
       // Clear the refresh interval when removing user
       if (get().refreshInterval) {
@@ -154,8 +155,8 @@ export const useAuthStore = create((set, get) => ({
   // Fetch fresh user data from the server
   refreshUserData: async () => {
     try {
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
+      const token = safeStorageAccess.getItem('token');
+      const userId = safeStorageAccess.getItem('userId');
       
       if (!token || !userId) {
         console.log('Cannot refresh user data: missing token or userId');
@@ -215,8 +216,8 @@ export const useAuthStore = create((set, get) => ({
       const token = response.data.token;
       
       // Save token and userId to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', userData._id);
+      safeStorageAccess.setItem('token', token);
+      safeStorageAccess.setItem('userId', userData._id);
       
       // Start the periodic user data refresh
       const interval = setInterval(() => {
@@ -250,8 +251,8 @@ export const useAuthStore = create((set, get) => ({
       const token = response.data.token;
       
       // Save token and userId to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', userData._id);
+      safeStorageAccess.setItem('token', token);
+      safeStorageAccess.setItem('userId', userData._id);
       
       set({
         user: userData,
@@ -300,8 +301,8 @@ export const useAuthStore = create((set, get) => ({
     
     try {
       // Get token from localStorage
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
+      const token = safeStorageAccess.getItem('token');
+      const userId = safeStorageAccess.getItem('userId');
       
       console.log('Auth state:', {
         hasToken: !!token,
@@ -352,8 +353,8 @@ export const useAuthStore = create((set, get) => ({
       // If token is invalid or expired, clear auth state
       if (error.response?.status === 401) {
         console.log('Token invalid or expired, clearing auth state');
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
+        safeStorageAccess.removeItem('token');
+        safeStorageAccess.removeItem('userId');
         set({ 
           user: null,
           token: null,
@@ -383,8 +384,8 @@ export const useAuthStore = create((set, get) => ({
       const token = response.data.token;
       
       // Save token and userId to localStorage (not the user object with photo)
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', userData._id);
+      safeStorageAccess.setItem('token', token);
+      safeStorageAccess.setItem('userId', userData._id);
       
       // Start the periodic user data refresh
       const interval = setInterval(() => {
@@ -415,8 +416,8 @@ export const useAuthStore = create((set, get) => ({
       await axios.post(`${API_URL}/api/auth/logout`);
       
       // Clear localStorage
-      localStorage.removeItem('userId');
-      localStorage.removeItem('token');
+      safeStorageAccess.removeItem('userId');
+      safeStorageAccess.removeItem('token');
       
       // Clear the refresh interval
       if (get().refreshInterval) {

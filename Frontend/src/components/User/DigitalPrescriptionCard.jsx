@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { FiFileText, FiClock, FiCalendar, FiInfo, FiDownload, FiEye, FiUser, FiCheckCircle, FiClipboard, FiChevronRight, FiPlusCircle } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { safeExecute } from "../../utils/errorHandling";
 
 const DigitalPrescriptionCard = ({ prescription, onView }) => {
   const navigate = useNavigate();
@@ -64,6 +66,23 @@ const DigitalPrescriptionCard = ({ prescription, onView }) => {
       // Otherwise, navigate to the prescription detail page
       navigate(`/digital-prescriptions/${prescription._id}`);
     }
+  };
+
+  // Handle download PDF safely with error handling
+  const handleDownloadPDF = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    safeExecute(() => {
+      try {
+        const url = `/api/user/digital-prescriptions/${prescription._id}/pdf`;
+        window.open(url, '_blank');
+        toast.success("Downloading prescription...");
+      } catch (error) {
+        console.error("PDF download error:", error);
+        toast.error("Failed to download prescription");
+      }
+    });
   };
 
   // Determine the status of the prescription
@@ -195,6 +214,7 @@ const DigitalPrescriptionCard = ({ prescription, onView }) => {
           </motion.button>
           
           <motion.button
+            onClick={handleDownloadPDF}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="text-xs flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors bg-gray-50 px-2 py-1 rounded-md"
