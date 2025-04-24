@@ -53,24 +53,22 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-Background">
-      {/* Background gradients and blurs - only show on desktop */}
+      {/* Enhanced background with more dynamic gradients */}
       <motion.div
         style={{ opacity }}
-        className="hidden md:block absolute inset-0"
+        className="hidden md:block absolute inset-0 overflow-hidden"
       >
-        <div className="w-[80%] h-[80%] max-w-[800px] max-h-[800px] absolute top-[50%] left-[90%] transform -translate-x-1/2 -translate-y-1/2 rotate-[51.71deg] opacity-60 bg-gradient-to-br from-[#b8c5fd] to-[#e8c3d5] blur-[100px]" />
-        <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[-15%] left-[60%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-3 rounded-full blur-[75px]" />
-        <div className="w-[50%] h-[50%] max-w-[500px] max-h-[500px] absolute top-[40%] left-[70%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-1 rounded-full blur-[75px]" />
-        <div className="w-[70%] h-[70%] max-w-[700px] max-h-[700px] absolute top-[65%] left-[-5%] transform -translate-x-1/2 -translate-y-1/2 opacity-60 bg-b-3 rounded-full blur-[75px]" />
+        <div className="w-[90%] h-[90%] max-w-[900px] max-h-[900px] absolute top-[40%] left-[85%] transform -translate-x-1/2 -translate-y-1/2 rotate-[45deg] opacity-70 bg-gradient-to-br from-[#a8b4fd] via-[#d8b3e5] to-[#f8c3c5] blur-[120px] animate-pulse" />
+        <div className="w-[80%] h-[80%] max-w-[800px] max-h-[800px] absolute top-[-25%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 opacity-70 bg-gradient-to-r from-[#b8e7fd] to-[#c3d5e8] rounded-full blur-[100px] animate-pulse" />
+        <div className="w-[60%] h-[60%] max-w-[600px] max-h-[600px] absolute top-[60%] left-[-10%] transform -translate-x-1/2 -translate-y-1/2 opacity-70 bg-gradient-to-l from-[#fdc8b8] to-[#e8c3d5] rounded-full blur-[90px] animate-pulse" />
       </motion.div>
 
-      {/* Main content container */}
+      {/* Main content container with improved spacing */}
       <div className="relative z-10 flex flex-col items-center w-full max-w-full overflow-x-hidden">
-        {/* Completely removed top padding to eliminate extra space */}
         <div className="w-full px-4 pt-0 pb-8 max-w-[1700px] mx-auto">
           <Navbar user={user} onLogout={handleLogout} />
 
-          {/* Hero Section - Enhanced Professional Medical Theme */}
+          {/* Enhanced Hero Section */}
           <motion.div
             style={{ scale }}
             initial={{ opacity: 0, scale: 0.95 }}
@@ -78,141 +76,222 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             className="w-full relative -mt-2"
           >
-            <div className="hidden md:block rounded-[30px] lg:rounded-[50px] overflow-hidden bg-gradient-to-r from-[#252a61] via-[#2f347c] to-[#3a3f7a]">
+            {/* Desktop Hero Section with improved gradients and layout */}
+            <div className="hidden md:block rounded-[30px] lg:rounded-[50px] overflow-hidden bg-gradient-to-r from-[#1a1f4d] via-[#252a61] to-[#2f347c] shadow-2xl">
               <div className="relative w-full">
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] lg:min-h-[700px]">
-                  {/* Left Column - Content - Enhanced */}
-                  <div className="relative z-10 py-16 px-8 lg:px-16 flex flex-col justify-center">
+                {/* Enhanced animated background elements */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-300/30 rounded-full mix-blend-overlay filter blur-3xl opacity-30 animate-blob"></div>
+                <div className="absolute bottom-0 left-20 w-72 h-72 bg-purple-400/30 rounded-full mix-blend-overlay filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+                <div className="absolute top-24 left-0 w-80 h-80 bg-indigo-400/30 rounded-full mix-blend-overlay filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+                
+                {/* Main Content Grid with improved spacing */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[650px] lg:min-h-[750px]">
+                  {/* Left Column - Enhanced Content */}
+                  <div className="relative z-10 py-20 px-8 lg:px-16 flex flex-col justify-center">
                     <motion.div
                       initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.8 }}
                     >
+                      {/* Enhanced logo section */}
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.6 }}
-                        className="flex items-center mb-6"
+                        className="flex items-center mb-8"
                       >
-                        <img
-                          src={Logo}
-                          alt="Medicare Logo"
-                          className="h-10 w-10 object-contain"
-                        />
-
-                        <h3 className="text-white pl-5 text-xl font-semibold">
+                        <div className="bg-white/15 backdrop-blur-xl p-3 rounded-2xl shadow-lg border border-white/10 hover:border-white/20 transition-all duration-300">
+                          <img
+                            src={Logo}
+                            alt="Medicare Logo"
+                            className="h-12 w-12 object-contain"
+                          />
+                        </div>
+                        <h3 className="text-white/90 pl-5 text-2xl font-semibold tracking-wide">
                           Medicare
                         </h3>
                       </motion.div>
-                      <motion.h1
+
+                      {/* Enhanced heading with gradient text */}
+                      <motion.div 
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 leading-tight"
+                        className="mb-8"
                       >
-                        Healthcare Reimagined for the Digital Age
-                      </motion.h1>
+                        <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 leading-tight">
+                          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-200">
+                            Healthcare
+                          </span>
+                          <br />
+                          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-300">
+                            Reimagined
+                          </span>
+                        </h1>
+                        <p className="text-3xl text-white/80 font-light">
+                          for the Digital Age
+                        </p>
+                      </motion.div>
+
+                      {/* Enhanced description with backdrop blur */}
                       <motion.p
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.8, delay: 0.5 }}
-                        className="text-white/90 text-lg mb-8 max-w-xl"
+                        className="text-white/85 text-lg leading-relaxed mb-10 max-w-xl backdrop-blur-xl bg-white/10 p-6 rounded-2xl border border-white/10 shadow-lg"
                       >
-                        A secure platform that connects patients, doctors, and
-                        hospitals, providing seamless access to medical records
-                        anytime, anywhere.
+                        Experience healthcare evolved. Our secure platform seamlessly connects patients, doctors, and hospitals, providing instant access to medical records and expert care—anytime, anywhere.
                       </motion.p>
-                      <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.8, delay: 0.9 }}
-                        className="flex flex-col sm:flex-row gap-4"
-                      >
-                        <Link to="/signup" className="flex-1">
-                          <motion.button
-                            whileHover={{
-                              scale: 1.03,
-                              boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.2)",
-                            }}
-                            whileTap={{ scale: 0.97 }}
-                            className="w-full bg-gradient-to-r from-white to-white/90 text-[#252a61] font-semibold py-4 px-6 rounded-xl shadow-lg hover:bg-white transition-all duration-300"
-                          >
-                            <span className="flex items-center justify-center">
-                              Create Free Account
-                              <svg
-                                className="w-5 h-5 ml-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M9 5l7 7-7 7"
-                                ></path>
-                              </svg>
-                            </span>
-                          </motion.button>
-                        </Link>
-                        <Link to="/find-hospital" className="flex-1">
-                          <motion.button
-                            whileHover={{
-                              scale: 1.03,
-                              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-                            }}
-                            whileTap={{ scale: 0.97 }}
-                            className="w-full bg-transparent text-white border-2 border-white/30 font-semibold py-4 px-6 rounded-xl hover:bg-white/10 transition-all duration-300"
-                          >
-                            <span className="flex items-center justify-center">
-                              <svg
-                                className="w-5 h-5 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                ></path>
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                ></path>
-                              </svg>
-                              Find a Hospital
-                            </span>
-                          </motion.button>
-                        </Link>
-                      </motion.div>
+                      
+                      {/* Enhanced floating badges */}
+                      <div className="flex flex-wrap gap-4">
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.8, delay: 0.7 }}
+                          className="inline-flex items-center gap-3 px-5 py-3 bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300"
+                        >
+                          <div className="flex items-center justify-center w-6 h-6 bg-green-500 rounded-full">
+                            <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className="text-white/90 text-sm font-medium">HIPAA Compliant & Certified</span>
+                        </motion.div>
+
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.8, delay: 0.9 }}
+                          className="inline-flex items-center gap-3 px-5 py-3 bg-white/15 backdrop-blur-xl rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300"
+                        >
+                          <div className="flex items-center justify-center w-6 h-6 bg-blue-500 rounded-full">
+                            <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                          </div>
+                          <span className="text-white/90 text-sm font-medium">End-to-End Encrypted</span>
+                        </motion.div>
+                      </div>
                     </motion.div>
                   </div>
-                  {/* Right Column - Image with floating elements - Enhanced */}
-                  <div className="relative hidden lg:flex items-center justify-center p-8">
+
+                  {/* Right Column - Enhanced Image Section */}
+                  <div className="relative hidden lg:flex items-end justify-center p-8">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full filter blur-3xl"></div>
                     <motion.div
                       initial={{ opacity: 0, y: 50 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8, duration: 1 }}
                       className="relative z-10"
                     >
-                      <motion.img
-                        animate={{ y: [0, -8, 0] }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 5,
-                          ease: "easeInOut",
-                        }}
+                      <div className="absolute -top-12 -left-12 w-24 h-24 bg-blue-400/40 rounded-full filter blur-xl animate-pulse"></div>
+                      <div className="absolute -bottom-8 -right-8 w-20 h-20 bg-purple-400/40 rounded-full filter blur-xl animate-pulse animation-delay-1000"></div>
+                      
+                      {/* Main image with enhanced shadow */}
+                      <img
                         src={nurse}
                         alt="Healthcare Professional"
-                        className="relative z-10 max-h-[500px] object-contain drop-shadow-2xl"
+                        className="relative z-10 max-h-[550px] object-contain drop-shadow-2xl filter brightness-105 mb-0"
                       />
+                      
+                      {/* Enhanced floating stat boxes */}
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1.2, duration: 0.8 }}
+                        className="absolute top-20 -right-12 bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-xl border border-blue-100/50 hover:shadow-2xl transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Verified Records</p>
+                            <p className="text-lg font-bold text-gray-900">10M+</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                      
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1.5, duration: 0.8 }}
+                        className="absolute bottom-20 -left-12 bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-xl border border-blue-100/50 hover:shadow-2xl transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Active Users</p>
+                            <p className="text-lg font-bold text-gray-900">2M+</p>
+                          </div>
+                        </div>
+                      </motion.div>
                     </motion.div>
                   </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Mobile and Tablet Hero Section - Enhanced for all device sizes */}
+            <div className="md:hidden bg-gradient-to-r from-[#252a61] to-[#3a3f7a] rounded-2xl overflow-hidden p-3 sm:p-4">
+              {/* Decorative background elements */}
+              <div className="absolute top-0 right-0 w-20 h-20 bg-blue-400/20 rounded-full filter blur-xl opacity-30 animate-pulse"></div>
+              {/* <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-400/20 rounded-full filter blur-xl opacity-30 animate-pulse animation-delay-1000"></div> */}
+              
+              <div className="relative flex flex-row items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center mb-2">
+                    <div className="bg-white/10 backdrop-blur-md p-1.5 rounded-lg shadow-lg">
+                      <img
+                        src={Logo}
+                        alt="Medicare Logo"
+                        className="h-6 w-6 object-contain"
+                      />
+                    </div>
+                    <h3 className="text-white pl-2 text-base font-semibold">Medicare</h3>
+                  </div>
+                  
+                  <h1 className="font-bold text-white mb-1">
+                    <span className="text-x bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+                      Healthcare
+                    </span>
+                    <br/>
+                    <span className="text-xl bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-300">
+                            Reimagined
+                          </span>
+                  </h1>
+                  
+                  <p className="text-white/90 text-xs mb-2 max-w-[180px] line-clamp-2">
+                    A secure platform that connects patients, doctors, and hospitals.
+                  </p>
+                  
+                  <div className="flex items-center gap-1.5">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                      <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full">
+                        <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-white/90 text-[10px] font-medium">HIPAA Compliant & Certified</span>
+                      
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="relative w-40 h-40 sm:w-24 sm:h-24">
+                  <div className="absolute inset-0 bg-blue-400/20 rounded-full filter blur-xl opacity-30 animate-pulse"></div>
+                  <img
+                    src={nurse}
+                    alt="Healthcare Professional"
+                    className="relative z-10 object-contain w-full h-full drop-shadow-lg"
+                  />
                 </div>
               </div>
             </div>
@@ -384,7 +463,7 @@ const Home = () => {
                       scale: 1.1,
                       transition: { duration: 0.2 },
                     }}
-                    className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${feature.bgColor} rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4`}
+                    className={`w-12 h-12 sm:w-14 sm:h-14 ${feature.bgColor} rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4`}
                   >
                     <motion.svg
                       whileHover={{
@@ -473,7 +552,7 @@ const Home = () => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                        ></path>
+                        />
                       </svg>
                     ),
                     title: "Secure & Private",
@@ -493,7 +572,7 @@ const Home = () => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                        ></path>
+                        />
                       </svg>
                     ),
                     title: "Accessible Anywhere",
@@ -513,7 +592,7 @@ const Home = () => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-                        ></path>
+                        />
                       </svg>
                     ),
                     title: "Easy to Use",
@@ -533,7 +612,7 @@ const Home = () => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                        ></path>
+                        />
                       </svg>
                     ),
                     title: "Connect with Healthcare Providers",
@@ -553,7 +632,7 @@ const Home = () => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
+                        />
                       </svg>
                     ),
                     title: "Time-Saving",
@@ -573,7 +652,7 @@ const Home = () => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M13 10V3L4 14h7v7l9-11h-7z"
-                        ></path>
+                        />
                       </svg>
                     ),
                     title: "Always Up-to-Date",
@@ -598,7 +677,7 @@ const Home = () => {
                     <div className="w-16 h-16 bg-[#eef1ff] rounded-full flex items-center justify-center mb-6">
                       {feature.icon}
                     </div>
-                    <h3 className="text-xl font-semibold text-[#252a61] mb-3">
+                    <h3 className="text-xl font-semibold text-[#252A61] mb-3">
                       {feature.title}
                     </h3>
                     <p className="text-gray-600 text-sm md:text-base">
@@ -641,7 +720,7 @@ const Home = () => {
             </div>
           </motion.section>
 
-          {/* Testimonials Section - Enhanced Responsiveness */}
+          {/* Testimonials Section - Enhanced with horizontal scroll */}
           <motion.section
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -665,86 +744,103 @@ const Home = () => {
               </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-              {[
-                {
-                  name: "Sarah Johnson",
-                  role: "Patient",
-                  image: "https://randomuser.me/api/portraits/women/32.jpg",
-                  quote:
-                    "Medicare has transformed how I manage my health records. I can access all my medical information in one place, making it so much easier to share with doctors.",
-                },
-                {
-                  name: "Dr. Rajesh Sharma",
-                  role: "Physician, Delhi",
-                  image: "https://randomuser.me/api/portraits/men/73.jpg",
-                  quote:
-                    "Being a doctor in one of Delhi's busiest hospitals, Medicare has helped me access patient records efficiently. The platform is reliable and user-friendly even during peak hours.",
-                },
-                {
-                  name: "Priya Patel",
-                  role: "Healthcare Professional, Mumbai",
-                  image: "https://randomuser.me/api/portraits/women/79.jpg",
-                  quote:
-                    "Medicare has revolutionized healthcare management in our clinic. The integration with local health systems and ease of use has greatly improved our patient care experience.",
-                },
-                {
-                  name: "Dr. Michael Chen",
-                  role: "Cardiologist",
-                  image: "https://randomuser.me/api/portraits/men/46.jpg",
-                  quote:
-                    "As a healthcare provider, I appreciate how Medicare streamlines patient information sharing. It has significantly improved my workflow and patient care quality.",
-                },
-                {
-                  name: "Emily Rodriguez",
-                  role: "Healthcare Administrator",
-                  image: "https://randomuser.me/api/portraits/women/68.jpg",
-                  quote:
-                    "The platform's intuitive design and robust security features make it an essential tool for modern healthcare management. Our entire clinic has benefited from it.",
-                },
-                {
-                  name: "Ananya Desai",
-                  role: "Patient, Bangalore",
-                  image: "https://randomuser.me/api/portraits/women/26.jpg",
-                  quote:
-                    "I've been using Medicare for my family's health records for over a year now. The ability to share medical history across different hospitals in Bangalore has been incredibly helpful.",
-                },
-              ].map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeInUp}
-                  whileHover={{ y: -5 }}
-                  className="bg-white p-4 sm:p-5 md:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-xl transition-all duration-200 flex flex-col"
-                >
-                  <div className="flex items-center mb-3 sm:mb-4">
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-[#252A61]"
-                    />
-                    <div className="ml-3 sm:ml-4">
-                      <h3 className="text-base sm:text-lg font-semibold text-[#252A61]">
-                        {testimonial.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        {testimonial.role}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <svg
-                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-[#252A61]/20 mb-2"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
+            {/* Horizontal scrollable testimonials */}
+            <div className="relative px-4 sm:px-6">
+              <div className="overflow-x-auto hide-scrollbar">
+                <div className="inline-flex gap-4 sm:gap-5 md:gap-6 pb-4 min-w-full">
+                  {[
+                    {
+                      name: "Sarah Johnson",
+                      role: "Patient",
+                      image: "https://randomuser.me/api/portraits/women/32.jpg",
+                      quote:
+                        "Medicare has transformed how I manage my health records. I can access all my medical information in one place, making it so much easier to share with doctors.",
+                    },
+                    {
+                      name: "Dr. Rajesh Sharma",
+                      role: "Physician, Delhi",
+                      image: "https://randomuser.me/api/portraits/men/73.jpg",
+                      quote:
+                        "Being a doctor in one of Delhi's busiest hospitals, Medicare has helped me access patient records efficiently. The platform is reliable and user-friendly even during peak hours.",
+                    },
+                    {
+                      name: "Priya Patel",
+                      role: "Healthcare Professional, Mumbai",
+                      image: "https://randomuser.me/api/portraits/women/79.jpg",
+                      quote:
+                        "Medicare has revolutionized healthcare management in our clinic. The integration with local health systems and ease of use has greatly improved our patient care experience.",
+                    },
+                    {
+                      name: "Dr. Michael Chen",
+                      role: "Cardiologist",
+                      image: "https://randomuser.me/api/portraits/men/46.jpg",
+                      quote:
+                        "As a healthcare provider, I appreciate how Medicare streamlines patient information sharing. It has significantly improved my workflow and patient care quality.",
+                    },
+                    {
+                      name: "Emily Rodriguez",
+                      role: "Healthcare Administrator",
+                      image: "https://randomuser.me/api/portraits/women/68.jpg",
+                      quote:
+                        "The platform's intuitive design and robust security features make it an essential tool for modern healthcare management. Our entire clinic has benefited from it.",
+                    },
+                    {
+                      name: "Ananya Desai",
+                      role: "Patient, Bangalore",
+                      image: "https://randomuser.me/api/portraits/women/26.jpg",
+                      quote:
+                        "I've been using Medicare for my family's health records for over a year now. The ability to share medical history across different hospitals in Bangalore has been incredibly helpful.",
+                    },
+                  ].map((testimonial, index) => (
+                    <motion.div
+                      key={index}
+                      variants={fadeInUp}
+                      whileHover={{ y: -5, scale: 1.02 }}
+                      className="bg-gradient-to-b from-white to-gray-50/80 backdrop-blur-sm p-6 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col min-w-[300px] sm:min-w-[340px] md:min-w-[380px] border border-gray-100/80 relative overflow-hidden"
                     >
-                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.51.884-3.995 2.979-3.995 5.849h4v10h-10zm-14 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.511.884-3.996 2.979-3.996 5.849h3.999v10h-9.999z" />
-                    </svg>
-                    <p className="text-xs sm:text-sm md:text-base text-gray-700 italic">
-                      {testimonial.quote}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+                      {/* Decorative elements */}
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-blue-400/5 rounded-full -mr-8 -mt-8"></div>
+                      <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-400/5 rounded-full -ml-12 -mb-12"></div>
+                      
+                      <div className="relative">
+                        {/* Quote icon */}
+                        <svg
+                          className="w-8 h-8 text-[#252A61]/10 absolute -top-2 -left-2"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.51.884-3.995 2.979-3.995 5.849h4v10h-10zm-14 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.511.884-3.996 2.979-3.996 5.849h3.999v10h-9.999z" />
+                        </svg>
+                        
+                        {/* Quote text */}
+                        <p className="text-gray-600 text-sm leading-relaxed mb-6 relative z-10 pl-6">
+                          {testimonial.quote}
+                        </p>
+                        
+                        {/* Profile section */}
+                        <div className="flex items-center gap-4">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-sm"></div>
+                            <img
+                              src={testimonial.image}
+                              alt={testimonial.name}
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md relative z-10"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="text-[#252A61] font-semibold">
+                              {testimonial.name}
+                            </h3>
+                            <p className="text-gray-500 text-sm">
+                              {testimonial.role}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
           </motion.section>
 
@@ -836,7 +932,7 @@ const Home = () => {
                     healthcare experience with Medicare's digital platform.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <Link to="/signup" className="flex-1">
+                    <Link to="/start" className="flex-1">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -924,7 +1020,7 @@ const Home = () => {
                             <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                           )}
                           {platform === "instagram" && (
-                            <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" />
+                            <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.074-4.947c-.061-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.06-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" />
                           )}
                           {platform === "linkedin" && (
                             <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
@@ -1042,6 +1138,28 @@ const Home = () => {
           </div>
         </motion.footer>
       </div>
+
+      {/* Add this CSS to your global styles or in a style tag */}
+      <style>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        @keyframes scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(200%);
+          }
+        }
+        .animate-scroll {
+          animation: scroll 8s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };

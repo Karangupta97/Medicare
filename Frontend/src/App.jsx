@@ -20,6 +20,7 @@ import Profile from "./pages/User/Profile";
 import Notifications from "./pages/User/Notifications";
 import AllDigitalPrescriptions from "./pages/User/AllDigitalPrescriptions";
 import DigitalPrescriptionDetail from "./pages/User/DigitalPrescriptionDetail";
+import PrescriptionReminders from "./pages/User/PrescriptionReminders";
 //Hospital
 import FindPatient from "./pages/Hospital/FindPatient";
 import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
@@ -207,6 +208,14 @@ const App = () => {
           }
         />
         <Route
+          path="/digital-prescriptions/reminders"
+          element={
+            <ProtectedRoute>
+              <PrescriptionReminders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/digital-prescriptions/:id"
           element={
             <ProtectedRoute>
@@ -214,7 +223,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        
         <Route
           path="/login"
           element={

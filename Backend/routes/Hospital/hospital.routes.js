@@ -10,8 +10,10 @@ import {
   getPrescriptionById,
   getPatientPrescriptions,
   getDoctorPrescriptions,
+  getOtherDoctorPrescriptions,
   generatePrescriptionPDF
 } from "../../controllers/Hospital/prescription.controller.js";
+import { refreshReportUrl } from "../../controllers/reports.controller.js";
 
 const router = express.Router();
 
@@ -27,11 +29,21 @@ router.get("/patient/:umid", getPatientByUMID);
 // Get patient reports
 router.get("/patient/:patientId/reports", getPatientReports);
 
-// Prescription routes
+// Report URL refresh endpoint - handles expired S3 URLs
+router.get("/reports/:id/refresh-url", refreshReportUrl);
+
+// Add a direct route that matches the frontend API call pattern
+router.get("/patient/:patientId/prescriptions", getPatientPrescriptions);
+
+// Add route to get other doctor prescriptions
+router.get("/patient/:patientId/other-prescriptions", getOtherDoctorPrescriptions);
+
+// Prescription routes - Specific routes before pattern routes
 router.post("/digital-prescriptions", createPrescription);
-router.get("/digital-prescriptions/:prescriptionId", getPrescriptionById);
 router.get("/digital-prescriptions/patient/:patientId", getPatientPrescriptions);
 router.get("/digital-prescriptions/doctor", getDoctorPrescriptions);
+// This must come after more specific routes
+router.get("/digital-prescriptions/:prescriptionId", getPrescriptionById);
 router.get("/digital-prescriptions/:prescriptionId/view", generatePrescriptionPDF);
 
 export default router;

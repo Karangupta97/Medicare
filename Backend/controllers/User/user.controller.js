@@ -59,3 +59,25 @@ export const getUserPrescriptionById = async (req, res) => {
     });
   }
 };
+
+// Get user's digital prescription count
+export const getPrescriptionCount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    // Count prescriptions for this user
+    const count = await Prescription.countDocuments({ patient: userId });
+    
+    return res.status(200).json({
+      success: true,
+      count: count
+    });
+  } catch (error) {
+    console.error("Error fetching prescription count:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch prescription count",
+      error: error.message
+    });
+  }
+};

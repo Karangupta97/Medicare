@@ -104,10 +104,12 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
         createdAt: new Date().toISOString()
       };
 
-      // Sample API call - replace with actual endpoint
+      // Send prescription data to backend
+      console.log("Sending prescription data:", prescriptionData);
       const response = await axios.post('/api/hospital/digital-prescriptions', prescriptionData);
       
       if (response.data.success) {
+        console.log("Prescription created successfully:", response.data.prescription);
         toast.success('Prescription created successfully');
         setIsOpen(false);
         

@@ -213,14 +213,25 @@ const DigitalPrescriptionCard = ({ prescription, onView }) => {
             <FiEye className="w-3.5 h-3.5" /> View Details
           </motion.button>
           
-          <motion.button
-            onClick={handleDownloadPDF}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-xs flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors bg-gray-50 px-2 py-1 rounded-md"
-          >
-            <FiDownload className="w-3.5 h-3.5" /> Download
-          </motion.button>
+          <div className="flex gap-1">
+            <motion.a
+              href={`/digital-prescriptions/reminders?prescriptionId=${prescription._id}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-xs flex items-center gap-1 text-purple-600 hover:text-purple-800 transition-colors bg-purple-50 px-2 py-1 rounded-md"
+            >
+              <FiClock className="w-3.5 h-3.5" /> Set Reminder
+            </motion.a>
+            
+            <motion.button
+              onClick={handleDownloadPDF}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-xs flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors bg-gray-50 px-2 py-1 rounded-md"
+            >
+              <FiDownload className="w-3.5 h-3.5" /> Download
+            </motion.button>
+          </div>
         </div>
       </div>
     </motion.div>

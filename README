@@ -6,3 +6,56 @@ frontend
 -vite.config.js-/api-
 -authStore.js-API_URL-
 .env-
+
+# Digital Prescriptions Module
+
+The Digital Prescriptions module in Medicare provides a comprehensive electronic prescription management system for both healthcare providers and patients.
+
+## Features
+
+### For Healthcare Providers (Doctors/Hospitals):
+- **Create Digital Prescriptions**: Generate new electronic prescriptions with comprehensive medication details, dosage instructions, and patient information.
+- **Patient Search**: Easily find patients using their UMID to access their medical history and create prescriptions.
+- **Medication Management**: Add multiple medications with detailed information including name, dosage, frequency, duration, and special instructions.
+- **Preview & PDF Generation**: Preview prescription before finalizing and generate downloadable PDF versions.
+- **Cross-Provider Access**: View prescriptions issued by other doctors to the same patient, ensuring continuity of care.
+
+### For Patients:
+- **Centralized Prescription Access**: View all prescriptions from various healthcare providers in one place.
+- **Detailed Prescription View**: Access comprehensive information about each prescription, including doctor details, diagnosis, medications, and instructions.
+- **Search & Filter**: Search prescriptions by doctor, hospital, or medication and filter by status (Active/Completed) or date.
+- **Download & Print**: Easily download or print prescriptions for offline access.
+- **Mobile-Friendly Design**: Responsive interface for accessing prescriptions on any device.
+
+## Technical Implementation
+
+### Frontend Components:
+1. **FindPatient.jsx**: Allows doctors to search for patients using UMID and view their medical history, reports, and existing prescriptions.
+2. **DigitalPrescription.jsx**: Modal component for creating new prescriptions with medication, diagnosis, and instruction fields.
+3. **AllDigitalPrescriptions.jsx**: Patient-facing page that displays all prescriptions with search, filter, and sort functionality.
+4. **DigitalPrescriptionDetail.jsx**: Detailed view of a single prescription with complete information and download/print options.
+5. **DigitalPrescriptionCard.jsx**: Reusable card component for displaying prescription summaries in grid or list views.
+
+### Backend Architecture:
+1. **prescription.controller.js**: Handles CRUD operations for prescriptions, including:
+   - Creating new prescriptions
+   - Fetching prescriptions by patient ID
+   - Fetching prescriptions by doctor ID
+   - Generating PDF versions
+2. **prescription.model.js**: MongoDB schema for prescriptions with fields for patient data, doctor information, medications, diagnosis, etc.
+3. **hospital.routes.js**: API routes for hospital/doctor prescription operations.
+4. **user.routes.js**: API routes for patient prescription access.
+
+## Data Flow
+1. Doctor searches for patient by UMID
+2. Doctor creates prescription through the DigitalPrescription modal
+3. Prescription is saved to database
+4. Patient receives notification about new prescription
+5. Patient can view prescription details and download/print as needed
+
+## Future Enhancements
+- Electronic signature integration
+- Pharmacy integration for direct prescription fulfillment
+- Medication reminder system
+- Prescription renewal requests
+- Interaction and allergy checking system

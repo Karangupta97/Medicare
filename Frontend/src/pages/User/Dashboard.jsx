@@ -205,22 +205,27 @@ const Dashboard = () => {
     // Use environment variable or fallback to detected URL
     const apiBaseUrl = import.meta.env.VITE_API_URL || 
                       (window.location.hostname === 'localhost' 
-                        ? `http://localhost:4000`  // Always use http:// for localhost WebSocket initial connection
-                        : 'https://medicare-backend-pdci8.ondigitalocean.app');
+                        ? `http://localhost:4000`
+                        : window.location.protocol === 'https:' 
+                          ? 'https://medicare-backend-pdci8.ondigitalocean.app'
+                          : 'http://medicare-backend-pdci8.ondigitalocean.app');
     
     console.log('Attempting WebSocket connection to:', apiBaseUrl);
     
-    // Create socket connection with improved error handling
+    // Improved socket connection configuration
     const socket = io(apiBaseUrl, {
       path: '/socket.io',
-      transports: ['polling', 'websocket'], // Try polling first, then upgrade
+      transports: ['websocket', 'polling'], // Try websocket first, then fall back to polling
       withCredentials: true,
       reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 2000,
-      timeout: 20000,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 3000,
+      timeout: 30000,
       autoConnect: true,
-      forceNew: true
+      forceNew: true,
+      extraHeaders: {
+        Authorization: `Bearer ${token}`
+      }
     });
     
     // Store socket reference for debugging
@@ -228,21 +233,32 @@ const Dashboard = () => {
   
     socket.on('connect', () => {
       console.log('WebSocket connection established with ID:', socket.id);
+      // Reset any error state if we successfully connected
+      window.hasShownSocketError = false;
+      
       // Authenticate with the server
       if (user?._id) {
-        socket.emit('authenticate', user._id);
+        socket.emit('authenticate', { userId: user._id, token });
         console.log('Sent authentication for user:', user._id);
       }
     });
   
     socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error.message);
+      console.error('WebSocket connection error:', error.message || 'server error');
       
       // Don't show toast for every connection error
       if (!window.hasShownSocketError) {
-        toast.error('Unable to establish real-time connection. Notifications will update on page refresh.');
+        toast.error('Unable to establish real-time connection. Notifications will update manually.', {
+          duration: 5000,
+          id: 'socket-error'
+        });
         window.hasShownSocketError = true;
       }
+      
+      // Manually refresh notifications after connection error
+      setTimeout(() => {
+        fetchNotifications();
+      }, 5000);
     });
   
     socket.on('notification', (notification) => {
@@ -260,19 +276,33 @@ const Dashboard = () => {
   
     socket.on('disconnect', (reason) => {
       console.warn('WebSocket disconnected:', reason);
-      if (reason === 'io server disconnect') {
-        // The server disconnected the socket, try reconnecting manually
-        socket.connect();
+      
+      // Only try to manually reconnect if it wasn't an intentional disconnect
+      if (reason === 'io server disconnect' || reason === 'transport close') {
+        // The server disconnected the socket, try reconnecting manually after a delay
+        setTimeout(() => {
+          if (socket && !socket.connected) {
+            socket.connect();
+          }
+        }, 5000);
       }
     });
   
-    socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
-      toast.error('WebSocket connection failed. Retrying...');
+    socket.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      // No need to display a toast here as connect_error already handles that
     });
+  
+    // Ping the server periodically to keep the connection alive
+    const pingInterval = setInterval(() => {
+      if (socket && socket.connected) {
+        socket.emit('ping');
+      }
+    }, 25000);
   
     return () => {
       console.log('Cleaning up WebSocket connection');
+      clearInterval(pingInterval);
       if (socket) {
         socket.disconnect();
         window.socket = null;
@@ -361,9 +391,9 @@ const Dashboard = () => {
     return (
       <motion.div 
         variants={itemVariants}
-        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
       >
-        <div className="border-b border-gray-100 px-4 py-3 bg-gradient-to-r from-violet-50 to-violet-100">
+        <div className="border-b border-gray-100 px-4 py-3 bg-gradient-to-r from-violet-100 to-violet-200">
           <h3 className="font-semibold text-gray-800 flex items-center">
             <FiBell className="mr-2 text-violet-600" /> Notifications
           </h3>
@@ -371,25 +401,33 @@ const Dashboard = () => {
         <div className="p-4">
           {notifications.length > 0 ? (
             <div className="space-y-3">
-              {notifications.slice(0, 3).map(notification => (
-                <div 
+              {notifications.slice(0, 3).map((notification, idx) => (
+                <motion.div 
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification.id)}
-                  className={`p-2 rounded-lg cursor-pointer transition-colors ${notification.read ? 'bg-white' : 'bg-violet-50'}`}
+                  whileHover={{ x: 3 }}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className={`p-3 rounded-lg cursor-pointer transition-all ${
+                    notification.read 
+                      ? 'bg-white hover:bg-gray-50 border border-gray-100' 
+                      : 'bg-violet-50 hover:bg-violet-100 border border-violet-200'
+                  }`}
                 >
-                  <div className="flex items-start gap-2">
-                    <div className={`mt-0.5 p-1.5 rounded-full ${
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-full ${
                       notification.type === 'reminder' ? 'bg-amber-100 text-amber-600' :
                       notification.type === 'appointment' ? 'bg-green-100 text-green-600' : 
                       'bg-blue-100 text-blue-600'
                     }`}>
-                      {notification.type === 'reminder' && <FiClock size={12} />}
-                      {notification.type === 'appointment' && <FiCalendar size={12} />}
-                      {notification.type === 'report' && <FiFileText size={12} />}
-                      {notification.type !== 'reminder' && notification.type !== 'appointment' && notification.type !== 'report' && <FiBell size={12} />}
+                      {notification.type === 'reminder' && <FiClock size={14} />}
+                      {notification.type === 'appointment' && <FiCalendar size={14} />}
+                      {notification.type === 'report' && <FiFileText size={14} />}
+                      {notification.type !== 'reminder' && notification.type !== 'appointment' && notification.type !== 'report' && <FiBell size={14} />}
                     </div>
                     <div className="flex-1">
-                      <p className="text-gray-700 text-sm">
+                      <p className="text-gray-700 text-sm font-medium">
                         {notification.message}
                       </p>
                       <p className="text-gray-400 text-xs mt-1">
@@ -398,12 +436,12 @@ const Dashboard = () => {
                     </div>
                     {!notification.read && <div className="w-2 h-2 bg-violet-600 rounded-full mt-2" />}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-6 text-center">
-              <div className="w-14 h-14 rounded-full bg-violet-50 flex items-center justify-center mb-3">
+              <div className="w-16 h-16 rounded-full bg-violet-50 flex items-center justify-center mb-3">
                 <FiBell className="text-violet-400 text-lg" />
               </div>
               <p className="text-gray-600">No notifications</p>
@@ -411,17 +449,23 @@ const Dashboard = () => {
           )}
           
           <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between">
-            <a href="/notifications" className="text-sm text-violet-600 hover:text-violet-800 flex items-center gap-1">
-              View all notifications <FiChevronRight size={14} />
-            </a>
+            <motion.a 
+              href="/notifications" 
+              whileHover={{ x: 3 }}
+              className="text-sm text-violet-600 hover:text-violet-800 flex items-center gap-1 font-medium"
+            >
+              View all notifications <FiChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </motion.a>
             
             {notifications.length > 0 && (
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={markAllNotificationsAsRead}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-2 py-1 rounded transition-colors"
               >
                 Mark all as read
-              </button>
+              </motion.button>
             )}
           </div>
         </div>
@@ -476,7 +520,8 @@ const Dashboard = () => {
     visible: { 
       opacity: 1,
       transition: { 
-        staggerChildren: 0.1 
+        staggerChildren: 0.1,
+        delayChildren: 0.2
       }
     }
   };
@@ -492,11 +537,28 @@ const Dashboard = () => {
 
   const pulseVariants = {
     pulse: {
-      scale: [1, 1.05, 1],
+      scale: [1, 1.03, 1],
+      boxShadow: [
+        "0 0 0 rgba(59, 130, 246, 0.4)",
+        "0 0 20px rgba(59, 130, 246, 0.4)",
+        "0 0 0 rgba(59, 130, 246, 0.4)"
+      ],
       transition: { 
         duration: 2,
         repeat: Infinity,
         repeatType: 'loop'
+      }
+    }
+  };
+
+  const floatVariants = {
+    float: {
+      y: [0, -10, 0],
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        repeatType: 'loop',
+        ease: "easeInOut"
       }
     }
   };
@@ -512,50 +574,75 @@ const Dashboard = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="mb-8"
+      className="mb-6 sm:mb-8"
     >
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-1">
-              {user?.name ? `Welcome, ${user.name.split(' ')[0]}` : 'Welcome'}
-            </h1>
-            <div className="flex items-center text-gray-500">
-              <FiCalendar className="mr-2 text-blue-600" size={16} />
-              <p className="font-medium">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-              </p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <Link 
-            to="/notifications" 
-            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
-          >
-            <FiBell size={22} className="text-gray-600" />
-            {unreadNotificationsCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">
-                {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
-              </span>
-            )}
-          </Link>
-          
-          <a href="/settings" className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-            <FiSettings size={22} className="text-gray-600" />
-          </a>
-          
-          <div className="flex items-center gap-2 ml-2">
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500 shadow-md">
+      <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-2xl p-4 sm:p-6 shadow-sm border border-blue-100">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex h-16 w-16 rounded-full bg-blue-600 shadow-md items-center justify-center overflow-hidden">
               {user?.photoURL ? (
-                <img src={user.photoURL} alt={user.name} className="w-full h-full object-cover" />
+                <img src={user.photoURL} alt={user.name} className="h-16 w-16 rounded-full object-cover border-4 border-white" />
               ) : (
-                <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
-                  {user?.name?.charAt(0) || 'U'}
+                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-2xl flex items-center justify-center">
+                  {user?.name?.charAt(0) || "U"}
                 </div>
               )}
             </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                {user?.name ? `Welcome, ${user.name.split(' ')[0]}` : 'Welcome'}
+              </h1>
+              <div className="flex items-center text-gray-600 text-sm sm:text-base">
+                <FiCalendar className="mr-2 text-blue-600" size={16} />
+                <p className="font-medium">
+                  {new Date().toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    month: 'long', 
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3 mt-2 md:mt-0">
+            <Link 
+              to="/notifications" 
+              className="relative p-2 sm:p-2.5 rounded-full bg-white hover:bg-gray-100 transition-colors cursor-pointer shadow-sm border border-gray-100"
+            >
+              <FiBell size={22} className="text-gray-600" />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-0 right-0 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center transform translate-x-1 -translate-y-1">
+                  {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
+                </span>
+              )}
+            </Link>
+            
+            <a href="/settings" className="p-2 sm:p-2.5 rounded-full bg-white hover:bg-gray-100 transition-colors shadow-sm border border-gray-100">
+              <FiSettings size={22} className="text-gray-600" />
+            </a>
+            
+            <div className="md:hidden flex items-center gap-2 ml-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-blue-500 shadow-md">
+                {user?.photoURL ? (
+                  <img src={user.photoURL} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
+                    {user?.name?.charAt(0) || 'U'}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setIsQRCodeModalOpen(true)}
+              className="hidden md:flex items-center gap-2 ml-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm shadow-md"
+            >
+              <FiGrid size={14} />
+              My Medicare ID
+            </motion.button>
           </div>
         </div>
       </div>
@@ -567,24 +654,30 @@ const Dashboard = () => {
       variants={itemVariants}
       className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6"
     >
+      <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+        <h3 className="font-semibold text-gray-800">Quick Actions</h3>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-4">
         {quickActions.map((action) => (
-          <a
+          <motion.a
             key={action.id}
             href={action.path}
-            className={`flex flex-col items-center justify-center p-4 transition-all hover:bg-${action.color}-50 border-r last:border-r-0 border-b md:border-b-0`}
+            whileHover={{ y: -5, backgroundColor: `rgba(var(--${action.color}-50), 1)` }}
+            whileTap={{ y: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            className={`flex flex-col items-center justify-center p-6 hover:bg-${action.color}-50 border-r last:border-r-0 border-b md:border-b-0 hover:shadow-md transition-all duration-300`}
           >
             <div
-              className={`w-12 h-12 rounded-full bg-${action.color}-100 flex items-center justify-center mb-3`}
+              className={`w-14 h-14 rounded-full bg-${action.color}-100 flex items-center justify-center mb-3 shadow-sm transition-transform transform hover:scale-110`}
             >
-              <span className={`text-${action.color}-600 text-lg`}>
+              <span className={`text-${action.color}-600 text-xl`}>
                 {action.icon}
               </span>
             </div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-800">
               {action.title}
             </span>
-          </a>
+          </motion.a>
         ))}
       </div>
     </motion.div>
@@ -596,16 +689,16 @@ const Dashboard = () => {
       variants={itemVariants}
       className="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-6 mb-6"
     >
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 h-24 flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:shadow-xl">
+        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 h-28 flex items-center justify-center">
           <div className="flex items-center gap-2 text-white">
-            <FiShield size={28} className="text-white" />
-            <h2 className="text-xl font-bold">Your Medicare Dashboard</h2>
+            <FiShield size={28} className="text-white drop-shadow-md" />
+            <h2 className="text-xl font-bold drop-shadow-md">Your Medicare Dashboard</h2>
           </div>
         </div>
-        <div className="px-8 pb-6">
+        <div className="px-8 pb-6 -mt-10">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl ring-2 ring-blue-100 bg-white">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl ring-4 ring-blue-200 bg-white transform hover:scale-105 transition-transform duration-300">
               {user?.photoURL ? (
                 <img
                   src={user.photoURL}
@@ -624,19 +717,19 @@ const Dashboard = () => {
               </h2>
               <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                 {user?.umid && (
-                  <div className="inline-flex items-center text-blue-700 bg-blue-50 px-3 py-1 rounded-full text-sm">
+                  <div className="inline-flex items-center text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-100">
                     <FiShield className="mr-1" size={14} />
                     Medicare ID: {user.umid}
                   </div>
                 )}
                 {user?.verified && (
-                  <div className="inline-flex items-center text-green-700 bg-green-50 px-3 py-1 rounded-full text-sm">
+                  <div className="inline-flex items-center text-green-700 bg-green-50 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-green-100">
                     <FiCheckCircle className="mr-1" size={14} />
                     Verified
                   </div>
                 )}
                 {user?.planType && (
-                  <div className="inline-flex items-center text-purple-700 bg-purple-50 px-3 py-1 rounded-full text-sm">
+                  <div className="inline-flex items-center text-purple-700 bg-purple-50 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-purple-100">
                     <FiCreditCard className="mr-1" size={14} />
                     {user.planType}
                   </div>
@@ -657,7 +750,11 @@ const Dashboard = () => {
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Health Records Stats */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <motion.div 
+          whileHover={{ y: -5 }}
+          transition={{ type: "spring", stiffness: 300 }}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
+        >
           <div className="p-5">
             <div className="flex items-start justify-between">
               <div>
@@ -666,25 +763,29 @@ const Dashboard = () => {
                   <h3 className="font-medium text-gray-700">Health Records</h3>
                 </div>
                 <div className="mt-4">
-                  <p className="text-3xl font-bold text-gray-900">{reports.length}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">{reports.length}</p>
                   <p className="text-sm text-gray-500 mt-1">Total documents</p>
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center shadow-sm">
                 <FiFileText className="w-6 h-6 text-indigo-600" />
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link to="/reports" className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center">
+              <Link to="/reports" className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center group">
                 View all records
-                <FiChevronRight className="ml-1 w-4 h-4" />
+                <FiChevronRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Digital Prescriptions Stats */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <motion.div 
+          whileHover={{ y: -5 }}
+          transition={{ type: "spring", stiffness: 300 }}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
+        >
           <div className="p-5">
             <div className="flex items-start justify-between">
               <div>
@@ -693,25 +794,29 @@ const Dashboard = () => {
                   <h3 className="font-medium text-gray-700">Prescriptions</h3>
                 </div>
                 <div className="mt-4">
-                  <p className="text-3xl font-bold text-gray-900">{prescriptions.length}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{prescriptions.length}</p>
                   <p className="text-sm text-gray-500 mt-1">Active medications</p>
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-sm">
                 <FiClipboard className="w-6 h-6 text-blue-600" />
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link to="/digital-prescriptions" className="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+              <Link to="/digital-prescriptions" className="text-sm text-blue-600 hover:text-blue-800 flex items-center group">
                 Manage prescriptions
-                <FiChevronRight className="ml-1 w-4 h-4" />
+                <FiChevronRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Notifications Stats */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <motion.div 
+          whileHover={{ y: -5 }}
+          transition={{ type: "spring", stiffness: 300 }}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
+        >
           <div className="p-5">
             <div className="flex items-start justify-between">
               <div>
@@ -720,22 +825,22 @@ const Dashboard = () => {
                   <h3 className="font-medium text-gray-700">Notifications</h3>
                 </div>
                 <div className="mt-4">
-                  <p className="text-3xl font-bold text-gray-900">{unreadNotificationsCount}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-amber-500 to-amber-700 bg-clip-text text-transparent">{unreadNotificationsCount}</p>
                   <p className="text-sm text-gray-500 mt-1">Unread alerts</p>
                 </div>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center shadow-sm">
                 <FiBell className="w-6 h-6 text-amber-600" />
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <Link to="/notifications" className="text-sm text-amber-600 hover:text-amber-800 flex items-center">
+              <Link to="/notifications" className="text-sm text-amber-600 hover:text-amber-800 flex items-center group">
                 View all notifications
-                <FiChevronRight className="ml-1 w-4 h-4" />
+                <FiChevronRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -847,72 +952,98 @@ const Dashboard = () => {
           variants={itemVariants}
           className="mb-6"
         >
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="border-b border-gray-100 px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-100">
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-lg text-gray-800 flex items-center">
-                  <FiFileText className="mr-2 text-blue-600" /> Digital Prescriptions
-                </h3>
-                <Link 
-                  to="/digital-prescriptions"
-                  className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <FiEye size={14} /> View all
-                </Link>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
+            <div className="border-b border-gray-100 px-6 py-4 bg-gradient-to-r from-blue-50 to-cyan-50 flex justify-between items-center">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                  <FiClipboard className="text-blue-600" size={18} />
+                </div>
+                <h3 className="font-semibold text-lg text-gray-800">Digital Prescriptions</h3>
               </div>
+              <Link 
+                to="/digital-prescriptions"
+                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors bg-white/70 hover:bg-white px-3 py-1.5 rounded-full shadow-sm"
+              >
+                <FiEye size={14} /> View all
+              </Link>
             </div>
             
             <div className="p-6">
               {prescriptions && prescriptions.length > 0 ? (
                 <div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {prescriptions.slice(0, 3).map((prescription, index) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {prescriptions.slice(0, 2).map((prescription, index) => (
                       <motion.div
                         key={prescription._id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
+                        whileHover={{ y: -5 }}
+                        className="transform transition-all duration-300"
                       >
-                        <PrescriptionCard 
-                          prescription={prescription} 
-                          onView={(prescription) => {
-                            window.open(`/digital-prescriptions/${prescription._id}`, '_blank');
-                          }} 
-                        />
+                        <PrescriptionCard prescription={prescription} onView={(prescription) => {
+                          window.open(`/digital-prescriptions/${prescription._id}`, '_blank');
+                        }} />
                       </motion.div>
                     ))}
                   </div>
                   
-                  {prescriptions.length > 3 && (
-                    <div className="mt-4 pt-3 border-t border-gray-100 text-center">
-                      <motion.a
-                        href="/digital-prescriptions"
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-sm group"
-                        whileHover={{ scale: 1.03 }}
-                      >
-                        View all prescriptions 
-                        <FiArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                      </motion.a>
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <div className="flex flex-wrap justify-between items-center">
+                      <div className="mb-2 sm:mb-0">
+                        <span className="text-sm text-gray-500">Recent medications</span>
+                        <h4 className="font-medium text-gray-800">{prescriptions.length} active prescriptions</h4>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <motion.a
+                          href="/digital-prescriptions"
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center gap-1 transition-colors"
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <FiClipboard size={14} /> Manage medications
+                        </motion.a>
+                        
+                        <motion.a
+                          href="/digital-prescriptions/reminders"
+                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm flex items-center gap-1 transition-colors"
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <FiClock size={14} /> Set reminders
+                        </motion.a>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                    <FiFileText className="text-blue-400 text-xl" />
+                    <FiClipboard className="text-blue-400 text-xl" />
                   </div>
                   <h4 className="text-gray-800 font-medium mb-2">No digital prescriptions</h4>
                   <p className="text-gray-500 text-sm max-w-md mb-4">
                     Your digital prescriptions from doctors' visits will appear here for easy access and reference.
                   </p>
-                  <motion.a
-                    href="/find-doctor"
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm inline-flex items-center gap-2 transition-colors"
-                  >
-                    <FiSearch size={14} /> Find a doctor
-                  </motion.a>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <motion.a
+                      href="/find-doctor"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm inline-flex items-center gap-2 transition-colors"
+                    >
+                      <FiSearch size={14} /> Find a doctor
+                    </motion.a>
+                    <motion.a
+                      href="/digital-prescriptions/request"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm inline-flex items-center gap-2 transition-colors"
+                    >
+                      <FiClipboard size={14} /> Request prescription
+                    </motion.a>
+                  </div>
                 </div>
               )}
             </div>
@@ -1000,94 +1131,7 @@ const Dashboard = () => {
       {/* Sidebar (2/5 width) - increased from previous ratio */}
       <div className="lg:col-span-2 space-y-6">
         {/* Notifications Card */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-        >
-          <div className="border-b border-gray-100 px-4 py-3 bg-gradient-to-r from-violet-50 to-violet-100">
-            <h3 className="font-semibold text-gray-800 flex items-center">
-              <FiBell className="mr-2 text-violet-600" /> Notifications
-            </h3>
-          </div>
-          <div className="p-4">
-            {notifications.length > 0 ? (
-              <div className="space-y-3">
-                {notifications.slice(0, 3).map((notification) => (
-                  <div
-                    key={notification.id}
-                    onClick={() => handleNotificationClick(notification.id)}
-                    className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                      notification.read ? "bg-white" : "bg-violet-50"
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      <div
-                        className={`mt-0.5 p-1.5 rounded-full ${
-                          notification.type === "reminder"
-                            ? "bg-amber-100 text-amber-600"
-                            : notification.type === "appointment"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-blue-100 text-blue-600"
-                        }`}
-                      >
-                        {notification.type === "reminder" && (
-                          <FiClock size={12} />
-                        )}
-                        {notification.type === "appointment" && (
-                          <FiCalendar size={12} />
-                        )}
-                        {notification.type === "report" && (
-                          <FiFileText size={12} />
-                        )}
-                        {notification.type !== "reminder" &&
-                          notification.type !== "appointment" &&
-                          notification.type !== "report" && (
-                            <FiBell size={12} />
-                          )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-gray-700 text-sm">
-                          {notification.message}
-                        </p>
-                        <p className="text-gray-400 text-xs mt-1">
-                          {notification.time}
-                        </p>
-                      </div>
-                      {!notification.read && (
-                        <div className="w-2 h-2 bg-violet-600 rounded-full mt-2" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-6 text-center">
-                <div className="w-14 h-14 rounded-full bg-violet-50 flex items-center justify-center mb-3">
-                  <FiBell className="text-violet-400 text-lg" />
-                </div>
-                <p className="text-gray-600">No notifications</p>
-              </div>
-            )}
-
-            <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between">
-              <a
-                href="/notifications"
-                className="text-sm text-violet-600 hover:text-violet-800 flex items-center gap-1"
-              >
-                View all notifications <FiChevronRight size={14} />
-              </a>
-
-              {notifications.length > 0 && (
-                <button
-                  onClick={markAllNotificationsAsRead}
-                  className="text-sm text-gray-500 hover:text-gray-700"
-                >
-                  Mark all as read
-                </button>
-              )}
-            </div>
-          </div>
-        </motion.div>
+        <NotificationsPanel />
 
         {/* Health Resources Card */}
         <motion.div
@@ -1341,7 +1385,7 @@ const Dashboard = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="mb-6"
+          className="space-y-6 md:space-y-8"
         >
           <HealthOverviewPanel />
           <HealthStatsPanel />
@@ -1349,18 +1393,28 @@ const Dashboard = () => {
         </motion.div>
 
         {/* QR Code Floating Button with explanatory text */}
-        <div className="fixed bottom-6 right-6">
-          <button
+        <div className="fixed bottom-6 right-6 z-50">
+          <motion.button
             onClick={() => setIsQRCodeModalOpen(true)}
             className="flex flex-col items-center group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
           >
-            <div className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-colors mb-1 group-hover:scale-105 transform duration-200">
+            <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-lg transition-colors mb-2 group-hover:shadow-xl">
               <FiGrid size={24} />
             </div>
-            <span className="text-xs font-medium text-white px-2 py-1 bg-gray-800 bg-opacity-75 rounded-md whitespace-nowrap">
-              Show QR Code
-            </span>
-          </button>
+            <motion.span 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.5 }}
+              className="text-xs font-medium text-white px-3 py-1.5 bg-gray-800 rounded-lg whitespace-nowrap shadow-lg"
+            >
+              Medicare QR ID
+            </motion.span>
+          </motion.button>
         </div>
 
         {/* QR Code Modal Component */}

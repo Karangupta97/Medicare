@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
 import DashboardLayout from "../../components/DashboardLayout";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import {
   FiFileText,
   FiUser,
@@ -24,6 +26,7 @@ const PrescriptionDetail = () => {
   const [prescription, setPrescription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const prescriptionRef = useRef(null);
 
   // Fetch prescription details
   useEffect(() => {
@@ -75,10 +78,53 @@ const PrescriptionDetail = () => {
     });
   };
 
-  // Handle download prescription
-  const handleDownload = () => {
-    toast.success("Downloading prescription...");
-    // Implement actual download functionality
+  // Handle download prescription - Client-side PDF generation
+  const handleDownload = async () => {
+    if (!prescriptionRef.current) {
+      toast.error("Cannot generate PDF. Please try again later.");
+      return;
+    }
+
+    const toastId = toast.loading("Generating PDF...");
+    
+    try {
+      // Optional: Add a class to style the content for PDF generation
+      prescriptionRef.current.classList.add('generating-pdf');
+      
+      // Capture the prescription as an image
+      const canvas = await html2canvas(prescriptionRef.current, {
+        scale: 2, // Higher scale for better quality
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      // Remove temporary class
+      prescriptionRef.current.classList.remove('generating-pdf');
+      
+      // Create PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Calculate dimensions to fit the page
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // Add the image to the PDF
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      
+      // Save the PDF
+      pdf.save(`Prescription-${id}.pdf`);
+      
+      toast.success("PDF generated successfully!", { id: toastId });
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      toast.error(`PDF generation failed: ${err.message}`, { id: toastId });
+    }
   };
 
   // Handle print prescription
@@ -210,7 +256,7 @@ const PrescriptionDetail = () => {
         </div>
         
         {/* Prescription Content */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 mb-6">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 mb-6" ref={prescriptionRef}>
           {/* Prescription Header */}
           <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

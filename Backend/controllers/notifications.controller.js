@@ -52,6 +52,31 @@ const getNotifications = asyncHandler(async (req, res) => {
   });
 });
 
+// Get unread notification count for a user
+const getUnreadNotificationsCount = asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req;
+    
+    // Count unread notifications for this user
+    const count = await Notification.countDocuments({ 
+      userId, 
+      read: false 
+    });
+    
+    return res.status(200).json({
+      success: true,
+      count
+    });
+  } catch (error) {
+    console.error('Error fetching unread notifications count:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch unread notifications count',
+      error: error.message
+    });
+  }
+});
+
 // Mark a notification as read
 const markNotificationRead = asyncHandler(async (req, res) => {
   const notification = await Notification.findOne({
@@ -152,6 +177,7 @@ const deleteNotification = asyncHandler(async (req, res) => {
 
 export {
   getNotifications,
+  getUnreadNotificationsCount,
   markNotificationRead,
   markAllNotificationsRead,
   createNotification,

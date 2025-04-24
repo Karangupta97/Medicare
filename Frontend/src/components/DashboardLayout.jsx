@@ -32,6 +32,7 @@ import {
 } from "react-icons/fi";
 import { useAuthStore } from "../store/authStore";
 import LogoutModal from "./LogoutModal";
+import axios from "axios";
 
 const DashboardLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -52,6 +53,7 @@ const DashboardLayout = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [digitalPrescriptionCount, setDigitalPrescriptionCount] = useState(0);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -84,6 +86,62 @@ const DashboardLayout = ({ children }) => {
       searchInputRef.current.focus();
     }
   }, [showSearch]);
+
+  // Fetch digital prescriptions count
+  useEffect(() => {
+    const fetchDigitalPrescriptions = async () => {
+      if (user?._id) {
+        try {
+          const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+          const response = await axios.get(`${baseUrl}/api/user/digital-prescriptions/count`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          
+          if (response.data.success) {
+            setDigitalPrescriptionCount(response.data.count);
+          } else {
+            console.error("Failed to fetch prescription count:", response.data.message);
+          }
+        } catch (error) {
+          console.error("Error fetching digital prescription count:", error);
+        }
+      }
+    };
+    
+    if (isAuthenticated) {
+      fetchDigitalPrescriptions();
+    }
+  }, [user?._id, isAuthenticated, location.pathname]);
+
+  // Fetch notification count
+  useEffect(() => {
+    const fetchNotificationCount = async () => {
+      if (user?._id) {
+        try {
+          const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+          const response = await axios.get(`${baseUrl}/api/notifications/unread-count`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          
+          if (response.data.success) {
+            setNotificationCount(response.data.count);
+          } else {
+            console.error("Failed to fetch notification count:", response.data.message);
+          }
+        } catch (error) {
+          console.error("Error fetching notification count:", error);
+        }
+      }
+    };
+    
+    if (isAuthenticated) {
+      fetchNotificationCount();
+    }
+  }, [user?._id, isAuthenticated, location.pathname]);
 
   // Mock fetch notifications count - in a real app, this would come from an API
   useEffect(() => {
@@ -212,9 +270,9 @@ const DashboardLayout = ({ children }) => {
         { 
           icon: FiClipboard, 
           label: "Digital Prescriptions", 
-          path: "/prescriptions", 
+          path: "/digital-prescriptions", 
           description: "View digital prescriptions",
-          badge: { count: 1, color: "bg-indigo-500" } 
+          badge: { count: digitalPrescriptionCount, color: "bg-indigo-500" } 
         },
         { 
           icon: FiMessageCircle, 

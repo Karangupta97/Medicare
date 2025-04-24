@@ -1,6 +1,7 @@
 import React from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { FiX, FiDownload } from "react-icons/fi";
+import { FiX, FiDownload, FiShare2 } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 
 const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
   if (!isOpen) return null;
@@ -12,56 +13,119 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
     const canvas = document.querySelector("canvas");
     const a = document.createElement("a");
     a.download = `medicare-qr-${userUmid}.png`;
-    a.href = canvas.toDataURL("image/png");
+    a.href = canvas.toDataURL("image/png", 1.0);
     a.click();
   };
 
+  const shareQRCode = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'My Medicare QR Code',
+          text: 'Scan this QR code to access my Medicare information',
+          url: qrValue,
+        });
+      } else {
+        // Fallback - copy to clipboard
+        await navigator.clipboard.writeText(qrValue);
+        alert('Link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Your QR Code</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <FiX size={20} />
-          </button>
-        </div>
-        <div className="flex justify-center mb-4">
-          <QRCodeCanvas
-            value={qrValue}
-            size={200}
-            bgColor="#ffffff"
-            fgColor="#000000"
-            level="H"
-            includeMargin={false}
-            style={{ borderRadius: "10px" }}
-            imageSettings={{
-              src: logo,
-              x: undefined,
-              y: undefined,
-              height: 44,
-              width: 44,
-              excavate: true,
-              radius: 5, // Rounded corners for the logo cutout area
-            }}
-          />
-        </div>
-        <div className="text-center">
-          <p className="text-gray-600 mb-3">
-            Scan this QR code to quickly access your Medicare information.
-          </p>
-          <button
-            onClick={downloadQRCode}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            <FiDownload className="mr-2" />
-            Download QR Code
-          </button>
-        </div>
-      </div>
-    </div>
+    <AnimatePresence>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, y: 20, opacity: 0 }}
+          animate={{ scale: 1, y: 0, opacity: 1 }}
+          exit={{ scale: 0.9, y: 20, opacity: 0 }}
+          transition={{ type: "spring", bounce: 0.4 }}
+          className="bg-white rounded-xl shadow-2xl p-5 md:p-6 max-w-sm w-full mx-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg md:text-xl font-semibold text-gray-800 flex items-center">
+              <span className="bg-blue-100 p-1.5 rounded-lg mr-2">
+                <img src={logo} alt="Medicare" className="w-5 h-5" />
+              </span>
+              Your Medicare QR
+            </h3>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-1.5 rounded-full transition-colors"
+            >
+              <FiX size={20} />
+            </motion.button>
+          </div>
+          <div className="flex justify-center mb-5">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 rounded-xl shadow-sm"
+            >
+              <QRCodeCanvas
+                value={qrValue}
+                size={240}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                level="H"
+                includeMargin={true}
+                style={{ borderRadius: "10px" }}
+                imageSettings={{
+                  src: logo,
+                  x: undefined,
+                  y: undefined,
+                  height: 48,
+                  width: 48,
+                  excavate: true,
+                  radius: 8,
+                }}
+              />
+            </motion.div>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-600 mb-4 text-sm md:text-base">
+              Scan this QR code to quickly access your Medicare information. Show this at healthcare facilities for easy identification.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={downloadQRCode}
+                className="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm w-full"
+              >
+                <FiDownload className="mr-2" />
+                Download QR
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={shareQRCode}
+                className="inline-flex items-center justify-center px-4 py-2.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 border border-indigo-200 transition-colors w-full"
+              >
+                <FiShare2 className="mr-2" />
+                Share Link
+              </motion.button>
+            </div>
+            <div className="mt-4 pt-3 border-t border-gray-100">
+              <p className="text-xs text-gray-500">
+                Medicare ID: <span className="font-semibold">{userUmid}</span>
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

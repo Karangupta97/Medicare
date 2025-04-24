@@ -1,7 +1,7 @@
 import { Report } from "../models/report.model.js";
 import { uploadFile, deleteFile, getFileUrl } from "../services/s3.service.js";
 import { io } from "../server.js";
-import { sendNotificationToUser } from "../server.js";
+import { sendNotificationToUser } from "../utils/notifications.js";
 import { createNotification } from "./notifications.controller.js";
 
 // Valid categories

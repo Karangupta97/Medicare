@@ -101,11 +101,42 @@ export const getPatientPrescriptions = async (req, res) => {
   try {
     const { patientId } = req.params;
     
+    console.log("Fetching prescriptions for patient:", patientId);
+    console.log("Request from doctor ID:", req.user.id);
+    
+    // Check if patientId is valid
+    if (!patientId || patientId === 'undefined') {
+      console.error("Invalid patientId provided:", patientId);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid patient ID provided"
+      });
+    }
+
+    // Query for all prescriptions regardless of which doctor created them
     const prescriptions = await Prescription.find({ patientId })
       .sort({ createdAt: -1 });
     
+    console.log("Found prescriptions:", prescriptions.length);
+    
+    if (prescriptions.length > 0) {
+      const samplePrescription = prescriptions[0];
+      console.log("Sample prescription data:", {
+        id: samplePrescription._id,
+        patientId: samplePrescription.patientId,
+        doctorId: samplePrescription.doctorId,
+        doctor: samplePrescription.doctor,
+        patientName: samplePrescription.patientName,
+        medicationsCount: samplePrescription.medications ? samplePrescription.medications.length : 0,
+        createdAt: samplePrescription.createdAt
+      });
+    } else {
+      console.log("No prescriptions found for this patient");
+    }
+    
     return res.status(200).json({
       success: true,
+      count: prescriptions.length,
       prescriptions
     });
   } catch (error) {
@@ -122,8 +153,12 @@ export const getPatientPrescriptions = async (req, res) => {
 export const getDoctorPrescriptions = async (req, res) => {
   try {
     // Get prescriptions created by the logged-in doctor
+    console.log("Fetching prescriptions for doctor:", req.user.id);
+    
     const prescriptions = await Prescription.find({ doctorId: req.user.id })
       .sort({ createdAt: -1 });
+    
+    console.log("Found doctor prescriptions:", prescriptions.length);
     
     return res.status(200).json({
       success: true,
@@ -134,6 +169,52 @@ export const getDoctorPrescriptions = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch doctor prescriptions",
+      error: error.message
+    });
+  }
+};
+
+// Get prescriptions for a patient from other doctors
+export const getOtherDoctorPrescriptions = async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const currentDoctorId = req.user.id; // Use req.user.id instead of _id
+    
+    // Find prescriptions where:
+    // 1. The patient matches patientId
+    // 2. The doctor is NOT the current doctor (other doctors only)
+    // 3. Sort by newest first
+    const prescriptions = await Prescription.find({ 
+      patientId: patientId, // Use patientId field instead of patient
+      doctorId: { $ne: currentDoctorId } // Use doctorId field instead of doctor
+    })
+    .sort({ createdAt: -1 })
+    .limit(20);
+    
+    // Transform the data to include doctor name and hospital info
+    const formattedPrescriptions = prescriptions.map(prescription => {
+      return {
+        _id: prescription._id,
+        medications: prescription.medications,
+        diagnosis: prescription.diagnosis,
+        notes: prescription.notes,
+        followUp: prescription.followUp,
+        createdAt: prescription.createdAt,
+        doctorName: prescription.doctor || 'Unknown Doctor', // Use doctor field directly
+        doctorHospital: prescription.hospital || 'Unknown Hospital' // Add hospital field if available
+      };
+    });
+    
+    return res.status(200).json({
+      success: true,
+      count: formattedPrescriptions.length,
+      prescriptions: formattedPrescriptions
+    });
+  } catch (error) {
+    console.error("Error fetching other doctor prescriptions:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching prescriptions from other doctors",
       error: error.message
     });
   }

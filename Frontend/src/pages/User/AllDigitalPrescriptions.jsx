@@ -296,13 +296,6 @@ const AllDigitalPrescriptions = () => {
               <FiArrowLeft className="mr-2" />
               Back to Dashboard
             </Link>
-            <button
-              onClick={() => toast.success("QR Code feature coming soon!")}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-            >
-              <FiPlus className="mr-2" />
-              Add Prescription
-            </button>
           </div>
         </div>
         
