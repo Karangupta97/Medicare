@@ -422,7 +422,7 @@ const Home = () => {
                   bgColor: "bg-[#f8e5e5]",
                 },
                 {
-                  icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+                  icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",s
                   title: "Appointment Scheduling",
                   description:
                     "Book appointments with healthcare providers, receive reminders, and manage your medical schedule.",

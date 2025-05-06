@@ -14,7 +14,8 @@ export default defineConfig({
     proxy: {
       "/api": {
         // target: "http://localhost:4000", 
-        target: "https://medicare-backend-pdci8.ondigitalocean.app", 
+        target: "https://api.medicares.in",
+        // target: "https://medicare-backend-pdci8.ondigitalocean.app", 
         // target: "https://medicare-3c0t.onrender.com", 
         changeOrigin: true,
         secure: false,
