@@ -9,7 +9,7 @@ import {
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendPasswordResetSuccessEmail,
-} from "../emails/emails.js";
+} from "../services/emails/emails.js";
 import dotenv from "dotenv";
 
 dotenv.config();
