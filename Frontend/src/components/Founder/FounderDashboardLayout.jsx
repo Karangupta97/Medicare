@@ -7,7 +7,7 @@ import {
   FiShield, FiDatabase, FiAlertCircle, FiFileText, FiServer,
   FiActivity, FiBell, FiCreditCard, FiUser
 } from "react-icons/fi";
-import Logo from "../../assets/Logo.png";
+import Logo from "../../assets/logo.png";
 
 const FounderDashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
