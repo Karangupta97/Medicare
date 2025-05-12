@@ -1,18 +1,26 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { FiKey, FiLock, FiMail, FiShield, FiAlertCircle } from "react-icons/fi";
 import Logo from "../../assets/logo.png";
+import { useFounderStore } from "../../store/founderStore";
 
 const FounderLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1); // 1: Email/Password, 2: OTP
-  const [tempToken, setTempToken] = useState("");
   const navigate = useNavigate();
+  
+  // Use founder store hooks
+  const { 
+    initiateLogin, 
+    verifyOtp, 
+    resendOtp,
+    isLoading,
+    error,
+    tempToken
+  } = useFounderStore();
 
   // Handle first login step (email/password)
   const handleFirstStep = async (e) => {
@@ -23,27 +31,18 @@ const FounderLogin = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/founder/login`,
-        { email, password },
-        { withCredentials: true }
-      );
+      const response = await initiateLogin(email, password);
       
-      if (response.data.success) {
+      if (response.success) {
         toast.success("OTP sent to your email");
-        setTempToken(response.data.tempToken);
         setStep(2); // Move to OTP verification step
       } else {
-        toast.error(response.data.message || "Login failed");
+        toast.error(response.message || "Login failed");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error(error.response?.data?.message || "Login failed. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error(error || "Login failed. Please try again.");
     }
   };
 
@@ -56,31 +55,33 @@ const FounderLogin = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/founder/verify-otp`,
-        { otp },
-        { 
-          headers: { Authorization: `Bearer ${tempToken}` },
-          withCredentials: true
-        }
-      );
+      const response = await verifyOtp(otp);
       
-      if (response.data.success) {
+      if (response.success) {
         toast.success("Login successful");
-        localStorage.setItem("founder_token", response.data.token);
-        localStorage.setItem("founder_data", JSON.stringify(response.data.founder));
         navigate("/founder/dashboard");
       } else {
-        toast.error(response.data.message || "Verification failed");
+        toast.error(response.message || "Verification failed");
       }
-    } catch (error) {
-      console.error("OTP verification error:", error);
-      toast.error(error.response?.data?.message || "Verification failed. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    } catch (err) {
+      console.error("OTP verification error:", err);
+      toast.error(error || "Verification failed. Please try again.");
+    }
+  };
+  
+  // Handle resend OTP
+  const handleResendOtp = async () => {
+    try {
+      const response = await resendOtp();
+      if (response.success) {
+        toast.success("New OTP sent to your email");
+      } else {
+        toast.error(response.message || "Failed to resend OTP");
+      }
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      toast.error(error || "Failed to resend OTP. Please try again.");
     }
   };
 
@@ -130,10 +131,10 @@ const FounderLogin = () => {
       <div>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isLoading}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Authenticating..." : "Continue with 2FA"}
+          {isLoading ? "Authenticating..." : "Continue with 2FA"}
         </button>
       </div>
     </form>
@@ -171,20 +172,29 @@ const FounderLogin = () => {
       <div>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isLoading}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Verifying..." : "Verify & Login"}
+          {isLoading ? "Verifying..." : "Verify & Login"}
         </button>
       </div>
       
-      <div className="text-center">
+      <div className="flex justify-between items-center text-sm">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
         >
           Go back to login
+        </button>
+        
+        <button
+          type="button"
+          onClick={handleResendOtp}
+          disabled={isLoading}
+          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          Resend code
         </button>
       </div>
     </form>
@@ -222,6 +232,13 @@ const FounderLogin = () => {
               <FiShield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
+          
+          {/* Display error message if any */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-md dark:bg-red-900/20 dark:text-red-400">
+              {error}
+            </div>
+          )}
           
           {step === 1 ? renderLoginForm() : renderOtpForm()}
         </div>

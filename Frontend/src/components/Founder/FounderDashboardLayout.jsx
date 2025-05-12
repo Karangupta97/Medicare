@@ -1,60 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import axios from "axios";
 import { 
   FiMenu, FiX, FiLogOut, FiGrid, FiUsers, FiSettings, 
   FiShield, FiDatabase, FiAlertCircle, FiFileText, FiServer,
   FiActivity, FiBell, FiCreditCard, FiUser
 } from "react-icons/fi";
 import Logo from "../../assets/logo.png";
+import { useFounderStore } from "../../store/founderStore";
 
 const FounderDashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [founder, setFounder] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get founder data from localStorage on component mount
-  useEffect(() => {
-    const storedFounder = localStorage.getItem("founder_data");
-    if (storedFounder) {
-      setFounder(JSON.parse(storedFounder));
-    }
-    setLoading(false);
-  }, []);
+  // Use founder store hooks
+  const { 
+    founder, 
+    isAuthenticated, 
+    isLoading, 
+    logout, 
+    checkAuth 
+  } = useFounderStore();
   
-  // Check if user is authenticated as founder, redirect to login if not
+  // Check authentication on component mount
   useEffect(() => {
-    const token = localStorage.getItem("founder_token");
-    if (!token && !loading) {
+    const verifyAuth = async () => {
+      if (!isAuthenticated) {
+        try {
+          await checkAuth();
+        } catch (err) {
+          console.error("Authentication check failed:", err);
+          navigate("/founder/login");
+        }
+      }
+    };
+    
+    verifyAuth();
+  }, [isAuthenticated, checkAuth, navigate]);
+  
+  // Redirect to login if not authenticated and not loading
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
       navigate("/founder/login");
     }
-  }, [loading, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
   
   // Handle logout
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/founder/logout`,
-        {},
-        { withCredentials: true }
-      );
-      
-      // Clear local storage
-      localStorage.removeItem("founder_token");
-      localStorage.removeItem("founder_data");
-      
+      await logout();
       toast.success("Logged out successfully");
       navigate("/founder/login");
     } catch (error) {
       console.error("Logout error:", error);
-      
-      // Even if API call fails, clear local storage and redirect
-      localStorage.removeItem("founder_token");
-      localStorage.removeItem("founder_data");
-      navigate("/founder/login");
+      toast.error("Logout failed. Please try again.");
     }
   };
   
@@ -116,6 +116,15 @@ const FounderDashboardLayout = ({ children }) => {
   const isActive = (path) => {
     return location.pathname === path;
   };
+  
+  // Show loading spinner if checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
   
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">

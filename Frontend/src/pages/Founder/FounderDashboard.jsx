@@ -1,54 +1,48 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { 
   FiUsers, FiShield, FiActivity, FiClock, 
   FiAlertTriangle, FiInfo, FiCheckCircle 
 } from "react-icons/fi";
 import FounderDashboardLayout from "../../components/Founder/FounderDashboardLayout";
+import { useFounderStore } from "../../store/founderStore";
 
 const FounderDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  
+  // Use founder store hooks
+  const { 
+    getDashboardData,
+    founder,
+    isLoading, 
+    error: storeError 
+  } = useFounderStore();
+  
   const [error, setError] = useState(null);
   
   // Fetch dashboard data on component mount
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem("founder_token");
+        const response = await getDashboardData();
         
-        if (!token) {
-          throw new Error("Authentication token not found");
-        }
-        
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/founder/dashboard`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true
-          }
-        );
-        
-        if (response.data.success) {
-          setDashboardData(response.data.data);
+        if (response.success) {
+          setDashboardData(response.data);
         } else {
-          throw new Error(response.data.message || "Failed to fetch dashboard data");
+          throw new Error(response.message || "Failed to fetch dashboard data");
         }
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-        setError(error.message || "An error occurred while fetching dashboard data");
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        setError(storeError || err.message || "An error occurred while fetching dashboard data");
         toast.error("Failed to load dashboard data");
-      } finally {
-        setLoading(false);
       }
     };
     
     fetchDashboardData();
-  }, []);
+  }, [getDashboardData, storeError]);
   
   // Render loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <FounderDashboardLayout>
         <div className="flex justify-center items-center h-full">
@@ -139,7 +133,7 @@ const FounderDashboard = () => {
             Founder Dashboard
           </h1>
           <p className="mt-1 text-gray-600 dark:text-gray-300">
-            Welcome, Karan
+            Welcome, {founder?.name || 'Founder'}
           </p>
         </div>
         
@@ -248,38 +242,52 @@ const FounderDashboard = () => {
             Recent User Registrations
           </h2>
           
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-900/50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    NAME
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    EMAIL
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    JOINED
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {data.recentUsers.map((user) => (
-                  <tr key={user._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(user.createdAt)}</div>
-                    </td>
+          {data.recentUsers.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Joined
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+                  {data.recentUsers.map((user) => (
+                    <tr key={user._id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                        {user.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {user.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {formatDate(user.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <FiCheckCircle className="h-4 w-4 mr-1" /> Active
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">No recent user registrations</p>
+            </div>
+          )}
         </div>
       </div>
     </FounderDashboardLayout>
