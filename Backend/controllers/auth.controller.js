@@ -1,7 +1,7 @@
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 
-import { User } from "../models/user.model.js";
+import { User } from "../models/User/user.model.js";
 import { generateTokenAndsendcookie } from "../utils/generateTokenAndsendcookie.js";
 import { uploadFile } from "../services/s3.service.js";
 import {

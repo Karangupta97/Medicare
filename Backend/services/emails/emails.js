@@ -1,6 +1,8 @@
 import { VERIFICATION_EMAIL_TEMPLATE } from "./emailTemplates.js";
 import { PASSWORD_RESET_REQUEST_TEMPLATE } from "./emailTemplates.js";
 import { PASSWORD_RESET_SUCCESS_TEMPLATE } from "./emailTemplates.js";
+import { FOUNDER_OTP_LOGIN_TEMPLATE } from "./emailTemplates.js";
+import { FOUNDER_SENSITIVE_ACTION_OTP_TEMPLATE } from "./emailTemplates.js";
 import { resend, sender } from "./email.config.js";
 
 export const sendVerificationEmail = async (email, verificationToken) => {
@@ -87,5 +89,83 @@ export const sendPasswordResetSuccessEmail = async (email) => {
   } catch (error) {
     console.error(`Error sending password reset success email:`, error);
     throw new Error(`Error sending password reset success email: ${error.message}`);
+  }
+};
+
+export const sendFounderLoginOTP = async (email, otpCode, ipAddress) => {
+  try {
+    // Create timestamp in a human-readable format
+    const timestamp = new Date().toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+
+    // Replace template placeholders
+    let emailContent = FOUNDER_OTP_LOGIN_TEMPLATE
+      .replace("{otpCode}", otpCode)
+      .replace("{ipAddress}", ipAddress)
+      .replace("{timestamp}", timestamp);
+
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: [email],
+      subject: "Medicare Founder Portal: Security Verification Code",
+      html: emailContent,
+    });
+
+    if (error) {
+      console.error(`Error:`, error);
+      throw new Error("Failed to send founder login OTP");
+    }
+
+    console.log("Founder login OTP email sent successfully", data);
+  } catch (error) {
+    console.error(`Error sending founder login OTP:`, error);
+    throw new Error(`Error sending founder login OTP: ${error.message}`);
+  }
+};
+
+export const sendFounderSensitiveActionOTP = async (email, otpCode, actionType, actionDetails, ipAddress) => {
+  try {
+    // Create timestamp in a human-readable format
+    const timestamp = new Date().toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+
+    // Replace template placeholders
+    let emailContent = FOUNDER_SENSITIVE_ACTION_OTP_TEMPLATE
+      .replace("{otpCode}", otpCode)
+      .replace("{actionType}", actionType)
+      .replace("{actionDetails}", actionDetails)
+      .replace("{timestamp}", timestamp)
+      .replace("{ipAddress}", ipAddress);
+
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: [email],
+      subject: "URGENT: Medicare Sensitive Action Verification Required",
+      html: emailContent,
+    });
+
+    if (error) {
+      console.error(`Error:`, error);
+      throw new Error("Failed to send sensitive action OTP");
+    }
+
+    console.log("Sensitive action OTP email sent successfully", data);
+  } catch (error) {
+    console.error(`Error sending sensitive action OTP:`, error);
+    throw new Error(`Error sending sensitive action OTP: ${error.message}`);
   }
 };

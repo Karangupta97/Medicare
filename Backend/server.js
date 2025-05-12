@@ -9,6 +9,7 @@ import reportsRoutes from "./routes/reports.routes.js";
 import notificationsRoutes from "./routes/notifications.routes.js";
 import hospitalRoutes from "./routes/Hospital/hospital.routes.js";
 import userRoutes from "./routes/User/user.routes.js";
+import founderRoutes from "./routes/Founder/founder.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { initSocket } from "./utils/socket.js";
@@ -16,6 +17,7 @@ import status from "express-status-monitor";
 import cluster from "node:cluster";
 import os from "os";
 import { sendNotificationToUser } from "./utils/notifications.js";
+import cookieParser from "cookie-parser";
 
 // Define a simple logger
 const logger = {
@@ -85,6 +87,7 @@ else {
     })
   );
   app.use(express.json());
+  app.use(cookieParser()); // Add cookie parser for handling HTTP-only cookies
 
   // Request logging middleware - simplified to reduce log clutter
   app.use((req, res, next) => {
@@ -101,6 +104,7 @@ else {
   app.use("/api/notifications", notificationsRoutes);
   app.use("/api/hospital", hospitalRoutes);
   app.use("/api/user", userRoutes);
+  app.use("/api/founder", founderRoutes); // Add founder routes
 
   // Root route
   app.get("/", (req, res) => {

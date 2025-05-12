@@ -24,7 +24,9 @@ import PrescriptionReminders from "./pages/User/PrescriptionReminders";
 //Hospital
 import FindPatient from "./pages/Hospital/FindPatient";
 import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
-//Medical
+//Founder
+import FounderLogin from "./pages/Founder/FounderLogin";
+import FounderDashboard from "./pages/Founder/FounderDashboard";
 //piblic
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
@@ -67,6 +69,36 @@ const RedirectAuthenticatedUser = ({ children }) => {
 
   if (isAuthenticated && user?.isverified) {
     return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+// Protected route specifically for founder
+const FounderRoute = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useLocation();
+
+  useEffect(() => {
+    const token = localStorage.getItem("founder_token");
+    if (!token) {
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      return;
+    }
+    
+    // Token exists, consider authenticated
+    setIsAuthenticated(true);
+    setIsLoading(false);
+  }, [navigate.pathname]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/founder/login" replace />;
   }
 
   return children;
@@ -136,9 +168,15 @@ const App = () => {
   // If not authenticated and not on login/signup pages, redirect to login
   if (
     !isAuthenticated &&
-    !["/login", "/signup", "/forgot-password", "/reset-password", "/"].includes(
-      currentPath
-    )
+    ![
+      "/login",
+      "/signup",
+      "/forgot-password",
+      "/reset-password",
+      "/",
+      "/founder/login",
+    ].includes(currentPath) &&
+    !currentPath.startsWith("/founder/")
   ) {
     console.log("Not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
@@ -200,7 +238,15 @@ const App = () => {
           }
         />
         <Route
-          path="/digital-prescriptions"
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/prescriptions"
           element={
             <ProtectedRoute>
               <AllDigitalPrescriptions />
@@ -208,7 +254,15 @@ const App = () => {
           }
         />
         <Route
-          path="/digital-prescriptions/reminders"
+          path="/prescription/:id"
+          element={
+            <ProtectedRoute>
+              <DigitalPrescriptionDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/prescription-reminders"
           element={
             <ProtectedRoute>
               <PrescriptionReminders />
@@ -216,11 +270,49 @@ const App = () => {
           }
         />
         <Route
-          path="/digital-prescriptions/:id"
+          path="/user/:id"
           element={
             <ProtectedRoute>
-              <DigitalPrescriptionDetail />
+              <UserDetails />
             </ProtectedRoute>
+          }
+        />
+        {/* Hospital */}
+        <Route
+          path="/hospital/dashboard"
+          element={
+            <ProtectedRoute>
+              <HospitalDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hospital/find-patient"
+          element={
+            <ProtectedRoute>
+              <FindPatient />
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Founder Routes */}
+        <Route path="/founder/login" element={<FounderLogin />} />
+        <Route
+          path="/founder/dashboard"
+          element={
+            <FounderRoute>
+              <FounderDashboard />
+            </FounderRoute>
+          }
+        />
+        
+        {/* Auth */}
+        <Route
+          path="/signup"
+          element={
+            <RedirectAuthenticatedUser>
+              <Signup />
+            </RedirectAuthenticatedUser>
           }
         />
         <Route
@@ -232,15 +324,6 @@ const App = () => {
           }
         />
         <Route
-          path="/signup"
-          element={
-            <RedirectAuthenticatedUser>
-              <Signup />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route
           path="/forgot-password"
           element={
             <RedirectAuthenticatedUser>
@@ -248,45 +331,22 @@ const App = () => {
             </RedirectAuthenticatedUser>
           }
         />
-        <Route
-          path="/reset-password/:token"
-          element={
-            <RedirectAuthenticatedUser>
-              <ResetPassword />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route path="/notifications" element={<Notifications />} />
-        {/* Hospital */}
-        <Route
-          path="/hospital/hospital-dashboard/find-patient"
-          element={
-            <ProtectedRoute>
-              <FindPatient />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hospital/hospital-dashboard"
-          element={
-            <ProtectedRoute>
-              <HospitalDashboard />
-            </ProtectedRoute>
-          }
-        />
-        {/* Medical */}
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/about2" element={<About2 />} />
         <Route path="/team" element={<Team />} />
-        <Route path="/loading" element={<Loading />} />
-        <Route path="/user/:umid" element={<UserDetails />} />
-        <Route path="*" element={<WorkingOnIt />} />
+        <Route path="/working-on-it" element={<WorkingOnIt />} />
         <Route path="/test" element={<Test />} />
         <Route path="/test1" element={<Test1 />} />
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster position="top-center" />
+
+      <Toaster position="top-center" reverseOrder={false} />
+
       <Analytics />
       <SpeedInsights />
     </>

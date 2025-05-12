@@ -93,3 +93,77 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
 </body>
 </html>
 `;
+
+export const FOUNDER_OTP_LOGIN_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Founder Login Security Code</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #1e40af, #3b82f6); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Founder Security Verification</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello Founder,</p>
+    <p>For enhanced security, we require two-factor authentication for all founder account access.</p>
+    <p>Your one-time verification code is:</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1e40af; background-color: #e0e7ff; padding: 8px 16px; border-radius: 4px;">{otpCode}</span>
+    </div>
+    <p>Enter this code on the login verification page to complete your authentication.</p>
+    <p>This code will expire in 10 minutes and can only be used once.</p>
+    <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 10px; margin: 20px 0;">
+      <p style="margin: 0; color: #721c24;"><strong>Important Security Notice:</strong></p>
+      <p style="margin: 10px 0 0 0; color: #721c24;">If you did not attempt to log in to the Medicare Founder Dashboard, please contact the system administrator immediately as your account may be compromised.</p>
+    </div>
+    <p>Best regards,<br>Medicare Security Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message from the Medicare Founder Portal. Please do not reply to this email.</p>
+    <p>Accessed from IP: {ipAddress} at {timestamp}</p>
+  </div>
+</body>
+</html>
+`;
+
+export const FOUNDER_SENSITIVE_ACTION_OTP_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sensitive Action Verification</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #991b1b, #dc2626); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Sensitive Action Verification</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello Founder,</p>
+    <p>A <strong>sensitive action</strong> is being attempted on the Medicare platform:</p>
+    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 20px 0;">
+      <p style="margin: 0;"><strong>Action:</strong> {actionType}</p>
+      <p style="margin: 10px 0 0 0;"><strong>Details:</strong> {actionDetails}</p>
+      <p style="margin: 10px 0 0 0;"><strong>Requested at:</strong> {timestamp}</p>
+    </div>
+    <p>To authorize this action, use the following verification code:</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #991b1b; background-color: #fee2e2; padding: 8px 16px; border-radius: 4px;">{otpCode}</span>
+    </div>
+    <p>This code will expire in 5 minutes for security reasons.</p>
+    <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 10px; margin: 20px 0;">
+      <p style="margin: 0; color: #721c24;"><strong>Security Warning:</strong></p>
+      <p style="margin: 10px 0 0 0; color: #721c24;">If you did not initiate this action, please immediately contact the system administrator and change your password as your account may be compromised.</p>
+    </div>
+    <p>Best regards,<br>Medicare Security Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated security message from the Medicare Founder Portal. Please do not reply to this email.</p>
+    <p>Accessed from IP: {ipAddress}</p>
+  </div>
+</body>
+</html>
+`;

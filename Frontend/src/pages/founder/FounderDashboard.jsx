@@ -1,600 +1,288 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 import { 
-  FaUserShield, 
-  FaSignOutAlt, 
-  FaTachometerAlt, 
-  FaUsers, 
-  FaHospital,
-  FaChartLine,
-  FaCog,
-  FaMoneyBillWave,
-  FaBell,
-  FaDatabase
-} from 'react-icons/fa';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+  FiUsers, FiShield, FiActivity, FiClock, 
+  FiAlertTriangle, FiInfo, FiCheckCircle 
+} from "react-icons/fi";
+import FounderDashboardLayout from "../../components/Founder/FounderDashboardLayout";
 
 const FounderDashboard = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [founderData, setFounderData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Fetch dashboard data on component mount
   useEffect(() => {
-    const fetchFounderData = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/founder/profile`, {
-          withCredentials: true,
-        });
-
+        const token = localStorage.getItem("founder_token");
+        
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+        
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/founder/dashboard`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true
+          }
+        );
+        
         if (response.data.success) {
-          setFounderData(response.data.data);
+          setDashboardData(response.data.data);
+        } else {
+          throw new Error(response.data.message || "Failed to fetch dashboard data");
         }
       } catch (error) {
-        console.error('Error fetching founder data:', error);
-        if (error.response?.status === 401) {
-          toast.error('Please login to access the dashboard');
-          navigate('/founder/login');
-        }
+        console.error("Error fetching dashboard data:", error);
+        setError(error.message || "An error occurred while fetching dashboard data");
+        toast.error("Failed to load dashboard data");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
-
-    fetchFounderData();
-  }, [navigate]);
-
-  const handleLogout = async () => {
-    try {
-      await axios.post(
-        `${API_URL}/api/founder/logout`,
-        {},
-        { withCredentials: true }
-      );
-      toast.success('Logged out successfully');
-      navigate('/founder/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast.error('Error during logout');
-    }
-  };
-
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
-      );
-    }
-
-    switch (activeTab) {
-      case 'overview':
-        return <OverviewPanel />;
-      case 'users':
-        return <UsersPanel />;
-      case 'hospitals':
-        return <HospitalsPanel />;
-      case 'analytics':
-        return <AnalyticsPanel />;
-      case 'settings':
-        return <SettingsPanel founderData={founderData} />;
-      case 'billing':
-        return <BillingPanel />;
-      case 'notifications':
-        return <NotificationsPanel />;
-      case 'database':
-        return <DatabasePanel />;
-      default:
-        return <OverviewPanel />;
-    }
-  };
-
-  if (isLoading) {
+    
+    fetchDashboardData();
+  }, []);
+  
+  // Render loading state
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
+      <FounderDashboardLayout>
+        <div className="flex justify-center items-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </FounderDashboardLayout>
     );
   }
-
+  
+  // Render error state
+  if (error) {
+    return (
+      <FounderDashboardLayout>
+        <div className="text-center py-12">
+          <FiAlertTriangle className="mx-auto h-12 w-12 text-red-500" />
+          <h2 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+            Failed to load dashboard
+          </h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Retry
+          </button>
+        </div>
+      </FounderDashboardLayout>
+    );
+  }
+  
+  // Mock data if API isn't implemented yet
+  const data = dashboardData || {
+    stats: {
+      totalUsers: 1,
+      totalAdmins: 3,
+      systemHealth: {
+        healthScore: "98.7%",
+        uptime: "99.99%"
+      }
+    },
+    recentUsers: [
+      {
+        _id: "1",
+        name: "Karan",
+        email: "karangupta050705@gmail.com",
+        createdAt: "2023-06-05T00:00:00.000Z"
+      }
+    ],
+    systemAlerts: [
+      {
+        type: "security",
+        severity: "high",
+        message: "3 failed login attempts detected from IP 192.168.1.45",
+        timestamp: new Date(Date.now() - 30 * 60 * 1000)
+      },
+      {
+        type: "update",
+        severity: "info",
+        message: "New version 2.4.1 available for deployment",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
+      }
+    ]
+  };
+  
+  // Format date
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+  
+  // Get alert icon based on type and severity
+  const getAlertIcon = (type, severity) => {
+    if (type === "security" && severity === "high") {
+      return <FiAlertTriangle className="h-5 w-5 text-red-500" />;
+    } else if (type === "update") {
+      return <FiInfo className="h-5 w-5 text-blue-500" />;
+    } else {
+      return <FiInfo className="h-5 w-5 text-gray-500" />;
+    }
+  };
+  
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-indigo-700 text-white">
-        <div className="p-4">
-          <div className="flex items-center justify-center p-2 mb-8">
-            <FaUserShield className="h-8 w-8 mr-2" />
-            <h1 className="text-xl font-bold">Founder Panel</h1>
+    <FounderDashboardLayout>
+      <div className="space-y-6">
+        {/* Welcome header */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Founder Dashboard
+          </h1>
+          <p className="mt-1 text-gray-600 dark:text-gray-300">
+            Welcome, Karan
+          </p>
+        </div>
+        
+        {/* Stats cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Total Users */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-md bg-blue-100 dark:bg-blue-900/30">
+                <FiUsers className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="ml-4">
+                <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</h2>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  {data.stats.totalUsers}
+                </p>
+              </div>
+            </div>
           </div>
           
-          <nav>
-            <SidebarItem 
-              icon={<FaTachometerAlt />} 
-              text="Overview" 
-              isActive={activeTab === 'overview'} 
-              onClick={() => setActiveTab('overview')} 
-            />
-            <SidebarItem 
-              icon={<FaUsers />} 
-              text="Users" 
-              isActive={activeTab === 'users'} 
-              onClick={() => setActiveTab('users')} 
-            />
-            <SidebarItem 
-              icon={<FaHospital />} 
-              text="Hospitals" 
-              isActive={activeTab === 'hospitals'} 
-              onClick={() => setActiveTab('hospitals')} 
-            />
-            <SidebarItem 
-              icon={<FaChartLine />} 
-              text="Analytics" 
-              isActive={activeTab === 'analytics'} 
-              onClick={() => setActiveTab('analytics')} 
-            />
-            <SidebarItem 
-              icon={<FaMoneyBillWave />} 
-              text="Billing" 
-              isActive={activeTab === 'billing'} 
-              onClick={() => setActiveTab('billing')} 
-            />
-            <SidebarItem 
-              icon={<FaBell />} 
-              text="Notifications" 
-              isActive={activeTab === 'notifications'} 
-              onClick={() => setActiveTab('notifications')} 
-            />
-            <SidebarItem 
-              icon={<FaDatabase />} 
-              text="Database" 
-              isActive={activeTab === 'database'} 
-              onClick={() => setActiveTab('database')} 
-            />
-            <SidebarItem 
-              icon={<FaCog />} 
-              text="Settings" 
-              isActive={activeTab === 'settings'} 
-              onClick={() => setActiveTab('settings')} 
-            />
-            
-            <div className="border-t border-indigo-600 my-4"></div>
-            
-            <button 
-              onClick={handleLogout}
-              className="flex items-center text-white opacity-75 hover:opacity-100 py-2 px-4 w-full"
-            >
-              <FaSignOutAlt className="mr-3" />
-              <span>Logout</span>
-            </button>
-          </nav>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <header className="bg-white shadow">
-          <div className="mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-            </h1>
+          {/* Super Admins */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-md bg-purple-100 dark:bg-purple-900/30">
+                <FiShield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div className="ml-4">
+                <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">Super Admins</h2>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  {data.stats.totalAdmins}
+                </p>
+              </div>
+            </div>
           </div>
-        </header>
-        <main className="p-6">
-          {renderContent()}
-        </main>
-      </div>
-    </div>
-  );
-};
-
-// Sidebar Item Component
-const SidebarItem = ({ icon, text, isActive, onClick }) => {
-  return (
-    <button
-      className={`flex items-center py-2 px-4 w-full ${
-        isActive
-          ? 'bg-indigo-800 text-white'
-          : 'text-white opacity-75 hover:opacity-100 hover:bg-indigo-600'
-      }`}
-      onClick={onClick}
-    >
-      <span className="mr-3">{icon}</span>
-      <span>{text}</span>
-    </button>
-  );
-};
-
-// Dashboard Panels
-const OverviewPanel = () => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <DashboardCard 
-        title="Total Users" 
-        value="1,234" 
-        icon={<FaUsers className="h-8 w-8 text-blue-500" />} 
-      />
-      <DashboardCard 
-        title="Total Hospitals" 
-        value="56" 
-        icon={<FaHospital className="h-8 w-8 text-green-500" />} 
-      />
-      <DashboardCard 
-        title="Active Sessions" 
-        value="298" 
-        icon={<FaChartLine className="h-8 w-8 text-purple-500" />} 
-      />
-      
-      <div className="md:col-span-2 lg:col-span-3 bg-white p-4 rounded-lg shadow">
-        <h2 className="text-lg font-semibold mb-4">System Status</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Service
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Uptime
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Last Check
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              <StatusRow service="API Server" status="Operational" uptime="99.9%" lastCheck="2 minutes ago" />
-              <StatusRow service="Database" status="Operational" uptime="99.8%" lastCheck="5 minutes ago" />
-              <StatusRow service="Storage" status="Operational" uptime="100%" lastCheck="10 minutes ago" />
-              <StatusRow service="Email Service" status="Operational" uptime="99.7%" lastCheck="15 minutes ago" />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const StatusRow = ({ service, status, uptime, lastCheck }) => {
-  return (
-    <tr>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900">{service}</div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-          {status}
-        </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {uptime}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {lastCheck}
-      </td>
-    </tr>
-  );
-};
-
-const DashboardCard = ({ title, value, icon }) => {
-  return (
-    <div className="bg-white overflow-hidden shadow rounded-lg">
-      <div className="p-5">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            {icon}
+          
+          {/* System Health */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-md bg-green-100 dark:bg-green-900/30">
+                <FiActivity className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="ml-4">
+                <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">System Health</h2>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  {data.stats.systemHealth.healthScore}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="ml-5 w-0 flex-1">
-            <dl>
-              <dt className="text-sm font-medium text-gray-500 truncate">
-                {title}
-              </dt>
-              <dd>
-                <div className="text-lg font-medium text-gray-900">
-                  {value}
+          
+          {/* Uptime */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/30">
+                <FiClock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div className="ml-4">
+                <h2 className="text-sm font-medium text-gray-600 dark:text-gray-400">Uptime</h2>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  {data.stats.systemHealth.uptime}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* System Alerts */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            System Alerts
+          </h2>
+          
+          <div className="space-y-4">
+            {data.systemAlerts.map((alert, index) => (
+              <div 
+                key={index}
+                className={`p-4 rounded-md ${
+                  alert.type === "security" && alert.severity === "high"
+                    ? "bg-red-50 dark:bg-red-900/20"
+                    : "bg-blue-50 dark:bg-blue-900/20"
+                }`}
+              >
+                <div className="flex items-start">
+                  {getAlertIcon(alert.type, alert.severity)}
+                  <div className="ml-3">
+                    <p className={`text-sm font-medium ${
+                      alert.type === "security" && alert.severity === "high"
+                        ? "text-red-800 dark:text-red-300"
+                        : "text-blue-800 dark:text-blue-300"
+                    }`}>
+                      {alert.type === "security" ? "Security Alert" : "System Update"}
+                    </p>
+                    <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                      {alert.message}
+                    </p>
+                  </div>
                 </div>
-              </dd>
-            </dl>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Recent User Registrations */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Recent User Registrations
+          </h2>
+          
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-900/50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    NAME
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    EMAIL
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    JOINED
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {data.recentUsers.map((user) => (
+                  <tr key={user._id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(user.createdAt)}</div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-// Empty panel templates - would be filled with actual data in a real application
-const UsersPanel = () => <div className="bg-white p-6 rounded-lg shadow">Users management panel</div>;
-const HospitalsPanel = () => <div className="bg-white p-6 rounded-lg shadow">Hospitals management panel</div>;
-const AnalyticsPanel = () => <div className="bg-white p-6 rounded-lg shadow">Analytics panel</div>;
-const BillingPanel = () => <div className="bg-white p-6 rounded-lg shadow">Billing and payments panel</div>;
-const NotificationsPanel = () => <div className="bg-white p-6 rounded-lg shadow">Notifications panel</div>;
-const DatabasePanel = () => <div className="bg-white p-6 rounded-lg shadow">Database management panel</div>;
-
-// Settings Panel with Email/Password Management
-const SettingsPanel = ({ founderData }) => {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [showOtpField, setShowOtpField] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [changeType, setChangeType] = useState(''); // 'password' or 'email'
-
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    
-    if (newPassword !== confirmPassword) {
-      toast.error('New passwords do not match');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      const response = await axios.post(
-        `${API_URL}/api/founder/change-password`,
-        { currentPassword, newPassword },
-        { withCredentials: true }
-      );
-      
-      if (response.data.success) {
-        toast.success('OTP sent to your email');
-        setShowOtpField(true);
-        setChangeType('password');
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Error during password change request';
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handleChangeEmail = async (e) => {
-    e.preventDefault();
-    
-    if (!newEmail) {
-      toast.error('New email is required');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      const response = await axios.post(
-        `${API_URL}/api/founder/request-email-change`,
-        { newEmail, password: currentPassword },
-        { withCredentials: true }
-      );
-      
-      if (response.data.success) {
-        toast.success('OTP sent to your current email');
-        setShowOtpField(true);
-        setChangeType('email');
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Error during email change request';
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    
-    if (!otp) {
-      toast.error('OTP is required');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      let response;
-      
-      if (changeType === 'password') {
-        response = await axios.post(
-          `${API_URL}/api/founder/verify-password-change`,
-          { otp, newPassword },
-          { withCredentials: true }
-        );
-      } else {
-        response = await axios.post(
-          `${API_URL}/api/founder/verify-email-change`,
-          { otp },
-          { withCredentials: true }
-        );
-      }
-      
-      if (response.data.success) {
-        toast.success(`${changeType === 'password' ? 'Password' : 'Email'} changed successfully`);
-        setShowOtpField(false);
-        setOtp('');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setNewEmail('');
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || `Error during ${changeType} change verification`;
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow">
-      <h2 className="text-lg font-semibold mb-6">Account Settings</h2>
-      
-      {showOtpField ? (
-        <div className="mb-6">
-          <h3 className="text-md font-medium mb-4">Verify OTP</h3>
-          <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div>
-              <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-                Enter OTP from Email
-              </label>
-              <input
-                type="text"
-                id="otp"
-                name="otp"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-            
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={() => setShowOtpField(false)}
-                className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Cancel
-              </button>
-              
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {isLoading ? 'Verifying...' : 'Verify OTP'}
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : (
-        <>
-          <div className="mb-6">
-            <h3 className="text-md font-medium mb-4">Change Password</h3>
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label htmlFor="current-password" className="block text-sm font-medium text-gray-700">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  id="current-password"
-                  name="currentPassword"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  id="new-password"
-                  name="newPassword"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  id="confirm-password"
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  {isLoading ? 'Processing...' : 'Change Password'}
-                </button>
-              </div>
-            </form>
-          </div>
-          
-          <div className="border-t border-gray-200 pt-6 mb-6">
-            <h3 className="text-md font-medium mb-4">Change Email</h3>
-            <form onSubmit={handleChangeEmail} className="space-y-4">
-              <div>
-                <label htmlFor="current-email" className="block text-sm font-medium text-gray-700">
-                  Current Email
-                </label>
-                <input
-                  type="email"
-                  id="current-email"
-                  value={founderData?.email || ''}
-                  disabled
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 sm:text-sm"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="new-email" className="block text-sm font-medium text-gray-700">
-                  New Email
-                </label>
-                <input
-                  type="email"
-                  id="new-email"
-                  name="newEmail"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="password-for-email" className="block text-sm font-medium text-gray-700">
-                  Current Password (for verification)
-                </label>
-                <input
-                  type="password"
-                  id="password-for-email"
-                  name="passwordForEmail"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  {isLoading ? 'Processing...' : 'Change Email'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </>
-      )}
-    </div>
+    </FounderDashboardLayout>
   );
 };
 

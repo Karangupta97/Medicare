@@ -1,4 +1,4 @@
-import { User } from "../../models/user.model.js";
+import { User } from "../../models/User/user.model.js";
 import { Report } from "../../models/report.model.js";
 
 // Validate UMID format
