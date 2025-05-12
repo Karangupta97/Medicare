@@ -25,8 +25,8 @@ import PrescriptionReminders from "./pages/User/PrescriptionReminders";
 import FindPatient from "./pages/Hospital/FindPatient";
 import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
 //Founder
-import FounderLogin from "./pages/Founder/FounderLogin";
-import FounderDashboard from "./pages/Founder/FounderDashboard";
+import FounderLogin from "./pages/founder/FounderLogin";
+import FounderDashboard from "./pages/founder/FounderDashboard";
 //piblic
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
