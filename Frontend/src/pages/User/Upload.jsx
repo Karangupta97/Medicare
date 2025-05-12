@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { FiUpload, FiX, FiCheck, FiAlertCircle, FiFile, FiInfo, FiCloud, FiFolder } from 'react-icons/fi';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import DashboardLayout from '../../components/DashboardLayout';
+import DashboardLayout from '../../components/User/DashboardLayout';
 import { useAuthStore } from '../../store/authStore';
 
 const Upload = () => {

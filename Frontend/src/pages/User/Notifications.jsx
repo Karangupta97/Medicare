@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import DashboardLayout from '../../components/DashboardLayout';
+import DashboardLayout from '../../components/User/DashboardLayout';
 import { 
   FiFileText, FiCheckCircle, FiClock, FiBell, 
   FiCalendar, FiArrowLeft, FiEdit, FiEye, FiFilter, 

@@ -9,11 +9,11 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 //Admin
 //User
 import Dashboard from "./pages/User/Dashboard";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ForgotPassword from "./pages/ForgotPassword";
-import VerifyEmail from "./pages/VerifyEmail";
-import ResetPassword from "./pages/ResetPassword";
+import Login from "./pages/User/Login";
+import Signup from "./pages/User/Signup";
+import ForgotPassword from "./pages/User/ForgotPassword";
+import VerifyEmail from "./pages/User/VerifyEmail";
+import ResetPassword from "./pages/User/ResetPassword";
 import Reports from "./pages/User/Reports";
 import Upload from "./pages/User/Upload";
 import Profile from "./pages/User/Profile";

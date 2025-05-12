@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState, useRef } from "react";
-import DashboardLayout from "../../components/DashboardLayout";
+import DashboardLayout from "../../components/User/DashboardLayout";
 import {
   FaUserEdit,
   FaIdCard,
@@ -20,7 +20,7 @@ import { useAuthStore } from "../../store/authStore";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import axios from "axios";
-import PhotoEditorModal from "../../components/PhotoEditorModal";
+import PhotoEditorModal from "../../components/User/PhotoEditorModal";
 
 const Profile = () => {
   const { user, setUser } = useAuthStore();

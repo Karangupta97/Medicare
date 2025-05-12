@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
-import DashboardLayout from "../../components/DashboardLayout";
+import DashboardLayout from "../../components/User/DashboardLayout";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { 
   FiFileText, FiSearch, FiFilter, FiCalendar, FiDownload, 

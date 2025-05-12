@@ -1,6 +1,6 @@
-import Prescription from "../../models/prescription.model.js";
+import Prescription from "../../models/Hospital/prescription.model.js";
 import { User } from "../../models/User/user.model.js";
-import { createNotification } from "../notifications.controller.js";
+import { createNotification } from "../User/notifications.controller.js";
 
 // Create a new prescription
 export const createPrescription = async (req, res) => {

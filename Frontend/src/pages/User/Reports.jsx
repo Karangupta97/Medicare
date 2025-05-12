@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiUpload, FiSearch, FiFilter, FiFile, FiDownload, FiEye, FiTrash2, FiFileText, FiImage, FiClipboard, FiHardDrive, FiX, FiFolderPlus, FiEdit } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
-import DashboardLayout from '../../components/DashboardLayout';
+import DashboardLayout from '../../components/User/DashboardLayout';
 import { useAuthStore } from '../../store/authStore';
 
 const style = document.createElement('style');

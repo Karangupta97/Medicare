@@ -1,4 +1,4 @@
-import { createNotification } from "../controllers/notifications.controller.js";
+import { createNotification } from "../controllers/User/notifications.controller.js";
 
 /**
  * Send notification to a specific user via WebSocket and database

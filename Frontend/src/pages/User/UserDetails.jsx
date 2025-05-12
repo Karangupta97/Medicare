@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiShield, FiCalendar, FiCreditCard, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
-import DashboardLayout from "../../components/DashboardLayout";
+import DashboardLayout from "../../components/User/DashboardLayout";
 import Loading from "../../components/Loading";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";

@@ -1,38 +1,34 @@
 import React, { useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-hot-toast";
-import { useAuthStore } from "../store/authStore";
+import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 
-const ResetPassword = () => {
-  const { token } = useParams(); // Extract token from URL
-  const navigate = useNavigate();
+const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // Track form submission state
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  const { resetPassword, error, isSubmitting, message } = useAuthStore();
+  const { forgotPassword } = useAuthStore(); // Call specific action from store
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
+    setIsSubmitting(true);
     try {
-      await resetPassword(token, password);
+      await forgotPassword(email); // Call store action
 
-      toast.success("Password reset successfully. Redirecting to login...");
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || "Error resetting password");
+      toast.success("Password reset link sent successfully!");
+      setEmail("");
+      setSuccess("Password reset link sent successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Failed to send reset link");
+      setError(error.message || "Failed to send reset link");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -50,42 +46,21 @@ const ResetPassword = () => {
               Reset Password
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Please enter your new password below.
+              Enter your email address and we'll send you instructions to reset your password.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                New Password
+                Email Address
               </label>
               <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="Enter new password"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-              >
-                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-              </button>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Confirm New Password
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="Confirm new password"
+                placeholder="Enter your email"
                 required
               />
             </div>
@@ -95,7 +70,7 @@ const ResetPassword = () => {
               disabled={isSubmitting}
               className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Resetting Password..." : "Reset Password"}
+              {isSubmitting ? "Sending Instructions..." : "Send Reset Instructions"}
             </button>
 
             {error && (
@@ -104,9 +79,9 @@ const ResetPassword = () => {
               </div>
             )}
 
-            {message && (
+            {success && (
               <div className="p-4 bg-green-50 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-lg text-sm">
-                {message}
+                {success}
               </div>
             )}
           </form>
@@ -128,4 +103,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;

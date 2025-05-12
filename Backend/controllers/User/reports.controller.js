@@ -1,8 +1,8 @@
-import { Report } from "../models/report.model.js";
-import { uploadFile, deleteFile, getFileUrl } from "../services/s3.service.js";
-import { io } from "../server.js";
-import { sendNotificationToUser } from "../utils/notifications.js";
-import { createNotification } from "./notifications.controller.js";
+import { Report } from "../../models/User/report.model.js";
+import { uploadFile, deleteFile, getFileUrl } from "../../services/s3.service.js";
+import { io } from "../../server.js";
+import { sendNotificationToUser } from "../../utils/notifications.js";
+import { createNotification } from "../User/notifications.controller.js";
 
 // Valid categories
 const VALID_CATEGORIES = ['medical', 'lab', 'prescription', 'other'];

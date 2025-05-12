@@ -1,15 +1,15 @@
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 
-import { User } from "../models/User/user.model.js";
-import { generateTokenAndsendcookie } from "../utils/generateTokenAndsendcookie.js";
-import { uploadFile } from "../services/s3.service.js";
+import { User } from "../../models/User/user.model.js";
+import { generateTokenAndsendcookie } from "../../utils/generateTokenAndsendcookie.js";
+import { uploadFile } from "../../services/s3.service.js";
 import {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendPasswordResetSuccessEmail,
-} from "../services/emails/emails.js";
+} from "../../services/emails/emails.js";
 import dotenv from "dotenv";
 
 dotenv.config();

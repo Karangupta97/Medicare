@@ -5,7 +5,7 @@ import Logo from "../assets/Medicare logo.jpg";
 import UserIcon from "../assets/user.png";
 import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus, FiSettings, FiBell } from 'react-icons/fi';
 import { useAuthStore } from "../store/authStore";
-import LogoutModal from "./LogoutModal";
+import LogoutModal from "./User/LogoutModal";
 import axios from "axios";
 
 const Navbar = ({ user, onLogout }) => {

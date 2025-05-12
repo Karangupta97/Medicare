@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import DashboardLayout from "../../components/DashboardLayout";
-import QRCodeModal from "../../components/QRCodeModal";
+import DashboardLayout from "../../components/User/DashboardLayout";
+import QRCodeModal from "../../components/User/QRCodeModal";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { io } from "socket.io-client";
 import MedicareLogo from "../../assets/logo/logo.png";

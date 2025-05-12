@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../../store/authStore";
 import {
   FaEye,
   FaEyeSlash,
@@ -14,7 +14,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import SignupImage from "../assets/Sing.png";
+import SignupImage from "../../assets/Sing.png";
 
 const Signup = () => {
   const [name, setName] = useState("");

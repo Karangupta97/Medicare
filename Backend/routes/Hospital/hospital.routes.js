@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../../middleware/verifyToken.js";
+import { verifyToken } from "../../middleware/User/verifyToken.js";
 import {
   getPatientByUMID,
   getPatientReports,
@@ -13,7 +13,7 @@ import {
   getOtherDoctorPrescriptions,
   generatePrescriptionPDF
 } from "../../controllers/Hospital/prescription.controller.js";
-import { refreshReportUrl } from "../../controllers/reports.controller.js";
+import { refreshReportUrl } from "../../controllers/User/reports.controller.js";
 
 const router = express.Router();
 

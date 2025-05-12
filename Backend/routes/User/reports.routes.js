@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../middleware/verifyToken.js";
+import { verifyToken } from "../../middleware/User/verifyToken.js";
 import {
   getReports,
   uploadReport,
@@ -8,7 +8,7 @@ import {
   moveReport,
   updateReport,
   refreshReportUrl
-} from "../controllers/reports.controller.js";
+} from "../../controllers/User/reports.controller.js";
 import multer from "multer";
 
 const router = express.Router();

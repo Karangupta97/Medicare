@@ -1,5 +1,5 @@
 import { User } from "../../models/User/user.model.js";
-import Prescription from "../../models/prescription.model.js";
+import Prescription from "../../models/Hospital/prescription.model.js";
 
 // Get all prescriptions for the logged-in user
 export const getUserPrescriptions = async (req, res) => {

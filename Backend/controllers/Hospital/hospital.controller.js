@@ -1,5 +1,5 @@
 import { User } from "../../models/User/user.model.js";
-import { Report } from "../../models/report.model.js";
+import { Report } from "../../models/User/report.model.js";
 
 // Validate UMID format
 const isValidUMID = (umid) => {

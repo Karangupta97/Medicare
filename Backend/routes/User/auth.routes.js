@@ -10,8 +10,8 @@ import {
   resendOtp,
   updateProfile,
   getUserData
-} from "../controllers/auth.controller.js";
-import { verifyToken } from "../middleware/verifyToken.js";
+} from "../../controllers/User/auth.controller.js";
+import { verifyToken } from "../../middleware/User/verifyToken.js";
 import multer from "multer";
 
 const router = express.Router();

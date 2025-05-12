@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
-import DashboardLayout from "../../components/DashboardLayout";
+import DashboardLayout from "../../components/User/DashboardLayout";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import {

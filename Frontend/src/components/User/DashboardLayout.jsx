@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import usericon from "../assets/user.png";
-import MedicareLogo from "../assets/Medicare logo 1.png"; // Import the Medicare logo
-import HandLogo from "../assets/hand logo.png"; // Import the hand logo
+import usericon from "../../assets/user.png";
+import MedicareLogo from "../../assets/Medicare logo 1.png"; // Import the Medicare logo
+import HandLogo from "../../assets/hand logo.png"; // Import the hand logo
 import {
   FiGrid,
   FiHome,
@@ -30,8 +30,8 @@ import {
   FiShield,
   FiActivity,
 } from "react-icons/fi";
-import { useAuthStore } from "../store/authStore";
-import LogoutModal from "./LogoutModal";
+import { useAuthStore } from "../../store/authStore";
+import LogoutModal from "../../components/User/LogoutModal";
 import axios from "axios";
 
 const DashboardLayout = ({ children }) => {

@@ -1,6 +1,6 @@
-import Notification from '../models/notification.model.js';
+import Notification from '../../models/User/notification.model.js';
 import asyncHandler from 'express-async-handler';
-import { sendNotificationToUser } from '../utils/socket.js';
+import { sendNotificationToUser } from '../../utils/socket.js';
 
 // Get all notifications for a user
 const getNotifications = asyncHandler(async (req, res) => {

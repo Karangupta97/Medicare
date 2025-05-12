@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { Founder } from "../models/Founder/founder.model.js";
+import { Founder } from "../../models/Founder/founder.model.js";
 
 // Middleware to verify founder token and authorization
 export const verifyFounder = async (req, res, next) => {

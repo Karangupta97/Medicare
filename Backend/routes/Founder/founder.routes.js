@@ -7,7 +7,7 @@ import {
   requestSensitiveActionOTP,
   verifySensitiveActionOTP
 } from "../../controllers/Founder/founder.controller.js";
-import { verifyFounder } from "../../middleware/verifyFounder.js";
+import { verifyFounder } from "../../middleware/Founder/verifyFounder.js";
 
 const router = express.Router();
 

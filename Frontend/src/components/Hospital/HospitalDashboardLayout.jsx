@@ -14,7 +14,7 @@ import {
   FiX,
   FiSearch} from "react-icons/fi";
 import { useAuthStore } from "../../store/authStore";
-import LogoutModal from "../LogoutModal";
+import LogoutModal from "../User/LogoutModal";
 
 const HospitalDashboardLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
