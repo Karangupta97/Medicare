@@ -99,6 +99,7 @@ export const useFounderStore = create((set, get) => ({
   isCheckingAuth: false,
   tempToken: null,
   refreshInterval: null,
+  dashboardData: null,
 
   setToken: (token) => {
     if (token) {
@@ -106,7 +107,8 @@ export const useFounderStore = create((set, get) => ({
     } else {
       safeStorageAccess.removeItem('founder_token');
     }
-    set({ token });
+    // Clear dashboard data cache when token changes
+    set({ token, dashboardData: null });
   },
 
   setFounder: (founderData) => {
@@ -297,25 +299,67 @@ export const useFounderStore = create((set, get) => ({
         return;
       }
       
-      const response = await axios.get(`${API_URL}/api/founder/check-auth`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-      
-      if (response.data.success && response.data.founder) {
-        safeStorageAccess.setItem('founder_data', JSON.stringify(response.data.founder));
-        
-        set({
-          founder: response.data.founder,
-          token: token,
-          isAuthenticated: true,
-          isCheckingAuth: false,
+      // Try the primary check-auth endpoint
+      try {
+        const response = await axios.get(`${API_URL}/api/founder/check-auth`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true
         });
         
-        return response.data;
-      } else {
-        throw new Error(response.data.message || "Authentication check failed");
+        if (response.data.success && response.data.founder) {
+          safeStorageAccess.setItem('founder_data', JSON.stringify(response.data.founder));
+          
+          set({
+            founder: response.data.founder,
+            token: token,
+            isAuthenticated: true,
+            isCheckingAuth: false,
+          });
+          
+          return response.data;
+        }
+      } catch (error) {
+        // If the endpoint doesn't exist (404), try the dashboard endpoint instead
+        if (error.response && error.response.status === 404) {
+          console.log("check-auth endpoint not found, trying dashboard endpoint as fallback");
+          
+          // Use the dashboard endpoint to verify auth
+          const dashboardResponse = await axios.get(`${API_URL}/api/founder/dashboard`, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true
+          });
+          
+          if (dashboardResponse.data.success) {
+            // If we can access the dashboard, we're authenticated
+            // Get the founder from local storage as a fallback
+            const storedFounder = safeStorageAccess.getItem('founder_data');
+            let founderData = null;
+            
+            try {
+              if (storedFounder) {
+                founderData = JSON.parse(storedFounder);
+              }
+            } catch (parseError) {
+              console.error('Error parsing founder data:', parseError);
+            }
+            
+            set({
+              founder: founderData,
+              token: token,
+              isAuthenticated: true,
+              isCheckingAuth: false,
+            });
+            
+            return { success: true, founder: founderData };
+          }
+        } else {
+          // If it's not a 404 error, rethrow it
+          throw error;
+        }
       }
+      
+      // If we get here, authentication failed
+      throw new Error("Authentication check failed");
     } catch (error) {
       if (error.response?.status === 401) {
         safeStorageAccess.removeItem('founder_token');
@@ -387,16 +431,81 @@ export const useFounderStore = create((set, get) => ({
   
   // Get dashboard data for founder
   getDashboardData: async () => {
+    // Check if we already have dashboard data that's less than 30 seconds old
+    const cachedData = get().dashboardData;
+    const now = Date.now();
+    
+    if (cachedData && cachedData.timestamp && (now - cachedData.timestamp < 30000)) {
+      console.log("Using cached dashboard data");
+      return cachedData;
+    }
+    
     set({ isLoading: true, error: null });
     try {
+      const token = get().token;
+      
+      if (!token) {
+        console.error("Cannot fetch dashboard data: missing token");
+        set({
+          error: "Authentication token missing. Please log in again.",
+          isLoading: false,
+        });
+        return { success: false, message: "Authentication token missing" };
+      }
+      
+      console.log("Using token for dashboard request:", token ? "Token exists" : "No token");
+      
       const response = await axios.get(`${API_URL}/api/founder/dashboard`, {
-        headers: { Authorization: `Bearer ${get().token}` },
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true
       });
       
-      set({ isLoading: false });
-      return response.data;
+      // Validate the response structure
+      if (!response.data) {
+        throw new Error("Invalid response from server: missing data");
+      }
+      
+      // If the response doesn't have a success field, add it
+      const responseData = response.data.success !== undefined 
+        ? response.data 
+        : { success: true, data: response.data };
+      
+      // Cache the data with a timestamp
+      const dataWithTimestamp = {
+        ...responseData,
+        timestamp: Date.now()
+      };
+      
+      set({ 
+        isLoading: false,
+        dashboardData: dataWithTimestamp
+      });
+      
+      return dataWithTimestamp;
     } catch (error) {
+      console.error("Axios error:", error);
+      
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+        
+        // Handle 401 (Unauthorized) or 403 (Forbidden) errors
+        if (error.response.status === 401 || error.response.status === 403) {
+          // Clear invalid credentials
+          safeStorageAccess.removeItem('founder_token');
+          safeStorageAccess.removeItem('founder_data');
+          
+          set({
+            founder: null,
+            token: null,
+            isAuthenticated: false,
+            error: error.response.data.message || "Authentication failed. Please log in again.",
+            isLoading: false
+          });
+        }
+      }
+      
       set({
         error: error.response?.data?.message || "Failed to fetch dashboard data",
         isLoading: false,

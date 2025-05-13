@@ -167,3 +167,83 @@ export const FOUNDER_SENSITIVE_ACTION_OTP_TEMPLATE = `
 </body>
 </html>
 `;
+
+export const STAFF_WELCOME_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Medicare Staff</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #4338ca, #6366f1); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Welcome to Medicare Staff</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello {staffName},</p>
+    <p>Welcome to the Medicare Team! You have been added as a staff member to our platform.</p>
+    <p>Here are your login credentials:</p>
+    
+    <div style="background-color: #e0e7ff; border-left: 4px solid #4338ca; padding: 15px; margin: 20px 0;">
+      <p style="margin: 0;"><strong>Email:</strong> {staffEmail}</p>
+      <p style="margin: 10px 0 0 0;"><strong>Staff ID:</strong> {staffId}</p>
+      <p style="margin: 10px 0 0 0;"><strong>Temporary Password:</strong> {temporaryPassword}</p>
+    </div>
+    
+    <p><strong>Important:</strong> For security reasons, you will be required to change your password after your first login.</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{loginUrl}" style="background-color: #4338ca; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Medicare</a>
+    </div>
+    
+    <p>If you have any questions or need assistance, please contact your manager.</p>
+    <p>Best regards,<br>Medicare Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message from the Medicare Staff Portal. Please do not reply to this email.</p>
+    <p>Medicare - {currentYear}</p>
+  </div>
+</body>
+</html>
+`;
+
+export const STAFF_PASSWORD_RESET_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Password Reset</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #4338ca, #6366f1); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Password Reset</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello {staffName},</p>
+    <p>Your password has been reset by an administrator. Please use the following temporary password to log in:</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <span style="font-size: 20px; font-weight: bold; letter-spacing: 2px; color: #4338ca; background-color: #e0e7ff; padding: 8px 16px; border-radius: 4px;">{temporaryPassword}</span>
+    </div>
+    
+    <p>You will be required to set a new password upon your next login.</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{loginUrl}" style="background-color: #4338ca; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Medicare</a>
+    </div>
+    
+    <div style="background-color: #e0e7ff; border-left: 4px solid #4338ca; padding: 10px; margin: 20px 0;">
+      <p style="margin: 0;"><strong>Security Notice:</strong></p>
+      <p style="margin: 10px 0 0 0;">If you did not request this password reset, please contact your administrator immediately.</p>
+    </div>
+    
+    <p>Best regards,<br>Medicare Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message from the Medicare Staff Portal. Please do not reply to this email.</p>
+  </div>
+</body>
+</html>
+`;

@@ -1,10 +1,11 @@
 import React from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { useFounderStore } from "./store/founderStore";
 
 //Admin
 //User
@@ -27,6 +28,11 @@ import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
 //Founder
 import FounderLogin from "./pages/Founder/FounderLogin";
 import FounderDashboard from "./pages/Founder/FounderDashboard";
+import TeamManagement from "./pages/Admin/Team/TeamManagement";
+// Staff Management
+import StaffDirectoryPage from "./pages/FounderDashboard/StaffDirectory/StaffDirectoryPage";
+import AddStaffPage from "./pages/FounderDashboard/StaffDirectory/AddStaffPage";
+import EditStaffPage from "./pages/FounderDashboard/StaffDirectory/EditStaffPage";
 //piblic
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
@@ -76,25 +82,50 @@ const RedirectAuthenticatedUser = ({ children }) => {
 
 // Protected route specifically for founder
 const FounderRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useLocation();
-
+  const { isAuthenticated, isLoading, checkAuth } = useFounderStore();
+  const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [error, setError] = useState(null);
+  
   useEffect(() => {
-    const token = localStorage.getItem("founder_token");
-    if (!token) {
-      setIsAuthenticated(false);
-      setIsLoading(false);
-      return;
-    }
+    // Check authentication status when the component mounts, but only once
+    const verifyAuth = async () => {
+      try {
+        if (!authChecked) {
+          await checkAuth();
+          setAuthChecked(true);
+        }
+      } catch (err) {
+        console.error("Founder authentication check failed:", err);
+        setError(err.message);
+        // We'll still mark auth as checked, but with an error
+        setAuthChecked(true);
+      }
+    };
     
-    // Token exists, consider authenticated
-    setIsAuthenticated(true);
-    setIsLoading(false);
-  }, [navigate.pathname]);
+    verifyAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (isLoading) {
+  if (isLoading && !authChecked) {
     return <Loading />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 text-center">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h2>
+          <p className="mb-6 text-gray-700">{error || "Failed to authenticate. Please try logging in again."}</p>
+          <button 
+            onClick={() => navigate("/founder/login")}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -207,6 +238,40 @@ const App = () => {
           element={
             <FounderRoute>
               <FounderDashboard />
+            </FounderRoute>
+          }
+        />
+        <Route
+          path="/founder/team-management"
+          element={
+            <FounderRoute>
+              <TeamManagement />
+            </FounderRoute>
+          }
+        />
+        
+        {/* Staff Directory Routes */}
+        <Route
+          path="/founder/staff"
+          element={
+            <FounderRoute>
+              <StaffDirectoryPage />
+            </FounderRoute>
+          }
+        />
+        <Route
+          path="/founder/staff/add"
+          element={
+            <FounderRoute>
+              <AddStaffPage />
+            </FounderRoute>
+          }
+        />
+        <Route
+          path="/founder/staff/edit/:staffId"
+          element={
+            <FounderRoute>
+              <EditStaffPage />
             </FounderRoute>
           }
         />

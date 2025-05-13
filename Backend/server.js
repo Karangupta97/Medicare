@@ -10,6 +10,8 @@ import notificationsRoutes from "./routes/User/notifications.routes.js";
 import hospitalRoutes from "./routes/Hospital/hospital.routes.js";
 import userRoutes from "./routes/User/user.routes.js";
 import founderRoutes from "./routes/Founder/founder.routes.js";
+import staffRoutes from "./routes/Admin/Staff/staff.routes.js";
+import teamRoutes from "./routes/Admin/Team/team.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { initSocket } from "./utils/socket.js";
@@ -105,6 +107,8 @@ else {
   app.use("/api/hospital", hospitalRoutes);
   app.use("/api/user", userRoutes);
   app.use("/api/founder", founderRoutes); // Add founder routes
+  app.use("/api/staff", staffRoutes); // Add staff routes
+  app.use("/api/teams", teamRoutes); // Add team routes
 
   // Root route
   app.get("/", (req, res) => {
