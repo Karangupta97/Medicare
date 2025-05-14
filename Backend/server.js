@@ -79,10 +79,18 @@ else {
   app.use(status({ path: "/status" }));
   app.use(
     cors({
-      origin:
-        process.env.NODE_ENV === "production"
-          ? process.env.CLIENT_URL
-          : "http://localhost:5173", // Vite's default port
+      origin: function(origin, callback) {
+        const allowedOrigins = process.env.NODE_ENV === "production"
+          ? ["https://medicares.in", "https://www.medicares.in"] 
+          : ["http://localhost:5173"]; // Vite's default port
+          
+        // Check if origin is allowed or if it's null (like for same-origin requests)
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -117,7 +125,7 @@ else {
     });
     res.send("Medicare API Server is ready");
   });
-
+  
   // Health check route for WebSocket testing
   app.get("/socket-health", (req, res) => {
     const wsStatus = io
@@ -134,6 +142,7 @@ else {
       timestamp: new Date().toISOString(),
     });
   });
+  
 
   // Error handling middleware
   app.use((err, req, res, next) => {
@@ -151,10 +160,17 @@ else {
   // Initialize WebSocket server
   io = new Server(httpServer, {
     cors: {
-      origin:
-        process.env.NODE_ENV === "production"
-          ? [process.env.CLIENT_URL]
-          : ["http://localhost:5173"],
+      origin: function(origin, callback) {
+        const allowedOrigins = process.env.NODE_ENV === "production"
+          ? ["https://medicares.in", "https://www.medicares.in"]
+          : ["http://localhost:5173"];
+          
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],

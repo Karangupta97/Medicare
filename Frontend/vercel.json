@@ -4,12 +4,5 @@
       "source": "/(.*)",
       "destination": "/"
     }
-  ],
-  "redirects": [
-    {
-      "source": "/founder/login",
-      "destination": "https://founder.medicares.in/login",
-      "permanent": true
-    }
   ]
 }
