@@ -178,7 +178,7 @@ const Notifications = () => {
     try {
       if (!token) return;
       
-      await axios.put('/api/notifications/mark-all-read', {}, {
+      await axios.patch('/api/notifications/mark-all-read', {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

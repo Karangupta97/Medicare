@@ -6,7 +6,9 @@ import { motion, AnimatePresence } from "framer-motion";
 const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
   if (!isOpen) return null;
 
+  // Use a frontend URL that will be properly handled by React Router
   const origin = window.location.origin;
+  // Ensure we use a valid frontend route that will be handled by React Router
   const qrValue = `${origin}/user/${userUmid}`;
 
   const downloadQRCode = () => {

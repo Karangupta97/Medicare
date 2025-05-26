@@ -10,8 +10,11 @@ import notificationsRoutes from "./routes/User/notifications.routes.js";
 import hospitalRoutes from "./routes/Hospital/hospital.routes.js";
 import userRoutes from "./routes/User/user.routes.js";
 import founderRoutes from "./routes/Founder/founder.routes.js";
-import staffRoutes from "./routes/Admin/Staff/staff.routes.js";
+import staffRoutes from "./routes/Admin/Staff/staffManagement.routes.js";
+import staffAuthRoutes from "./routes/Admin/Staff/staffAuth.routes.js";
 import teamRoutes from "./routes/Admin/Team/team.routes.js";
+import doctorRoutes from "./routes/Doctor/doctor.routes.js";
+import doctorVerificationRoutes from "./routes/Admin/Staff/StaffWorks/doctorVerification.routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { initSocket } from "./utils/socket.js";
@@ -116,7 +119,10 @@ else {
   app.use("/api/user", userRoutes);
   app.use("/api/founder", founderRoutes); // Add founder routes
   app.use("/api/staff", staffRoutes); // Add staff routes
+  app.use("/api/staff-auth", staffAuthRoutes); // Add staff auth routes
   app.use("/api/teams", teamRoutes); // Add team routes
+  app.use("/api/doctor", doctorRoutes); // Add doctor routes
+  app.use("/api/doctor-verification", doctorVerificationRoutes); // Move doctor verification to a separate path
 
   // Root route
   app.get("/", (req, res) => {

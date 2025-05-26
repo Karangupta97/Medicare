@@ -81,3 +81,69 @@ export const getPrescriptionCount = async (req, res) => {
     });
   }
 };
+
+// Get user profile by UMID (for QR code scanning)
+export const getUserProfileByUmid = async (req, res) => {
+  try {
+    const { umid } = req.params;
+    
+    if (!umid) {
+      return res.status(400).json({
+        success: false,
+        message: "Medicare ID (UMID) is required"
+      });
+    }
+    
+    // Find user by UMID
+    const user = await User.findOne({ umid }).select('-password -tokens');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found with the provided Medicare ID"
+      });
+    }
+    
+    // Determine if this is an authenticated request
+    const isAuthenticated = req.user && req.user.id;
+    
+    // Return the user profile with appropriate fields based on authentication
+    if (isAuthenticated) {
+      // Full profile for authenticated users
+      return res.status(200).json({
+        success: true,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          photoURL: user.photoURL,
+          umid: user.umid,
+          verified: user.verified,
+          planType: user.planType,
+          phone: user.phone,
+          address: user.address,
+          createdAt: user.createdAt
+        }
+      });
+    } else {
+      // Limited profile for public users - only return non-sensitive information
+      return res.status(200).json({
+        success: true,
+        user: {
+          name: user.name,
+          photoURL: user.photoURL,
+          umid: user.umid,
+          verified: user.verified,
+          planType: user.planType
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching user profile by UMID:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch user profile",
+      error: error.message
+    });
+  }
+};

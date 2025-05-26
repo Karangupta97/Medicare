@@ -5,6 +5,30 @@ import { safeStorageAccess } from "../utils/errorHandling";
 // API URL for backend communication
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Import or recreate the throttling mechanism
+// Global request timestamps to prevent duplicate requests
+const requestTimestamps = window.requestTimestamps || {
+  profile: 0,
+  founderProfile: 0
+};
+
+// Make it globally available to share between stores
+window.requestTimestamps = requestTimestamps;
+
+// Minimum time between identical requests (in milliseconds)
+const REQUEST_THROTTLE_MS = 5000; // 5 seconds
+
+// Check if a request should be throttled
+const shouldThrottleRequest = (key) => {
+  const now = Date.now();
+  if (now - requestTimestamps[key] < REQUEST_THROTTLE_MS) {
+    console.log(`Throttled request to ${key} - too soon after previous request`);
+    return true;
+  }
+  requestTimestamps[key] = now;
+  return false;
+};
+
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
@@ -66,10 +90,18 @@ axios.interceptors.response.use(
     }
     
     if (error.response?.status === 401) {
-      console.log('Unauthorized request, clearing founder auth state');
-      safeStorageAccess.removeItem('founder_token');
-      safeStorageAccess.removeItem('founder_data');
-      window.location.href = '/founder/login';
+      console.log('Unauthorized request, checking path before redirecting');
+      
+      // Don't redirect to founder login if on a doctor or staff path
+      const currentPath = window.location.pathname;
+      if (!currentPath.startsWith('/doctor') && !currentPath.startsWith('/staff')) {
+        console.log('Clearing founder auth state and redirecting to founder login');
+        safeStorageAccess.removeItem('founder_token');
+        safeStorageAccess.removeItem('founder_data');
+        window.location.href = '/founder/login';
+      } else {
+        console.log(`On ${currentPath.startsWith('/doctor') ? 'doctor' : 'staff'} path, not redirecting to founder login`);
+      }
     }
     
     return Promise.reject(error);
@@ -89,6 +121,11 @@ try {
   console.error('Error parsing founder data from localStorage:', error);
   safeStorageAccess.removeItem('founder_data');
 }
+
+// Global cache for founder profile
+let founderProfileCache = null;
+let founderProfileCacheTimestamp = 0;
+const PROFILE_CACHE_TTL = 30000; // 30 seconds
 
 export const useFounderStore = create((set, get) => ({
   founder: parsedFounderData,
@@ -147,6 +184,20 @@ export const useFounderStore = create((set, get) => ({
         return null;
       }
       
+      // Check if we have a recent enough cache
+      const now = Date.now();
+      if (founderProfileCache && (now - founderProfileCacheTimestamp < PROFILE_CACHE_TTL)) {
+        console.log('Using cached founder profile data');
+        set({ founder: founderProfileCache });
+        return founderProfileCache;
+      }
+      
+      // Prevent duplicate requests in quick succession
+      if (shouldThrottleRequest('founderProfile')) {
+        console.log('Throttled founder profile request - using existing data');
+        return get().founder;
+      }
+      
       const response = await axios.get(`${API_URL}/api/founder/profile`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true
@@ -156,8 +207,12 @@ export const useFounderStore = create((set, get) => ({
         // Cache timestamp to track when founder data was last refreshed
         const founderData = {
           ...response.data.founder,
-          _lastRefreshed: new Date().getTime()
+          _lastRefreshed: now
         };
+
+        // Update the global cache
+        founderProfileCache = founderData;
+        founderProfileCacheTimestamp = now;
 
         safeStorageAccess.setItem('founder_data', JSON.stringify(founderData));
         set({ founder: founderData });
@@ -280,7 +335,17 @@ export const useFounderStore = create((set, get) => ({
 
   // Check if founder is authenticated
   checkAuth: async () => {
+    console.log("founderStore: checkAuth called");
+    
+    // Get current URL path to check context
+    const currentPath = window.location.pathname;
+    const isDoctorPath = currentPath.startsWith('/doctor');
+    const isStaffPath = currentPath.startsWith('/staff');
+    
+    console.log("founderStore: Current path:", currentPath, isDoctorPath ? "(doctor path detected)" : isStaffPath ? "(staff path detected)" : "");
+    
     if (get().isCheckingAuth) {
+      console.log("founderStore: Already checking auth, returning");
       return;
     }
     
@@ -289,7 +354,9 @@ export const useFounderStore = create((set, get) => ({
     try {
       const token = safeStorageAccess.getItem('founder_token');
       
+      console.log("founderStore: token exists:", !!token);
       if (!token) {
+        console.log("founderStore: No token found, marking as not authenticated");
         set({ 
           founder: null,
           token: null,
@@ -301,12 +368,15 @@ export const useFounderStore = create((set, get) => ({
       
       // Try the primary check-auth endpoint
       try {
+        console.log("founderStore: Making API call to check-auth");
         const response = await axios.get(`${API_URL}/api/founder/check-auth`, {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true
         });
         
+        console.log("founderStore: check-auth response:", response.data);
         if (response.data.success && response.data.founder) {
+          console.log("founderStore: Founder is authenticated");
           safeStorageAccess.setItem('founder_data', JSON.stringify(response.data.founder));
           
           set({
@@ -321,7 +391,7 @@ export const useFounderStore = create((set, get) => ({
       } catch (error) {
         // If the endpoint doesn't exist (404), try the dashboard endpoint instead
         if (error.response && error.response.status === 404) {
-          console.log("check-auth endpoint not found, trying dashboard endpoint as fallback");
+          console.log("founderStore: check-auth endpoint not found, trying dashboard endpoint as fallback");
           
           // Use the dashboard endpoint to verify auth
           const dashboardResponse = await axios.get(`${API_URL}/api/founder/dashboard`, {
@@ -329,6 +399,7 @@ export const useFounderStore = create((set, get) => ({
             withCredentials: true
           });
           
+          console.log("founderStore: dashboard response:", dashboardResponse.data);
           if (dashboardResponse.data.success) {
             // If we can access the dashboard, we're authenticated
             // Get the founder from local storage as a fallback
@@ -343,6 +414,7 @@ export const useFounderStore = create((set, get) => ({
               console.error('Error parsing founder data:', parseError);
             }
             
+            console.log("founderStore: Founder is authenticated via dashboard");
             set({
               founder: founderData,
               token: token,
@@ -372,6 +444,15 @@ export const useFounderStore = create((set, get) => ({
           isCheckingAuth: false,
           error: "Session expired. Please login again."
         });
+        
+        // CRITICAL FIX: Don't redirect on 401 if we're in a doctor or staff path
+        // This prevents founder auth from redirecting when we're actually trying to access doctor or staff routes
+        if (!isDoctorPath && !isStaffPath) {
+          console.log("founderStore: Redirecting to founder login after 401");
+          window.location.href = '/founder/login';
+        } else {
+          console.log(`founderStore: NOT redirecting to founder login from ${isDoctorPath ? 'doctor' : 'staff'} path`);
+        }
       } else {
         set({ 
           isCheckingAuth: false,

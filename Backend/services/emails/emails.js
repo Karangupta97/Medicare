@@ -6,6 +6,8 @@ import { FOUNDER_SENSITIVE_ACTION_OTP_TEMPLATE } from "./emailTemplates.js";
 import { STAFF_WELCOME_EMAIL_TEMPLATE } from "./emailTemplates.js";
 import { STAFF_PASSWORD_RESET_EMAIL_TEMPLATE } from "./emailTemplates.js";
 import { resend, sender } from "./email.config.js";
+import { DOCTOR_APPROVAL_EMAIL_TEMPLATE } from "./emailTemplates.js";
+import { DOCTOR_REJECTION_EMAIL_TEMPLATE } from "./emailTemplates.js";
 
 export const sendVerificationEmail = async (email, verificationToken) => {
   try {
@@ -248,5 +250,101 @@ export const sendStaffPasswordResetEmail = async (email, name, temporaryPassword
   } catch (error) {
     console.error(`Error sending staff password reset email:`, error);
     throw new Error(`Error sending staff password reset email: ${error.message}`);
+  }
+};
+
+/**
+ * Send approval email to a doctor whose account has been verified
+ * @param {string} email - Doctor's email
+ * @param {string} name - Doctor's name
+ */
+export const sendDoctorApprovalEmail = async (email, name) => {
+  try {
+    // Login URL (frontend doctor login page)
+    const loginUrl = `${process.env.CLIENT_URL}/doctor/login`;
+    
+    // Replace template placeholders
+    let emailContent = DOCTOR_APPROVAL_EMAIL_TEMPLATE
+      .replace("{doctorName}", name)
+      .replace("{loginUrl}", loginUrl);
+
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: [email],
+      subject: "Medicare - Your Doctor Account is Approved",
+      html: emailContent,
+    });
+
+    if (error) {
+      console.error(`Error:`, error);
+      throw new Error("Failed to send doctor approval email");
+    }
+
+    console.log("Doctor approval email sent successfully", data);
+  } catch (error) {
+    console.error(`Error sending doctor approval email:`, error);
+    throw new Error(`Error sending doctor approval email: ${error.message}`);
+  }
+};
+
+/**
+ * Send rejection email to a doctor whose account has been rejected
+ * @param {string} email - Doctor's email
+ * @param {string} name - Doctor's name
+ * @param {string} rejectionReason - Reason for rejection
+ */
+export const sendDoctorRejectionEmail = async (email, name, rejectionReason) => {
+  try {
+    // Replace template placeholders
+    let emailContent = DOCTOR_REJECTION_EMAIL_TEMPLATE
+      .replace("{doctorName}", name)
+      .replace("{rejectionReason}", rejectionReason);
+
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: [email],
+      subject: "Medicare - Doctor Account Application Status",
+      html: emailContent,
+    });
+
+    if (error) {
+      console.error(`Error:`, error);
+      throw new Error("Failed to send doctor rejection email");
+    }
+
+    console.log("Doctor rejection email sent successfully", data);
+  } catch (error) {
+    console.error(`Error sending doctor rejection email:`, error);
+    throw new Error(`Error sending doctor rejection email: ${error.message}`);
+  }
+};
+
+/**
+ * Send verification email to a doctor who just registered
+ * @param {string} email - Doctor's email
+ * @param {string} verificationToken - Verification token or code
+ */
+export const sendDoctorVerificationEmail = async (email, verificationToken) => {
+  try {
+    // Use the same template as regular verification emails
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: [email],
+      subject: "Medicare - Doctor Registration Verification",
+      html: VERIFICATION_EMAIL_TEMPLATE.replace(
+        "{verificationCode}",
+        verificationToken
+      ),
+    });
+
+    if (error) {
+      console.error(`Error:`, error);
+      throw new Error("Failed to send doctor verification email");
+    }
+
+    console.log("Doctor verification email sent successfully", data);
+  } catch (error) {
+    console.error(`Error sending doctor verification email:`, error);
+    throw new Error(`Error sending doctor verification email: ${error.message}`);
   }
 };

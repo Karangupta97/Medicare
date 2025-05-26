@@ -6,6 +6,25 @@ import { safeStorageAccess } from "../utils/errorHandling";
 // const API_URL = "http://localhost:4000";
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Global request timestamps to prevent duplicate requests
+const requestTimestamps = {
+  profile: 0
+};
+
+// Minimum time between identical requests (in milliseconds)
+const REQUEST_THROTTLE_MS = 5000; // 5 seconds
+
+// Check if a request should be throttled
+const shouldThrottleRequest = (key) => {
+  const now = Date.now();
+  if (now - requestTimestamps[key] < REQUEST_THROTTLE_MS) {
+    console.log(`Throttled request to ${key} - too soon after previous request`);
+    return true;
+  }
+  requestTimestamps[key] = now;
+  return false;
+};
+
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
@@ -67,11 +86,22 @@ axios.interceptors.response.use(
     }
     
     if (error.response?.status === 401) {
-      console.log('Unauthorized request, clearing auth state');
-      safeStorageAccess.removeItem('token');
-      safeStorageAccess.removeItem('userId');
-      window.location.href = '/login';
+      console.log('Unauthorized request, checking path before redirecting');
+      
+      // Don't redirect to general login if on specialized routes
+      const currentPath = window.location.pathname;
+      if (!currentPath.startsWith('/doctor') && 
+          !currentPath.startsWith('/founder') && 
+          !currentPath.startsWith('/staff')) {
+        console.log('Clearing auth state and redirecting to main login');
+        safeStorageAccess.removeItem('token');
+        safeStorageAccess.removeItem('userId');
+        window.location.href = '/login';
+      } else {
+        console.log(`On ${currentPath.split('/')[1]} path, not redirecting to main login`);
+      }
     }
+    
     return Promise.reject(error);
   }
 );
@@ -105,6 +135,11 @@ const getUserEssentialData = (userData) => {
     createdAt
   };
 };
+
+// Global cache for user profile
+let profileCache = null;
+let profileCacheTimestamp = 0;
+const PROFILE_CACHE_TTL = 30000; // 30 seconds
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -162,6 +197,20 @@ export const useAuthStore = create((set, get) => ({
         console.log('Cannot refresh user data: missing token or userId');
         return null;
       }
+
+      // Check if we have a recent enough cache
+      const now = Date.now();
+      if (profileCache && (now - profileCacheTimestamp < PROFILE_CACHE_TTL)) {
+        console.log('Using cached user profile data');
+        set({ user: profileCache });
+        return profileCache;
+      }
+      
+      // Prevent duplicate requests in quick succession
+      if (shouldThrottleRequest('profile')) {
+        console.log('Throttled profile request - using existing data');
+        return get().user;
+      }
       
       const response = await axios.get(`${API_URL}/api/auth/user`);
       
@@ -169,13 +218,17 @@ export const useAuthStore = create((set, get) => ({
         // Cache timestamp to track when user data was last refreshed
         const userData = {
           ...response.data.user,
-          _lastRefreshed: new Date().getTime()
+          _lastRefreshed: now
         };
 
         // Append a timestamp to the photoURL to prevent caching issues
         if (userData.photoURL && !userData.photoURL.includes('?')) {
-          userData.photoURL = `${userData.photoURL}?t=${new Date().getTime()}`;
+          userData.photoURL = `${userData.photoURL}?t=${now}`;
         }
+
+        // Update the global cache
+        profileCache = userData;
+        profileCacheTimestamp = now;
 
         set({ user: userData });
         return userData;
@@ -248,15 +301,12 @@ export const useAuthStore = create((set, get) => ({
         code,
       });
       const userData = response.data.user;
-      const token = response.data.token;
       
-      // Save token and userId to localStorage
-      safeStorageAccess.setItem('token', token);
+      // Save userId to localStorage, but DO NOT update the token from this response
       safeStorageAccess.setItem('userId', userData._id);
       
       set({
         user: userData,
-        token: token,
         userId: userData._id,
         isAuthenticated: true,
         isLoading: false,
@@ -289,6 +339,14 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     console.log('Starting checkAuth...');
+    
+    // Get current URL path to check context
+    const currentPath = window.location.pathname;
+    const specializedRoute = currentPath.startsWith('/doctor') || 
+                            currentPath.startsWith('/founder') || 
+                            currentPath.startsWith('/staff');
+    
+    console.log(`authStore: Current path: ${currentPath}, specialized route: ${specializedRoute}`);
     
     // If we're already checking auth, don't start another check
     if (get().isCheckingAuth) {
@@ -352,17 +410,28 @@ export const useAuthStore = create((set, get) => ({
       
       // If token is invalid or expired, clear auth state
       if (error.response?.status === 401) {
-        console.log('Token invalid or expired, clearing auth state');
-        safeStorageAccess.removeItem('token');
-        safeStorageAccess.removeItem('userId');
-        set({ 
-          user: null,
-          token: null,
-          userId: null,
-          isAuthenticated: false,
-          isCheckingAuth: false,
-          error: "Session expired. Please login again."
-        });
+        console.log('Token invalid or expired, checking path context');
+        
+        // Skip clearing auth state for specialized routes to avoid breaking their auth
+        if (specializedRoute) {
+          console.log(`On ${currentPath.split('/')[1]} path, not clearing main auth state`);
+          set({ 
+            isCheckingAuth: false,
+            isAuthenticated: false,
+          });
+        } else {
+          console.log('Clearing auth state for regular user route');
+          safeStorageAccess.removeItem('token');
+          safeStorageAccess.removeItem('userId');
+          set({ 
+            user: null,
+            token: null,
+            userId: null,
+            isAuthenticated: false,
+            isCheckingAuth: false,
+            error: "Session expired. Please login again."
+          });
+        }
       } else {
         set({ 
           isCheckingAuth: false,
@@ -495,8 +564,10 @@ export const useAuthStore = create((set, get) => ({
       // Update user in state with new photo URL
       const userData = response.data.user;
       
-      // Add timestamp to the photoURL to force the browser to reload the image
-      if (userData.photoURL && !userData.photoURL.includes('?')) {
+      // No need to add timestamp parameter for permanent URLs
+      // We'll keep track of whether it's a permanent URL from the backend
+      // Only add cache busting if it's not marked as permanent
+      if (userData.photoURL && !userData.photoIsPermanent && !userData.photoURL.includes('?')) {
         userData.photoURL = `${userData.photoURL}?t=${new Date().getTime()}`;
       }
       

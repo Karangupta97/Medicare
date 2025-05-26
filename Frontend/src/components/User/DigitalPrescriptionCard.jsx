@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { safeExecute } from "../../utils/errorHandling";
+import { useAuthStore } from "../../store/authStore";
 
 const DigitalPrescriptionCard = ({ prescription, onView }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const { token } = useAuthStore();
   
   // Format date to a readable string
   const formatDate = (dateString) => {
@@ -68,19 +70,21 @@ const DigitalPrescriptionCard = ({ prescription, onView }) => {
     }
   };
 
-  // Handle download PDF safely with error handling
+  // Handle download PDF - redirects to detail page for PDF generation
   const handleDownloadPDF = (e) => {
     e.preventDefault();
     e.stopPropagation();
     
     safeExecute(() => {
       try {
-        const url = `/api/user/digital-prescriptions/${prescription._id}/pdf`;
-        window.open(url, '_blank');
-        toast.success("Downloading prescription...");
+        // Navigate to detail page where PDF generation is implemented
+        navigate(`/digital-prescriptions/${prescription._id}`);
+        
+        // Show a toast indicating how to download the PDF
+        toast.success("Opening prescription details. Click the Download PDF button to download.", { duration: 5000 });
       } catch (error) {
-        console.error("PDF download error:", error);
-        toast.error("Failed to download prescription");
+        console.error("Navigation error:", error);
+        toast.error("Failed to open prescription details");
       }
     });
   };

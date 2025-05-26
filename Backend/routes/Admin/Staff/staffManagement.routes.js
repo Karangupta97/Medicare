@@ -6,7 +6,7 @@ import {
   updateStaff,
   resetStaffPassword,
   deleteStaff
-} from "../../../controllers/Admin/Staff/staffController.js";
+} from "../../../controllers/Admin/Staff/staffManagement.controller.js";
 import { verifyFounder } from "../../../middleware/Founder/verifyFounder.js";
 
 const router = express.Router();

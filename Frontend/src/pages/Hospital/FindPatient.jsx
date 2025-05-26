@@ -1486,62 +1486,53 @@ const getFilteredReports = () => {
     // Get the raw input value
     let input = e.target.value;
     
-    // Store the original input to check if letters were entered after MED-
-    const originalInput = input;
+    // Strip all non-alphanumeric characters except for hyphen
+    let sanitized = input.replace(/[^0-9A-Za-z-]/g, '');
     
-    // Process only digits, M, E, D, hyphen for the prefix part
-    // After the prefix, only allow digits
-    if (input.toUpperCase().startsWith("MED-")) {
-      // Keep the MED- prefix untouched
-      let prefix = input.substring(0, 4);
-      // Get everything after the prefix and strip non-digits
-      let afterPrefix = input.substring(4).replace(/[^0-9\s]/g, '');
-      
-      // Check if letters were entered after MED-
-      if (input.toUpperCase().startsWith("M")) {
-        input = "MED-" + input.substring(1);
-      } else if (input.length > 0) {
-        input = "MED-" + input;
+    // Handle the MED- prefix
+    if (!sanitized.toUpperCase().startsWith("MED-")) {
+      // If it starts with M, E, D in sequence, add the hyphen
+      if (sanitized.toUpperCase().startsWith("MED")) {
+        sanitized = "MED-" + sanitized.substring(3);
+      } 
+      // If it doesn't start with MED, but has other content, add MED- prefix
+      else if (sanitized.length > 0) {
+        sanitized = "MED-" + sanitized;
       }
     }
     
     // Convert to uppercase for consistency
-    input = input.toUpperCase();
+    sanitized = sanitized.toUpperCase();
     
-    // Strip all spaces from the input
-    let noSpaces = input.replace(/\s/g, '');
+    // Remove any digits beyond the max length (MED- + 20 digits)
+    if (sanitized.length > 24) { // "MED-" is 4 chars + 20 digits
+      sanitized = sanitized.substring(0, 24);
+    }
     
-    // Create a formatted string with correct spacing
+    // Format the UMID with proper spacing
     let formatted = '';
     
-    // Add the MED- prefix
-    if (noSpaces.length >= 4) {
-      formatted = noSpaces.substring(0, 4);
+    // Always add the MED- prefix
+    if (sanitized.length >= 4) {
+      formatted = sanitized.substring(0, 4); // MED-
       
-      // Extract all digits after the prefix
-      let digits = noSpaces.substring(4);
+      // Get all characters after the prefix
+      let remainder = sanitized.substring(4);
       
-      // Add first group of digits (up to 5)
-      if (digits.length > 0) {
-        formatted += digits.substring(0, Math.min(5, digits.length));
-      }
-      
-      // Add second group with space (up to 5 more digits)
-      if (digits.length > 5) {
-        formatted += " " + digits.substring(5, Math.min(10, digits.length));
-      }
-      
-      // Add third group with space (up to 5 more digits)
-      if (digits.length > 10) {
-        formatted += " " + digits.substring(10, Math.min(15, digits.length));
-      }
-      
-      // Add fourth group with space (up to 5 more digits)
-      if (digits.length > 15) {
-        formatted += " " + digits.substring(15, Math.min(20, digits.length));
+      // Add each group of 5 digits with spaces between them
+      for (let i = 0; i < 4; i++) { // 4 groups of 5 digits each
+        if (i < remainder.length / 5) {
+          // Add a space before each group (except the first one)
+          if (i > 0) formatted += " ";
+          
+          // Add up to 5 digits for this group
+          const start = i * 5;
+          const end = Math.min(start + 5, remainder.length);
+          formatted += remainder.substring(start, end);
+        }
       }
     } else {
-      formatted = noSpaces;
+      formatted = sanitized;
     }
     
     // Update the input value

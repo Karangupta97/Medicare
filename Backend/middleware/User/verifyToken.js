@@ -25,6 +25,8 @@ export const verifyToken = (req, res, next) => {
     });
   }
 
+  console.log('Raw token before verification:', token);
+
   try {
     console.log('Verifying token with JWT_SECRET');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

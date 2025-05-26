@@ -1,4 +1,4 @@
-import { Staff } from "../../../models/Staff/staff.model.js";
+import { Staff } from "../../../models/Admin/Staff/staff.model.js";
 import { generatePassword } from "../../../utils/passwordGenerator.js";
 import { sendStaffWelcomeEmail } from "../../../services/emails/emails.js";
 

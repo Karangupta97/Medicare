@@ -247,3 +247,81 @@ export const STAFF_PASSWORD_RESET_EMAIL_TEMPLATE = `
 </body>
 </html>
 `;
+
+export const DOCTOR_APPROVAL_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Account Approved</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #4338ca, #6366f1); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Your Doctor Account is Approved!</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello Dr. {doctorName},</p>
+    <p>Congratulations! Your Medicare doctor account has been approved.</p>
+    
+    <div style="background-color: #e0e7ff; border-left: 4px solid #4338ca; padding: 15px; margin: 20px 0;">
+      <p style="margin: 0;"><strong>Next Steps:</strong></p>
+      <ul style="margin-top: 10px;">
+        <li>Log in to your account using your registered email and password</li>
+        <li>Complete your profile information</li>
+        <li>Start using the Medicare platform to manage patients and reports</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{loginUrl}" style="background-color: #4338ca; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Medicare</a>
+    </div>
+    
+    <p>If you have any questions or need assistance, please contact our support team.</p>
+    
+    <p>Welcome to the Medicare community!</p>
+    
+    <p>Best regards,<br>Medicare Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message from the Medicare platform. Please do not reply to this email.</p>
+  </div>
+</body>
+</html>
+`;
+
+export const DOCTOR_REJECTION_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Account Application Status</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #6b7280, #4b5563); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Doctor Account Application Status</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello Dr. {doctorName},</p>
+    <p>Thank you for your interest in joining the Medicare platform.</p>
+    
+    <p>After careful review of your application, we regret to inform you that we are unable to approve your doctor account at this time.</p>
+    
+    <div style="background-color: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0;">
+      <p style="margin: 0;"><strong>Reason for rejection:</strong></p>
+      <p style="margin: 10px 0 0 0;">{rejectionReason}</p>
+    </div>
+    
+    <p>You are welcome to reapply with updated information or corrected documentation by creating a new account.</p>
+    
+    <p>If you have any questions or need further clarification, please contact our support team.</p>
+    
+    <p>Best regards,<br>Medicare Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message from the Medicare platform. Please do not reply to this email.</p>
+  </div>
+</body>
+</html>
+`;

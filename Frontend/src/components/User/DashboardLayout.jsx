@@ -29,6 +29,7 @@ import {
   FiMessageCircle,
   FiShield,
   FiActivity,
+  FiClock,
 } from "react-icons/fi";
 import { useAuthStore } from "../../store/authStore";
 import LogoutModal from "../../components/User/LogoutModal";
@@ -93,20 +94,25 @@ const DashboardLayout = ({ children }) => {
       if (user?._id) {
         try {
           const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-          const response = await axios.get(`${baseUrl}/api/user/digital-prescriptions/count`, {
+          const response = await axios.get(`${baseUrl}/api/user/digital-prescriptions`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
           });
           
           if (response.data.success) {
-            setDigitalPrescriptionCount(response.data.count);
+            // Set the actual count from the prescriptions array length
+            setDigitalPrescriptionCount(response.data.prescriptions.length);
           } else {
-            console.error("Failed to fetch prescription count:", response.data.message);
+            console.error("Failed to fetch prescriptions:", response.data.message);
+            setDigitalPrescriptionCount(0); // Set to 0 if failed
           }
         } catch (error) {
-          console.error("Error fetching digital prescription count:", error);
+          console.error("Error fetching digital prescriptions:", error);
+          setDigitalPrescriptionCount(0); // Set to 0 if error
         }
+      } else {
+        setDigitalPrescriptionCount(0); // Set to 0 if no user
       }
     };
     
@@ -275,6 +281,13 @@ const DashboardLayout = ({ children }) => {
           badge: { count: digitalPrescriptionCount, color: "bg-indigo-500" } 
         },
         { 
+          icon: FiClock, 
+          label: "Prescription Reminders", 
+          path: "/digital-prescriptions/reminders", 
+          description: "Manage medication reminders",
+          badge: null 
+        },
+        { 
           icon: FiMessageCircle, 
           label: "Consultations", 
           path: "/consultations", 
@@ -368,7 +381,7 @@ const DashboardLayout = ({ children }) => {
     );
   };
   
-  // Profile picture with error handling and cache busting
+  // Profile picture with error handling for permanent URLs
   const ProfilePicture = ({ className }) => {
     const [imgError, setImgError] = useState(false);
     const [imgSrc, setImgSrc] = useState(usericon);
@@ -378,8 +391,9 @@ const DashboardLayout = ({ children }) => {
       if (user?.photoURL) {
         setImgError(false);
         
-        // Add a timestamp parameter to the URL to prevent caching if it's not already there
-        if (!user.photoURL.includes('?')) {
+        // For non-permanent URLs, add a cache-busting parameter if not already present
+        // For permanent URLs (from S3), use the URL as-is
+        if (!user.photoIsPermanent && !user.photoURL.includes('?')) {
           setImgSrc(`${user.photoURL}?t=${new Date().getTime()}`);
         } else {
           setImgSrc(user.photoURL);

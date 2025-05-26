@@ -62,7 +62,7 @@ const Navbar = ({ user, onLogout }) => {
     };
   }, [token, location.pathname]);
 
-  // Profile picture component with error handling and cache busting
+  // Profile picture component with error handling
   const ProfilePicture = ({ className }) => {
     const [imgError, setImgError] = useState(false);
     const [imgSrc, setImgSrc] = useState(UserIcon);
@@ -72,8 +72,9 @@ const Navbar = ({ user, onLogout }) => {
       if (authUser?.photoURL) {
         setImgError(false);
         
-        // Add a timestamp parameter to the URL to prevent caching if it's not already there
-        if (!authUser.photoURL.includes('?')) {
+        // For non-permanent URLs, add a cache-busting parameter if not already present
+        // For permanent URLs (from S3), use the URL as-is
+        if (!authUser.photoIsPermanent && !authUser.photoURL.includes('?')) {
           setImgSrc(`${authUser.photoURL}?t=${new Date().getTime()}`);
         } else {
           setImgSrc(authUser.photoURL);
@@ -81,7 +82,7 @@ const Navbar = ({ user, onLogout }) => {
       } else {
         setImgSrc(UserIcon);
       }
-    }, [authUser?.photoURL]);
+    }, [authUser?.photoURL, authUser?.photoIsPermanent]);
     
     return (
       <img
@@ -409,108 +410,149 @@ const Navbar = ({ user, onLogout }) => {
       </motion.nav>
 
       {/* Bottom Navigation for Mobile and Medium Devices */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50">
-        <div className="max-w-md mx-auto">
-          <nav className="flex justify-between items-center h-16 px-2 relative">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50">
+        <div className="max-w-md mx-auto px-2 sm:px-4">
+          <nav className="flex justify-between items-center h-[70px] relative">
             {/* Home Button */}
             <Link 
               to="/" 
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative ${
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
                 isActive('/') 
                   ? 'text-[#252A61]' 
-                  : 'text-gray-400 hover:text-gray-600'
+                  : 'text-gray-400 hover:text-[#252A61]'
               }`}
             >
               {isActive('/') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute top-0 w-1/2 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
-              <FiHome className={`w-5 h-5 mb-1 transition-all ${isActive('/') ? 'w-5.5 h-5.5' : ''}`} />
-              <span className={`text-xs font-medium transition-all ${isActive('/') ? 'opacity-100' : 'opacity-80'}`}>Home</span>
+              <div className="relative">
+                <FiHome className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
+                  isActive('/') ? 'scale-110' : ''
+                }`} />
+                {isActive('/') && (
+                  <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
+                )}
+              </div>
+              <span className={`text-xs font-medium transition-all duration-300 ${
+                isActive('/') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
+              }`}>Home</span>
             </Link>
             
             {/* Health Records Button */}
             <Link 
               to="/health-records" 
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative ${
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
                 isActive('/health-records') 
                   ? 'text-[#252A61]' 
-                  : 'text-gray-400 hover:text-gray-600'
+                  : 'text-gray-400 hover:text-[#252A61]'
               }`}
             >
               {isActive('/health-records') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute top-0 w-1/2 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
-              <FiFileText className={`w-5 h-5 mb-1 transition-all ${isActive('/health-records') ? 'w-5.5 h-5.5' : ''}`} />
-              <span className={`text-xs font-medium transition-all ${isActive('/health-records') ? 'opacity-100' : 'opacity-80'}`}>Records</span>
+              <div className="relative">
+                <FiFileText className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
+                  isActive('/health-records') ? 'scale-110' : ''
+                }`} />
+                {isActive('/health-records') && (
+                  <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
+                )}
+              </div>
+              <span className={`text-xs font-medium transition-all duration-300 ${
+                isActive('/health-records') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
+              }`}>Records</span>
             </Link>
             
             {/* Upload Button - Enhanced */}
             <Link 
               to="/upload" 
-              className="relative flex flex-col items-center -mt-5"
+              className="relative flex flex-col items-center -mt-8 group"
             >
-              <div className={`w-14 h-14 rounded-full ${isActive('/upload') ? 'bg-[#252A61]' : 'bg-[#3b3b98]'} flex items-center justify-center shadow-lg border-4 border-white transition-all duration-300 hover:shadow-xl`}>
-                <FiPlus className="w-6 h-6 text-white" />
+              <div className={`w-16 h-16 rounded-full ${
+                isActive('/upload') ? 'bg-[#252A61]' : 'bg-[#3b3b98]'
+              } flex items-center justify-center shadow-lg border-4 border-white/80 backdrop-blur-lg transition-all duration-300 hover:shadow-xl group-hover:scale-105 group-hover:border-white`}>
+                <FiPlus className="w-7 h-7 text-white transition-transform duration-300 group-hover:rotate-180" />
+                <div className="absolute inset-0 bg-[#252A61]/20 rounded-full blur-xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <span className={`text-xs font-medium mt-0.5 ${isActive('/upload') ? 'text-[#252A61]' : 'text-gray-500'}`}>Upload</span>
+              <span className={`text-xs font-medium mt-1 transition-all duration-300 ${
+                isActive('/upload') ? 'text-[#252A61] opacity-100' : 'text-gray-500 group-hover:text-[#252A61]'
+              }`}>Upload</span>
             </Link>
             
             {/* About Button */}
             <Link 
               to="/about" 
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative ${
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
                 isActive('/about') 
                   ? 'text-[#252A61]' 
-                  : 'text-gray-400 hover:text-gray-600'
+                  : 'text-gray-400 hover:text-[#252A61]'
               }`}
             >
               {isActive('/about') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute top-0 w-1/2 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
-              <FiInfo className={`w-5 h-5 mb-1 transition-all ${isActive('/about') ? 'w-5.5 h-5.5' : ''}`} />
-              <span className={`text-xs font-medium transition-all ${isActive('/about') ? 'opacity-100' : 'opacity-80'}`}>About</span>
+              <div className="relative">
+                <FiInfo className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
+                  isActive('/about') ? 'scale-110' : ''
+                }`} />
+                {isActive('/about') && (
+                  <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
+                )}
+              </div>
+              <span className={`text-xs font-medium transition-all duration-300 ${
+                isActive('/about') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
+              }`}>About</span>
             </Link>
             
             {/* Profile Button */}
             <Link 
               to="/profile" 
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative ${
-                isActive('/dashboard') 
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
+                isActive('/profile') 
                   ? 'text-[#252A61]' 
-                  : 'text-gray-400 hover:text-gray-600'
+                  : 'text-gray-400 hover:text-[#252A61]'
               }`}
             >
-              {isActive('/dashboard') && (
+              {isActive('/profile') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute top-0 w-1/2 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
-              <FiUser className={`w-5 h-5 mb-1 transition-all ${isActive('/dashboard') ? 'w-5.5 h-5.5' : ''}`} />
-              <span className={`text-xs font-medium transition-all ${isActive('/dashboard') ? 'opacity-100' : 'opacity-80'}`}>Profile</span>
+              <div className="relative">
+                <FiUser className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
+                  isActive('/profile') ? 'scale-110' : ''
+                }`} />
+                {isActive('/profile') && (
+                  <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
+                )}
+              </div>
+              <span className={`text-xs font-medium transition-all duration-300 ${
+                isActive('/profile') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
+              }`}>Profile</span>
             </Link>
           </nav>
         </div>
         
-        {/* Add glass effect for iOS feel */}
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm -z-10"></div>
+        {/* Enhanced glass effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 to-white/95 backdrop-blur-xl -z-10"></div>
       </div>
       
-      {/* Add padding to the bottom of the page content to account for the bottom nav bar */}
-      <div className="lg:hidden h-16"></div>
+      {/* Adjusted bottom padding */}
+      <div className="lg:hidden h-[70px]"></div>
     </>
   );
 };

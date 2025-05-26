@@ -8,7 +8,8 @@ import DashboardLayout from "../../components/User/DashboardLayout";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { 
   FiFileText, FiSearch, FiFilter, FiCalendar, FiDownload, 
-  FiPrinter, FiGrid, FiList, FiPlus, FiArrowLeft, FiAlertTriangle 
+  FiPrinter, FiGrid, FiList, FiPlus, FiArrowLeft, FiAlertTriangle,
+  FiChevronDown, FiCheck, FiX, FiRefreshCw
 } from "react-icons/fi";
 
 const AllDigitalPrescriptions = () => {
@@ -21,6 +22,7 @@ const AllDigitalPrescriptions = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
   const [sortBy, setSortBy] = useState("newest"); // "newest", "oldest", "doctor", "hospital"
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch prescriptions from backend
   useEffect(() => {
@@ -133,6 +135,13 @@ const AllDigitalPrescriptions = () => {
     setViewMode(prev => prev === "grid" ? "list" : "grid");
   };
 
+  // Reset all filters
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSelectedFilter('all');
+    setSortBy('newest');
+  };
+
   // List view prescription item component
   const PrescriptionListItem = ({ prescription }) => {
     return (
@@ -144,13 +153,13 @@ const AllDigitalPrescriptions = () => {
       >
         <Link to={`/digital-prescriptions/${prescription._id}`} className="block">
           <div className="p-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-blue-50">
+                <div className="p-2 rounded-full bg-blue-50 flex-shrink-0">
                   <FiFileText className="text-blue-600" />
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-800">
+                <div className="min-w-0">
+                  <h3 className="font-medium text-gray-800 truncate">
                     Prescription #{prescription._id.substring(0, 8)}
                   </h3>
                   <p className="text-sm text-gray-500">
@@ -159,7 +168,7 @@ const AllDigitalPrescriptions = () => {
                 </div>
               </div>
               
-              <div className="md:text-right">
+              <div className="sm:text-right">
                 <div className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium
                   ${prescription.status === "Active" ? "bg-green-100 text-green-800" : 
                     prescription.status === "Completed" ? "bg-blue-100 text-blue-800" : 
@@ -170,16 +179,16 @@ const AllDigitalPrescriptions = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-2">
               <div>
                 <p className="text-xs text-gray-500">Doctor</p>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-sm font-medium text-gray-800 truncate">
                   Dr. {prescription.doctor || "Not specified"}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Hospital</p>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-sm font-medium text-gray-800 truncate">
                   {prescription.hospitalName || "Not specified"}
                 </p>
               </div>
@@ -194,7 +203,7 @@ const AllDigitalPrescriptions = () => {
             {prescription.diagnosis && (
               <div className="mt-3">
                 <p className="text-xs text-gray-500">Diagnosis</p>
-                <p className="text-sm text-gray-700 line-clamp-1">
+                <p className="text-sm text-gray-700 line-clamp-2">
                   {prescription.diagnosis}
                 </p>
               </div>
@@ -209,20 +218,20 @@ const AllDigitalPrescriptions = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Digital Prescriptions</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Digital Prescriptions</h1>
               <p className="text-gray-600 mt-1">View and manage all your medical prescriptions</p>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div className="animate-pulse">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                    <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0"></div>
                     <div className="flex-1">
                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -244,19 +253,19 @@ const AllDigitalPrescriptions = () => {
   if (error) {
     return (
       <DashboardLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm p-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8">
             <div className="flex flex-col items-center justify-center text-center">
               <div className="rounded-full bg-red-100 h-16 w-16 flex items-center justify-center mb-6">
                 <FiAlertTriangle className="text-red-500 text-2xl" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
                 Unable to Load Prescriptions
               </h2>
               <p className="text-gray-600 max-w-md mb-6">
                 {error || "We encountered an error while loading your prescriptions. Please try again later."}
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap justify-center gap-4">
                 <Link
                   to="/dashboard"
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
@@ -268,6 +277,7 @@ const AllDigitalPrescriptions = () => {
                   onClick={() => window.location.reload()}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
+                  <FiRefreshCw className="inline mr-2" />
                   Try Again
                 </button>
               </div>
@@ -280,18 +290,18 @@ const AllDigitalPrescriptions = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Digital Prescriptions</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Digital Prescriptions</h1>
             <p className="text-gray-600 mt-1">View and manage all your medical prescriptions</p>
           </div>
           
           <div className="flex flex-wrap gap-3">
             <Link
               to="/dashboard"
-              className="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700"
+              className="inline-flex items-center px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700 text-sm"
             >
               <FiArrowLeft className="mr-2" />
               Back to Dashboard
@@ -300,8 +310,8 @@ const AllDigitalPrescriptions = () => {
         </div>
         
         {/* Filters and search */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 p-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 p-4">
             {/* Search field */}
             <div className="flex-1">
               <div className="relative">
@@ -318,9 +328,20 @@ const AllDigitalPrescriptions = () => {
               </div>
             </div>
             
-            {/* Filter Buttons */}
-            <div className="flex items-center gap-2 overflow-x-auto py-1 md:py-0">
-              <span className="text-gray-600 text-sm whitespace-nowrap hidden md:inline">
+            {/* Filters toggle for mobile */}
+            <div className="sm:hidden">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                <span><FiFilter className="inline mr-2" /> Filters</span>
+                <FiChevronDown className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+            
+            {/* Filter Buttons - Desktop */}
+            <div className="hidden sm:flex items-center gap-2 overflow-x-auto py-1">
+              <span className="text-gray-600 text-sm whitespace-nowrap">
                 <FiFilter className="inline mr-1" /> Filter:
               </span>
               
@@ -366,10 +387,74 @@ const AllDigitalPrescriptions = () => {
             </div>
           </div>
           
-          {/* Advanced Options */}
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          {/* Mobile Filters */}
+          {showFilters && (
+            <div className="sm:hidden p-4 pt-0 border-t border-gray-100">
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <button
+                  onClick={() => handleFilterChange('all')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium
+                    ${selectedFilter === 'all' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700'}`}
+                >
+                  All
+                </button>
+                
+                <button
+                  onClick={() => handleFilterChange('active')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium
+                    ${selectedFilter === 'active' 
+                      ? 'bg-green-600 text-white' 
+                      : 'bg-gray-100 text-gray-700'}`}
+                >
+                  Active
+                </button>
+                
+                <button
+                  onClick={() => handleFilterChange('completed')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium
+                    ${selectedFilter === 'completed' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700'}`}
+                >
+                  Completed
+                </button>
+                
+                <button
+                  onClick={() => handleFilterChange('recent')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium
+                    ${selectedFilter === 'recent' 
+                      ? 'bg-purple-600 text-white' 
+                      : 'bg-gray-100 text-gray-700'}`}
+                >
+                  Recent
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <label htmlFor="mobileSortBy" className="text-sm text-gray-600 whitespace-nowrap">
+                  <FiCalendar className="inline mr-1" /> Sort by:
+                </label>
+                <select
+                  id="mobileSortBy"
+                  value={sortBy}
+                  onChange={handleSortChange}
+                  className="block w-full py-1.5 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="doctor">Doctor Name</option>
+                  <option value="hospital">Hospital Name</option>
+                </select>
+              </div>
+            </div>
+          )}
+          
+          {/* Advanced Options - Desktop */}
+          <div className="hidden sm:flex sm:flex-row items-center justify-between p-4 pt-0 mt-4 border-t border-gray-100">
             {/* Sort options */}
-            <div className="flex items-center gap-2 mb-3 sm:mb-0">
+            <div className="flex items-center gap-2">
               <label htmlFor="sortBy" className="text-sm text-gray-600 whitespace-nowrap">
                 <FiCalendar className="inline mr-1" /> Sort by:
               </label>
@@ -387,12 +472,53 @@ const AllDigitalPrescriptions = () => {
             </div>
             
             {/* View mode and result count */}
-            <div className="flex items-center justify-between w-full sm:w-auto">
-              <div className="text-sm text-gray-600">
+            <div className="flex items-center">
+              <div className="text-sm text-gray-600 mr-4">
                 {filteredPrescriptions.length} {filteredPrescriptions.length === 1 ? 'prescription' : 'prescriptions'} found
               </div>
               
-              <div className="flex items-center ml-4">
+              {/* Reset filters */}
+              {(searchTerm || selectedFilter !== 'all' || sortBy !== 'newest') && (
+                <button
+                  onClick={resetFilters}
+                  className="mr-3 flex items-center text-sm text-blue-600 hover:text-blue-800"
+                >
+                  <FiX className="mr-1" /> Reset filters
+                </button>
+              )}
+              
+              {/* View mode toggle */}
+              <button
+                onClick={toggleViewMode}
+                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                title={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
+              >
+                {viewMode === 'grid' ? (
+                  <FiList className="text-gray-600" />
+                ) : (
+                  <FiGrid className="text-gray-600" />
+                )}
+              </button>
+            </div>
+          </div>
+          
+          {/* Mobile result count and view toggle */}
+          <div className="sm:hidden flex items-center justify-between p-4 pt-0 mt-4 border-t border-gray-100">
+            <div className="text-sm text-gray-600">
+              {filteredPrescriptions.length} {filteredPrescriptions.length === 1 ? 'prescription' : 'prescriptions'}
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              {/* Reset filters button */}
+              {(searchTerm || selectedFilter !== 'all' || sortBy !== 'newest') && (
+                <button
+                  onClick={resetFilters}
+                  className="flex items-center text-xs text-blue-600 hover:text-blue-800"
+                >
+                  <FiX className="mr-1" /> Reset
+                </button>
+              )}
+              
                 <button
                   onClick={toggleViewMode}
                   className="p-2 rounded-md hover:bg-gray-100 transition-colors"
@@ -404,14 +530,13 @@ const AllDigitalPrescriptions = () => {
                     <FiGrid className="text-gray-600" />
                   )}
                 </button>
-              </div>
             </div>
           </div>
         </div>
         
         {/* No results state */}
         {filteredPrescriptions.length === 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 text-center">
             <div className="flex flex-col items-center">
               <div className="rounded-full bg-gray-100 h-16 w-16 flex items-center justify-center mb-4">
                 <FiFileText className="text-gray-400 text-2xl" />
@@ -425,10 +550,7 @@ const AllDigitalPrescriptions = () => {
               
               {(searchTerm || selectedFilter !== 'all') && (
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedFilter('all');
-                  }}
+                  onClick={resetFilters}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   Clear Filters
@@ -441,7 +563,7 @@ const AllDigitalPrescriptions = () => {
         {/* Prescription list/grid */}
         {filteredPrescriptions.length > 0 && (
           <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" 
             : "space-y-4"
           }>
             {filteredPrescriptions.map(prescription => (

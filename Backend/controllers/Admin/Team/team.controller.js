@@ -1,5 +1,5 @@
-import { Team } from '../../../models/Team/team.model.js';
-import { Staff } from '../../../models/Staff/staff.model.js';
+import { Team } from '../../../models/Admin/Team/team.model.js';
+import { Staff } from '../../../models/Admin/Staff/staff.model.js';
 import { Founder } from '../../../models/Founder/founder.model.js';
 
 // Create a new team

@@ -91,7 +91,7 @@ const HospitalDashboardLayout = ({ children }) => {
     // Do NOT change isSidebarCollapsed state here
   };
   
-  // Profile picture with error handling and cache busting
+  // Profile picture with error handling for permanent URLs
   const ProfilePicture = ({ className }) => {
     const [imgError, setImgError] = useState(false);
     const [imgSrc, setImgSrc] = useState(usericon);
@@ -101,8 +101,9 @@ const HospitalDashboardLayout = ({ children }) => {
       if (user?.photoURL) {
         setImgError(false);
         
-        // Add a timestamp parameter to the URL to prevent caching if it's not already there
-        if (!user.photoURL.includes('?')) {
+        // For non-permanent URLs, add a cache-busting parameter if not already present
+        // For permanent URLs (from S3), use the URL as-is
+        if (!user.photoIsPermanent && !user.photoURL.includes('?')) {
           setImgSrc(`${user.photoURL}?t=${new Date().getTime()}`);
         } else {
           setImgSrc(user.photoURL);

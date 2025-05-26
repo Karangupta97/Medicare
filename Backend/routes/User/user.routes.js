@@ -1,10 +1,13 @@
 import express from "express";
 import { verifyToken } from "../../middleware/User/verifyToken.js";
-import { getUserPrescriptions, getUserPrescriptionById, getPrescriptionCount } from "../../controllers/User/user.controller.js";
+import { getUserPrescriptions, getUserPrescriptionById, getPrescriptionCount, getUserProfileByUmid } from "../../controllers/User/user.controller.js";
 
 const router = express.Router();
 
-// All routes are protected with verifyToken middleware
+// Public route for QR code scanning - doesn't require authentication
+router.get("/profile/:umid", getUserProfileByUmid);
+
+// All subsequent routes are protected with verifyToken middleware
 router.use(verifyToken);
 
 // Get user's prescriptions

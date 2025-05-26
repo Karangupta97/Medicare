@@ -3,7 +3,7 @@ import crypto from "crypto";
 
 import { User } from "../../models/User/user.model.js";
 import { generateTokenAndsendcookie } from "../../utils/generateTokenAndsendcookie.js";
-import { uploadFile } from "../../services/s3.service.js";
+import { uploadFile, uploadProfilePicture, getFileUrl } from "../../services/s3.service.js";
 import {
   sendVerificationEmail,
   sendWelcomeEmail,
@@ -399,12 +399,16 @@ export const updateProfile = async (req, res) => {
       }
 
       try {
-        // Upload to S3 with error handling
-        const { fileUrl } = await uploadFile(req.file, userId, req.user.name);
+        // Upload to S3 with permanent URL for profile pictures
+        const { fileUrl, s3Key } = await uploadProfilePicture(req.file, userId, req.user.name);
         if (!fileUrl) {
           throw new Error('Failed to get file URL after upload');
         }
+        
+        // Store both the permanent URL and the S3 key for future reference
         updateFields.photoURL = fileUrl;
+        updateFields.photoS3Key = s3Key; // Store the S3 key for potential future operations
+        updateFields.photoIsPermanent = true; // Mark this as a permanent URL
       } catch (uploadError) {
         console.error('Profile photo upload error:', {
           error: uploadError,
