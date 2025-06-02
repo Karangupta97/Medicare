@@ -35,7 +35,7 @@ import {
 import { useAuthStore } from "../../store/Patient/authStore";
 import { toast } from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
-import usePatientStore from "../../store/patient/patientstore";
+import usePatientStore from "../../store/Patient/patientstore";
 
 const Dashboard = () => {
   const { user, token } = useAuthStore();

@@ -6,7 +6,7 @@ import UserIcon from "../assets/user.png";
 import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus, FiSettings, FiBell, FiBook } from 'react-icons/fi';
 import { FiLayout } from 'react-icons/fi';
 import { useAuthStore } from "../store/Patient/authStore";
-import usePatientStore from "../store/patient/patientstore";
+import usePatientStore from "../store/Patient/patientstore";
 import LogoutModal from "./User/LogoutModal";
 
 const Navbar = ({ user, onLogout }) => {

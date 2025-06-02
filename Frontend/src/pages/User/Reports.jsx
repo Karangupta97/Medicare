@@ -4,7 +4,7 @@ import { FiUpload, FiSearch, FiFilter, FiFile, FiDownload, FiEye, FiTrash2, FiFi
 import { toast } from 'react-hot-toast';
 import DashboardLayout from '../../components/User/DashboardLayout';
 import { useAuthStore } from '../../store/Patient/authStore';
-import usePatientStore from '../../store/patient/patientstore';
+import usePatientStore from '../../store/Patient/patientstore';
 import { useDropzone } from 'react-dropzone';
 
 const style = document.createElement('style');

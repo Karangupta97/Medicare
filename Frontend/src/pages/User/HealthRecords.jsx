@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../store/Patient/authStore';
-import usePatientStore from '../../store/patient/patientstore';
+import usePatientStore from '../../store/Patient/patientstore';
 import Navbar from '../../components/Navbar';
 import { 
   FiFileText, FiSearch, FiFilter, FiCalendar, FiDownload, 

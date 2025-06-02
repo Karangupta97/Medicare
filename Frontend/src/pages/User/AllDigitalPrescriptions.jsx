@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
-import usePatientStore from "../../store/patient/patientstore";
+import usePatientStore from "../../store/Patient/patientstore";
 import DashboardLayout from "../../components/User/DashboardLayout";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { 

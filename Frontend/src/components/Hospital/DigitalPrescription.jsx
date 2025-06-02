@@ -19,7 +19,7 @@ import {
 } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import usePatientStore from "../../store/patient/patientstore";
+import usePatientStore from "../../store/Patient/patientstore";
 
 // Utility function to calculate age from date of birth
 const calculateAge = (dob) => {

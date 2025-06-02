@@ -5,7 +5,7 @@ import { FiUpload, FiX, FiCheck, FiAlertCircle, FiFile, FiInfo, FiCloud, FiFolde
 import { toast } from 'react-hot-toast';
 import DashboardLayout from '../../components/User/DashboardLayout';
 import { useAuthStore } from '../../store/Patient/authStore';
-import usePatientStore from '../../store/patient/patientstore';
+import usePatientStore from '../../store/Patient/patientstore';
 
 const Upload = () => {
   const [files, setFiles] = useState([]);
