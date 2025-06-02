@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FiSearch, FiClipboard, FiFileText, FiFile, FiDownload, FiEye, FiUser, FiAlertCircle, FiCalendar, FiPhone, FiMail, FiMapPin, FiFilter, FiPlus, FiX, FiInfo, FiTrash2, FiChevronRight, FiChevronUp, FiChevronDown, FiClock } from "react-icons/fi";
 import { toast } from "react-hot-toast";
-import handlogo from "../../assets/logo/logo.png";
+import handlogo from "../../assets/Logo/logo.png";
 import axios from "axios";
 import HospitalDashboardLayout from "../../components/Hospital/HospitalDashboardLayout";
 import { motion, AnimatePresence } from "framer-motion";

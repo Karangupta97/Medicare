@@ -5,7 +5,7 @@ import DashboardLayout from "../../components/User/DashboardLayout";
 import QRCodeModal from "../../components/User/QRCodeModal";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { io } from "socket.io-client";
-import MedicareLogo from "../../assets/logo/logo.png";
+import MedicareLogo from "../../assets/Logo/logo.png";
 import {
   FiFileText,
   FiCheckCircle,
