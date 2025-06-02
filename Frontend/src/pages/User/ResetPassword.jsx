@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiEye, FiEyeOff, FiCheck, FiX, FiLock, FiArrowLeft, FiAlertCircle } from "react-icons/fi";
 

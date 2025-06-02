@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 import { toast } from "react-hot-toast";
 import { ArrowLeft, Mail, AlertCircle, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";

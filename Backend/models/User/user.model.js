@@ -27,6 +27,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  photoS3Key: {
+    type: String,
+    default: "",
+  },
+  photoIsPermanent: {
+    type: Boolean,
+    default: false,
+  },
+  photoURLExpiresAt: {
+    type: Date,
+    default: null,
+  },
   umid: {
     type: String,
     unique: true,

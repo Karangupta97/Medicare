@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
+import usePatientStore from "../../store/patient/patientstore";
 import DashboardLayout from "../../components/User/DashboardLayout";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -25,42 +25,30 @@ const PrescriptionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, token } = useAuthStore();
+  const { 
+    isLoading,
+    error,
+    getPrescriptionById
+  } = usePatientStore();
   const [prescription, setPrescription] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const prescriptionRef = useRef(null);
 
   // Fetch prescription details
   useEffect(() => {
     const fetchPrescriptionDetails = async () => {
       try {
-        setLoading(true);
-        
-        const response = await axios.get(`/api/user/digital-prescriptions/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        if (response.data && response.data.success) {
-          setPrescription(response.data.prescription);
-        } else {
-          setError("Failed to load prescription details");
-          toast.error("Failed to load prescription details");
-        }
+        const prescriptionData = await getPrescriptionById(token, id);
+        setPrescription(prescriptionData);
       } catch (err) {
         console.error("Error fetching prescription details:", err);
-        setError("An error occurred while fetching the prescription");
         toast.error("An error occurred while fetching the prescription");
-      } finally {
-        setLoading(false);
       }
     };
 
     if (token && id) {
       fetchPrescriptionDetails();
     }
-  }, [token, id]);
+  }, [token, id, getPrescriptionById]);
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -140,7 +128,7 @@ const PrescriptionDetail = () => {
   };
 
   // Loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardLayout>
         <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-4">

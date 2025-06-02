@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useStaffStore } from "../../../store/staffStore";
 import { FaEnvelope, FaArrowLeft } from "react-icons/fa";
 import { motion } from "framer-motion";
-import logo from "../../../assets/logo.png";
+import logo from "../../../assets/Logo/textlogo.png";
 import toast from "react-hot-toast";
 
 const ForgotPassword = () => {

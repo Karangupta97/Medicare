@@ -32,7 +32,7 @@ import {
 import { BiMessageDetail } from "react-icons/bi";
 import { TbReportAnalytics } from "react-icons/tb";
 import { motion } from "framer-motion";
-import logo from "../../../../assets/logo.png";
+import logo from "../../../../assets/Logo/textlogo.png";
 import toast from "react-hot-toast";
 
 // Dashboard layout component with sidebar

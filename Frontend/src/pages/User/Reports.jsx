@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { FiUpload, FiSearch, FiFilter, FiFile, FiDownload, FiEye, FiTrash2, FiFileText, FiImage, FiClipboard, FiHardDrive, FiX, FiFolderPlus, FiEdit, FiAlertCircle, FiCheck, FiZoomIn, FiZoomOut, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
 import DashboardLayout from '../../components/User/DashboardLayout';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthStore } from '../../store/Patient/authStore';
+import usePatientStore from '../../store/patient/patientstore';
 import { useDropzone } from 'react-dropzone';
 
 const style = document.createElement('style');
@@ -72,8 +72,6 @@ const StatCard = ({ title, count, subtitle, icon: Icon, iconColor, borderColor, 
 };
 
 const Reports = () => {
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [deleteModal, setDeleteModal] = useState({ show: false, report: null });
@@ -99,57 +97,26 @@ const Reports = () => {
   const { token, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
+  // Get state and actions from patient store
+  const {
+    reports,
+    isLoading,
+    error,
+    fetchReports,
+    uploadReport,
+    deleteReport,
+    moveReport,
+    updateReport
+  } = usePatientStore();
+
   useEffect(() => {
     if (!isAuthenticated) {
       toast.error('Please login to view your reports');
       navigate('/login');
       return;
     }
-    fetchReports();
-  }, [isAuthenticated, navigate]);
-
-  const fetchReports = async () => {
-    if (!token) {
-      toast.error('Please login to view your reports');
-      navigate('/login');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      console.log('Fetching reports with token:', token.substring(0, 10) + '...');
-      
-      const response = await axios.get('/api/reports', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
-      
-      console.log('Reports fetched successfully:', response.data);
-      setReports(response.data.reports || []);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      console.error('Error details:', error.response?.data);
-      
-      if (error.response?.status === 401) {
-        toast.error('Please login to view your reports');
-        navigate('/login');
-      } else if (error.response?.status === 500) {
-        toast.error(`Server error: ${error.response?.data?.message || 'Unknown error'}`);
-      } else if (error.response) {
-        toast.error(`Error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`);
-      } else if (error.request) {
-        // The request was made but no response was received
-        toast.error('Network error: Could not connect to the server. Please check your internet connection.');
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        toast.error(`Error: ${error.message || 'Failed to load reports. Please try again.'}`);
-      }
-      setLoading(false);
-    }
-  };
+    fetchReports(token);
+  }, [isAuthenticated, navigate, token, fetchReports]);
 
   const handleDelete = async (reportId) => {
     const report = reports.find(r => r._id === reportId);
@@ -160,31 +127,12 @@ const Reports = () => {
     if (!deleteModal.report) return;
 
     try {
-      console.log(`Attempting to delete report with ID: ${deleteModal.report._id}`);
-      const response = await axios.delete(`/api/reports/${deleteModal.report._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
-      
-      console.log('Delete response:', response.data);
+      await deleteReport(token, deleteModal.report._id);
       toast.success('Report deleted successfully');
       setDeleteModal({ show: false, report: null });
-      // Refresh the reports list
-      fetchReports();
     } catch (error) {
       console.error('Error deleting report:', error);
-      console.error('Error details:', error.response?.data);
-      
-      if (error.response?.status === 401) {
-        toast.error('Session expired. Please login again.');
-        navigate('/login');
-      } else if (error.response?.status === 404) {
-        toast.error('Report not found. It may have been already deleted.');
-      } else {
-        toast.error(`Failed to delete report: ${error.response?.data?.message || 'Unknown error'}`);
-      }
+      toast.error(error.response?.data?.message || 'Failed to delete report');
     }
   };
 
@@ -195,24 +143,13 @@ const Reports = () => {
     }
 
     try {
-      // Show loading state with a specific ID we can dismiss later
       const loadingToastId = toast.loading('Preparing download...');
-      
-      // Create a temporary link element
       const link = document.createElement('a');
       link.href = fileUrl;
       link.download = filename || 'report';
-      
-      // Add the link to the document
       document.body.appendChild(link);
-      
-      // Trigger the download
       link.click();
-      
-      // Clean up
       document.body.removeChild(link);
-      
-      // Dismiss the loading toast and show success message
       toast.dismiss(loadingToastId);
       toast.success('Download started');
     } catch (error) {
@@ -354,24 +291,15 @@ const Reports = () => {
     formData.append('title', uploadData.title || uploadFile.name);
 
     try {
-      const response = await axios.post('/api/reports/upload', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        },
-        withCredentials: true
-      });
-
+      const uploadedReport = await uploadReport(token, formData);
       toast.success('Report uploaded successfully');
       setUploadModal(false);
-      // Show section selection modal with the newly uploaded report
       setSectionModal({ 
         show: true, 
-        report: response.data.report 
+        report: uploadedReport 
       });
       setUploadFile(null);
       setUploadData({ category: 'medical', description: '', title: '' });
-      fetchReports(); // Refresh the reports list
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error.response?.data?.message || 'Failed to upload report');
@@ -382,39 +310,18 @@ const Reports = () => {
 
   const handleSectionChange = async (reportId, newCategory) => {
     try {
-      // Show loading state
       const loadingToast = toast.loading('Moving report...');
-
-      // Update the report's category
-      await axios.patch(`/api/reports/${reportId}/move`, 
-        { category: newCategory },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-          withCredentials: true
-        }
-      );
-      
-      // Dismiss loading toast and show success message
+      await moveReport(token, reportId, newCategory);
       toast.dismiss(loadingToast);
       toast.success('Report moved successfully');
-      
-      // Close the section modal
       setSectionModal({ show: false, report: null });
-      
-      // Update the selected filter to show the new section
       setSelectedFilter(newCategory);
-      
-      // Refresh the reports list
-      fetchReports();
     } catch (error) {
       console.error('Error updating report section:', error);
       toast.error('Failed to move report');
     }
   };
 
-  // Handle update of report title and description
   const handleUpdateReport = async (e) => {
     e.preventDefault();
     
@@ -427,45 +334,16 @@ const Reports = () => {
     setEditLoading(true);
     
     try {
-      const response = await axios.patch(
-        `/api/reports/${editModal.report._id}`,
-        {
-          title: editData.title,
-          description: editData.description
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }
-      );
+      await updateReport(token, editModal.report._id, {
+        title: editData.title,
+        description: editData.description
+      });
       
       toast.success('Report updated successfully');
       setEditModal({ show: false, report: null });
-      
-      // Update the report in the local state to show the changes immediately
-      setReports(reports.map(report => 
-        report._id === editModal.report._id 
-          ? { 
-              ...report, 
-              originalFilename: editData.title, 
-              description: editData.description 
-            } 
-          : report
-      ));
     } catch (error) {
       console.error('Error updating report:', error);
-      
-      if (error.response?.status === 401) {
-        toast.error('Session expired. Please login again.');
-        navigate('/login');
-      } else if (error.response?.status === 404) {
-        toast.error('Report not found.');
-      } else {
-        toast.error(error.response?.data?.message || 'Failed to update report');
-      }
+      toast.error(error.response?.data?.message || 'Failed to update report');
     } finally {
       setEditLoading(false);
     }
@@ -704,7 +582,7 @@ const Reports = () => {
         </div>
 
         {/* Reports Grid */}
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>

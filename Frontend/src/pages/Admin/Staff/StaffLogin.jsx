@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useStaffStore } from "../../../store/staffStore";
 import { FaEye, FaEyeSlash, FaUserNurse, FaLock, FaHospital } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../../../assets/logo.png";
+import logo from "../../../assets/Logo/textlogo.png";
 import medicalIllustration from "../../../assets/Login.png";
 import toast from "react-hot-toast";
 

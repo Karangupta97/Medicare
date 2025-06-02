@@ -32,20 +32,33 @@ import {
   FiClipboard,
   FiCopy
 } from "react-icons/fi";
-import { useAuthStore } from "../../store/authStore";
-import axios from "axios";
+import { useAuthStore } from "../../store/Patient/authStore";
 import { toast } from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
+import usePatientStore from "../../store/patient/patientstore";
 
 const Dashboard = () => {
   const { user, token } = useAuthStore();
-  const [reports, setReports] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { 
+    reports,
+    prescriptions,
+    notifications,
+    unreadNotificationsCount,
+    isLoading,
+    error,
+    fetchAllMedicalData,
+    fetchNotifications,
+    fetchReports,
+    fetchPrescriptions,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    handleViewReport,
+    handleDownloadReport
+  } = usePatientStore();
+
+  const [retryCount, setRetryCount] = useState(0);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [appointments, setAppointments] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
-  const [prescriptions, setPrescriptions] = useState([]);
   const [quickActions, setQuickActions] = useState([
     { id: 1, title: 'Upload Document', icon: <FiUpload />, path: '/upload', color: 'blue' },
     { id: 2, title: 'Schedule Appointment', icon: <FiCalendar />, path: '/appointments/new', color: 'green' },
@@ -55,120 +68,165 @@ const Dashboard = () => {
   const [activeSidebarTab, setActiveSidebarTab] = useState('overview');
   const [isQRCodeModalOpen, setIsQRCodeModalOpen] = useState(false);
 
-  // Fetch data function
+  // Enhanced fetch data function with retry logic
   const fetchDashboardData = async () => {
     try {
-      await Promise.all([fetchNotifications(), fetchReports()]);
+      if (!token) {
+        console.log('No token available, waiting for authentication...');
+        return;
+      }
+
+      setIsInitialLoad(true);
+      await fetchAllMedicalData(token);
+      setRetryCount(0); // Reset retry count on successful fetch
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      setError('Could not load your dashboard information');
-      toast.error('Error loading dashboard information');
+      
+      // Implement retry logic
+      if (retryCount < 3) {
+        console.log(`Retrying fetch (${retryCount + 1}/3)...`);
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => {
+          fetchDashboardData();
+        }, 2000 * (retryCount + 1)); // Exponential backoff
+      } else {
+        toast.error('Unable to load dashboard data. Please refresh the page.');
+      }
     } finally {
-      setIsLoading(false);
+      setIsInitialLoad(false);
     }
   };
 
-  // Fetch real notifications from the API
-  const fetchNotifications = async () => {
-    try {
-      if (!token) return;
+  // Initial data fetch with token check
+  useEffect(() => {
+    if (token) {
+      fetchDashboardData();
+    }
+  }, [token]);
+
+  // WebSocket connection with retry logic
+  useEffect(() => {
+    if (!token || !user?._id) return;
+
+    let socket;
+    let retryTimeout;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+
+    const connectSocket = () => {
+      console.log('Setting up WebSocket connection for notifications');
       
-      const response = await axios.get('/api/notifications', {
-        headers: {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 
+                        (window.location.hostname === 'localhost' 
+                          ? `http://localhost:4000`
+                          : window.location.protocol === 'https:' 
+                            ? 'https://medicare-backend-pdci8.ondigitalocean.app'
+                            : 'http://medicare-backend-pdci8.ondigitalocean.app');
+      
+      if (window.socket) {
+        console.log('Socket already exists, not creating a new one');
+        return;
+      }
+      
+      socket = io(apiBaseUrl, {
+        path: '/socket.io',
+        transports: ['websocket', 'polling'],
+        withCredentials: true,
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 3000,
+        timeout: 30000,
+        autoConnect: true,
+        forceNew: false,
+        extraHeaders: {
           Authorization: `Bearer ${token}`
         }
       });
       
-      if (response.data && response.data.notifications) {
-        // Format notifications for display
-        const formattedNotifications = response.data.notifications.map(notification => ({
-          id: notification._id,
-          type: mapNotificationType(notification.type),
-          message: notification.message,
-          title: notification.title || '',
-          time: formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
-          read: notification.read,
-          link: notification.link,
-          createdAt: notification.createdAt
-        }));
-        
-        setNotifications(formattedNotifications);
-        
-        // Set unread count
-        if (response.data.unreadCount !== undefined) {
-          setUnreadNotificationsCount(response.data.unreadCount);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      // Don't set any fake notifications here - we'll just show "No notifications"
-    }
-  };
-
-  // Fetch reports from the API
-  const fetchReports = async () => {
-    try {
-      if (!token) return;
-
-      const response = await axios.get('/api/reports', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (response.data && response.data.reports) {
-        // Sort reports by creation date (newest first)
-        const sortedReports = response.data.reports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setReports(sortedReports);
-      }
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      toast.error('Error loading reports');
-    }
-  };
-
-  // Handle report viewing
-  const handleViewReport = (report) => {
-    if (!report || !report.fileUrl) {
-      toast.error('Report cannot be viewed at this time');
-      return;
-    }
-    window.open(report.fileUrl, '_blank');
-  };
-
-  // Handle report download
-  const handleDownloadReport = (report) => {
-    if (!report || !report.fileUrl) {
-      toast.error('Report cannot be downloaded at this time');
-      return;
-    }
+      window.socket = socket;
     
-    try {
-      // Show loading toast
-      const loadingToastId = toast.loading('Preparing download...');
-      
-      // Create a temporary link element
-      const link = document.createElement('a');
-      link.href = report.fileUrl;
-      link.download = report.originalFilename || 'report';
-      
-      // Add the link to the document
-      document.body.appendChild(link);
-      
-      // Trigger the download
-      link.click();
-      
-      // Clean up
-      document.body.removeChild(link);
-      
-      // Dismiss the loading toast and show success message
-      toast.dismiss(loadingToastId);
-      toast.success('Download started');
-    } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download file');
-    }
-  };
+      socket.on('connect', () => {
+        console.log('WebSocket connection established with ID:', socket.id);
+        window.hasShownSocketError = false;
+        retryCount = 0; // Reset retry count on successful connection
+        
+        if (user?._id) {
+          socket.emit('authenticate', { userId: user._id, token });
+          console.log('Sent authentication for user:', user._id);
+        }
+      });
+    
+      socket.on('connect_error', (error) => {
+        console.error('WebSocket connection error:', error.message || 'server error');
+        
+        if (!window.hasShownSocketError) {
+          toast.error('Unable to establish real-time connection. Notifications will update manually.', {
+            duration: 5000,
+            id: 'socket-error'
+          });
+          window.hasShownSocketError = true;
+        }
+
+        // Implement retry logic for socket connection
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          retryTimeout = setTimeout(() => {
+            console.log(`Retrying socket connection (${retryCount}/${MAX_RETRIES})...`);
+            connectSocket();
+          }, 2000 * retryCount);
+        }
+      });
+    
+      socket.on('notification', (notification) => {
+        console.log('Received real-time notification:', notification);
+        
+        if (notification.title === 'Connection Established') {
+          return;
+        }
+        
+        fetchNotifications(token);
+        showNotificationToast(notification);
+      });
+    
+      socket.on('disconnect', (reason) => {
+        console.warn('WebSocket disconnected:', reason);
+        
+        if (reason === 'io server disconnect' || reason === 'transport close') {
+          setTimeout(() => {
+            if (socket && !socket.connected) {
+              socket.connect();
+            }
+          }, 5000);
+        }
+      });
+    
+      socket.on('error', (error) => {
+        console.error('WebSocket error:', error);
+      });
+    };
+
+    connectSocket();
+
+    const pingInterval = setInterval(() => {
+      if (socket && socket.connected) {
+        socket.emit('ping');
+      }
+    }, 25000);
+
+    return () => {
+      console.log('Cleaning up WebSocket connection');
+      clearInterval(pingInterval);
+      clearTimeout(retryTimeout);
+      if (socket) {
+        socket.off('connect');
+        socket.off('connect_error');
+        socket.off('notification');
+        socket.off('disconnect');
+        socket.off('error');
+        socket.disconnect();
+      }
+    };
+  }, [token, user?._id]);
 
   // Helper function to map backend notification types to UI types
   const mapNotificationType = (type) => {
@@ -180,242 +238,6 @@ const Dashboard = () => {
       default: return 'report';
     }
   };
-
-  // Mark a notification as read
-  const markNotificationAsRead = async (id) => {
-    try {
-      if (!token) return;
-      
-      await axios.put(`/api/notifications/${id}/read`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(n => n.id === id ? { ...n, read: true } : n)
-      );
-      
-      // Update unread count
-      setUnreadNotificationsCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
-  };
-  
-  // Mark all notifications as read
-  const markAllNotificationsAsRead = async () => {
-    try {
-      if (!token) return;
-      
-      await axios.put('/api/notifications/mark-all-read', {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(n => ({ ...n, read: true }))
-      );
-      
-      // Reset unread count
-      setUnreadNotificationsCount(0);
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-    }
-  };
-
-  useEffect(() => {
-    // Initial data fetch
-    fetchDashboardData();
-    
-    // Set up interval to refresh notifications every 60 seconds (increased from 30 seconds)
-    // This helps reduce unnecessary refreshes
-    const notificationInterval = setInterval(() => {
-      // Use a flag to prevent multiple simultaneous fetches
-      if (!window.isRefreshingNotifications) {
-        window.isRefreshingNotifications = true;
-        fetchNotifications().finally(() => {
-          window.isRefreshingNotifications = false;
-        });
-      }
-    }, 60000); // Increased from 30000
-    
-    return () => {
-      clearInterval(notificationInterval);
-      window.isRefreshingNotifications = false;
-    };
-  }, []);
-
-  // Add WebSocket connection for real-time updates
-  useEffect(() => {
-    if (!token || !user?._id) return;
-  
-    console.log('Setting up WebSocket connection for notifications');
-    
-    // Use environment variable or fallback to detected URL
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 
-                      (window.location.hostname === 'localhost' 
-                        ? `http://localhost:4000`
-                        : window.location.protocol === 'https:' 
-                          ? 'https://medicare-backend-pdci8.ondigitalocean.app'
-                          : 'http://medicare-backend-pdci8.ondigitalocean.app');
-    
-    console.log('Attempting WebSocket connection to:', apiBaseUrl);
-    
-    // Check if socket already exists to prevent multiple connections
-    if (window.socket) {
-      console.log('Socket already exists, not creating a new one');
-      return;
-    }
-    
-    // Improved socket connection configuration
-    const socket = io(apiBaseUrl, {
-      path: '/socket.io',
-      transports: ['websocket', 'polling'], // Try websocket first, then fall back to polling
-      withCredentials: true,
-      reconnection: true,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 3000,
-      timeout: 30000,
-      autoConnect: true,
-      forceNew: false, // Changed to false to prevent multiple connections
-      extraHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    
-    // Store socket reference for debugging
-    window.socket = socket;
-  
-    socket.on('connect', () => {
-      console.log('WebSocket connection established with ID:', socket.id);
-      // Reset any error state if we successfully connected
-      window.hasShownSocketError = false;
-      
-      // Authenticate with the server
-      if (user?._id) {
-        socket.emit('authenticate', { userId: user._id, token });
-        console.log('Sent authentication for user:', user._id);
-      }
-    });
-  
-    socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error.message || 'server error');
-      
-      // Don't show toast for every connection error
-      if (!window.hasShownSocketError) {
-        toast.error('Unable to establish real-time connection. Notifications will update manually.', {
-          duration: 5000,
-          id: 'socket-error'
-        });
-        window.hasShownSocketError = true;
-      }
-      
-      // Don't manually refresh notifications after connection error to prevent auto-refresh
-    });
-  
-    socket.on('notification', (notification) => {
-      console.log('Received real-time notification:', notification);
-      
-      // Ignore connection established notifications
-      if (notification.title === 'Connection Established') {
-        return;
-      }
-      
-      // Add the new notification to the state
-      setNotifications((prev) => {
-        // Check if notification already exists to prevent duplicates
-        const exists = prev.some(n => n.id === notification.id);
-        if (exists) return prev;
-        return [notification, ...prev];
-      });
-  
-      // Increment unread count
-      setUnreadNotificationsCount((prev) => prev + 1);
-  
-      // Show a toast notification
-      showNotificationToast(notification);
-    });
-  
-    socket.on('disconnect', (reason) => {
-      console.warn('WebSocket disconnected:', reason);
-      
-      // Only try to manually reconnect if it wasn't an intentional disconnect
-      if (reason === 'io server disconnect' || reason === 'transport close') {
-        // The server disconnected the socket, try reconnecting manually after a delay
-        setTimeout(() => {
-          if (socket && !socket.connected) {
-            socket.connect();
-          }
-        }, 5000);
-      }
-    });
-  
-    socket.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      // No need to display a toast here as connect_error already handles that
-    });
-  
-    // Ping the server periodically to keep the connection alive
-    const pingInterval = setInterval(() => {
-      if (socket && socket.connected) {
-        socket.emit('ping');
-      }
-    }, 25000);
-  
-    return () => {
-      console.log('Cleaning up WebSocket connection');
-      clearInterval(pingInterval);
-      if (socket) {
-        // Don't disconnect the socket when component unmounts to prevent reconnection issues
-        // Just remove listeners to prevent memory leaks
-        socket.off('connect');
-        socket.off('connect_error');
-        socket.off('notification');
-        socket.off('disconnect');
-        socket.off('error');
-      }
-    };
-  }, [token, user?._id]);
-
-  // Effect to fetch prescriptions
-  useEffect(() => {
-    const fetchPrescriptions = async () => {
-      try {
-        if (!token) return;
-        
-        const response = await axios.get('/api/user/digital-prescriptions', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        if (response.data && response.data.prescriptions) {
-          setPrescriptions(response.data.prescriptions);
-        }
-      } catch (error) {
-        console.error('Error fetching prescriptions:', error);
-        // Don't show error toast as this is not critical functionality
-      }
-    };
-    
-    fetchPrescriptions();
-  }, [token]);
-
-  // Clean up socket connection when component unmounts
-  useEffect(() => {
-    return () => {
-      // This ensures socket is properly cleaned up when navigating away
-      if (window.socket) {
-        console.log('Cleaning up socket connection on component unmount');
-        window.socket.disconnect();
-        window.socket = null;
-      }
-    };
-  }, []);
 
   // Show toast notification
   const showNotificationToast = (notification) => {
@@ -455,7 +277,7 @@ const Dashboard = () => {
       </div>
     ), { duration: 5000 });
   };
-  
+
   // Helper functions
   const getAccountCompletionPercentage = () => {
     const fields = [
@@ -469,91 +291,9 @@ const Dashboard = () => {
     return Math.round((completed / total) * 100);
   };
 
-  // Dedicated function for Notifications component
-  const NotificationsPanel = () => {
-    return (
-      <motion.div 
-        variants={itemVariants}
-        className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
-      >
-        <div className="border-b border-gray-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-100 to-violet-200">
-          <h3 className="font-semibold text-gray-800 flex items-center text-sm sm:text-base">
-            <FiBell className="mr-1.5 sm:mr-2 text-violet-600 w-3.5 h-3.5 sm:w-4 sm:h-4" /> Notifications
-          </h3>
-        </div>
-        <div className="p-3 sm:p-4">
-          {notifications.length > 0 ? (
-            <div className="space-y-2 sm:space-y-3">
-              {notifications.slice(0, 3).map((notification, idx) => (
-                <motion.div 
-                  key={notification.id}
-                  onClick={() => handleNotificationClick(notification.id)}
-                  whileHover={{ x: 3 }}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-all ${
-                    notification.read 
-                      ? 'bg-white hover:bg-gray-50 border border-gray-100' 
-                      : 'bg-violet-50 hover:bg-violet-100 border border-violet-200'
-                  }`}
-                >
-                  <div className="flex items-start gap-2 sm:gap-3">
-                    <div className={`p-1.5 sm:p-2 rounded-full ${
-                      notification.type === 'reminder' ? 'bg-amber-100 text-amber-600' :
-                      notification.type === 'appointment' ? 'bg-green-100 text-green-600' : 
-                      'bg-blue-100 text-blue-600'
-                    }`}>
-                      {notification.type === 'reminder' && <FiClock size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-                      {notification.type === 'appointment' && <FiCalendar size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-                      {notification.type === 'report' && <FiFileText size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-                      {notification.type !== 'reminder' && notification.type !== 'appointment' && notification.type !== 'report' && <FiBell size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-700 text-xs sm:text-sm font-medium truncate">
-                        {notification.message}
-                      </p>
-                      <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5 sm:mt-1">
-                        {notification.time}
-                      </p>
-                    </div>
-                    {!notification.read && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-violet-600 rounded-full mt-2" />}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-4 sm:py-6 text-center">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-violet-50 flex items-center justify-center mb-2 sm:mb-3">
-                <FiBell className="text-violet-400 text-base sm:text-lg" />
-              </div>
-              <p className="text-gray-600 text-xs sm:text-sm">No notifications</p>
-            </div>
-          )}
-          
-          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100 flex justify-between">
-            <motion.a 
-              href="/notifications" 
-              whileHover={{ x: 3 }}
-              className="text-xs sm:text-sm text-violet-600 hover:text-violet-800 flex items-center gap-1 font-medium"
-            >
-              View all notifications <FiChevronRight size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
-            </motion.a>
-            
-            {notifications.length > 0 && (
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={markAllNotificationsAsRead}
-                className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded transition-colors"
-              >
-                Mark all as read
-              </motion.button>
-            )}
-          </div>
-        </div>
-      </motion.div>
-    );
+  // Handler for notification click
+  const handleNotificationClick = (id) => {
+    markNotificationAsRead(token, id);
   };
 
   const getUpcomingAppointment = () => {
@@ -644,11 +384,6 @@ const Dashboard = () => {
         ease: "easeInOut"
       }
     }
-  };
-
-  // Handler for notification click
-  const handleNotificationClick = (id) => {
-    markNotificationAsRead(id);
   };
 
   // Components
@@ -855,7 +590,7 @@ const Dashboard = () => {
               <div>
                 <div className="flex items-center">
                   <FiFileText className="text-indigo-600 mr-1 sm:mr-2 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-                  <h3 className="font-medium text-gray-700 text-xs sm:text-sm md:text-base">Health Records</h3>
+                  <h3 className="font-medium text-gray-700 text-xs sm:text-sm md:text-base">Total Reports</h3>
                 </div>
                 <div className="mt-2 sm:mt-3 md:mt-4">
                   <p className="text-lg sm:text-xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">{reports.length}</p>
@@ -886,7 +621,7 @@ const Dashboard = () => {
               <div>
                 <div className="flex items-center">
                   <FiClipboard className="text-blue-600 mr-1 sm:mr-2 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-                  <h3 className="font-medium text-gray-700 text-xs sm:text-sm md:text-base">Prescriptions</h3>
+                  <h3 className="font-medium text-gray-700 text-xs sm:text-sm md:text-base">Total Prescriptions</h3>
                 </div>
                 <div className="mt-2 sm:mt-3 md:mt-4">
                   <p className="text-lg sm:text-xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
@@ -942,6 +677,93 @@ const Dashboard = () => {
     </motion.div>
   );
 
+  // Dedicated function for Notifications component
+  const NotificationsPanel = () => {
+    return (
+      <motion.div 
+        variants={itemVariants}
+        className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
+      >
+        <div className="border-b border-gray-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-100 to-violet-200">
+          <h3 className="font-semibold text-gray-800 flex items-center text-sm sm:text-base">
+            <FiBell className="mr-1.5 sm:mr-2 text-violet-600 w-3.5 h-3.5 sm:w-4 sm:h-4" /> Notifications
+          </h3>
+        </div>
+        <div className="p-3 sm:p-4">
+          {notifications.length > 0 ? (
+            <div className="space-y-2 sm:space-y-3">
+              {notifications.slice(0, 3).map((notification) => (
+                <motion.div 
+                  key={`notification-${notification._id || notification.id || Math.random()}`}
+                  onClick={() => handleNotificationClick(notification._id || notification.id)}
+                  whileHover={{ x: 3 }}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-all ${
+                    notification.read 
+                      ? 'bg-white hover:bg-gray-50 border border-gray-100' 
+                      : 'bg-violet-50 hover:bg-violet-100 border border-violet-200'
+                  }`}
+                >
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className={`p-1.5 sm:p-2 rounded-full ${
+                      notification.type === 'reminder' ? 'bg-amber-100 text-amber-600' :
+                      notification.type === 'appointment' ? 'bg-green-100 text-green-600' : 
+                      'bg-blue-100 text-blue-600'
+                    }`}>
+                      {notification.type === 'reminder' && <FiClock size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+                      {notification.type === 'appointment' && <FiCalendar size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+                      {notification.type === 'report' && <FiFileText size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+                      {notification.type !== 'reminder' && notification.type !== 'appointment' && notification.type !== 'report' && <FiBell size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-700 text-xs sm:text-sm font-medium truncate">
+                        {notification.message}
+                      </p>
+                      <p className="text-gray-400 text-[10px] sm:text-xs mt-0.5 sm:mt-1">
+                        {notification.time}
+                      </p>
+                    </div>
+                    {!notification.read && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-violet-600 rounded-full mt-2" />}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-4 sm:py-6 text-center">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-violet-50 flex items-center justify-center mb-2 sm:mb-3">
+                <FiBell className="text-violet-400 text-base sm:text-lg" />
+              </div>
+              <p className="text-gray-600 text-xs sm:text-sm">No notifications</p>
+            </div>
+          )}
+          
+          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100 flex justify-between">
+            <motion.a 
+              href="/notifications" 
+              whileHover={{ x: 3 }}
+              className="text-xs sm:text-sm text-violet-600 hover:text-violet-800 flex items-center gap-1 font-medium"
+            >
+              View all notifications <FiChevronRight size={12} className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
+            </motion.a>
+            
+            {notifications.length > 0 && (
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => markAllNotificationsAsRead(token)}
+                className="text-xs sm:text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded transition-colors"
+              >
+                Mark all as read
+              </motion.button>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
   const ContentSection = () => (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8">
       {/* Main content area (3/5 width) */}
@@ -953,8 +775,7 @@ const Dashboard = () => {
         >
           <div className="border-b border-gray-100 px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex justify-between items-center">
             <h3 className="font-semibold text-base sm:text-lg text-gray-800 flex items-center">
-              <FiFileText className="mr-1.5 sm:mr-2 text-indigo-600 w-4 h-4 sm:w-5 sm:h-5" /> Recent Health
-              Records
+              <FiFileText className="mr-1.5 sm:mr-2 text-indigo-600 w-4 h-4 sm:w-5 sm:h-5" /> Recent Uploaded Reports
             </h3>
             <a
               href="/upload"
@@ -1445,21 +1266,28 @@ const Dashboard = () => {
     </div>
   );
 
-  // Loading state
-  if (isLoading) {
+  // Enhanced loading state
+  if (isLoading || isInitialLoad) {
     return (
       <DashboardLayout>
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-            <p className="text-gray-500">Loading your dashboard...</p>
+            <p className="text-gray-500">
+              {isInitialLoad ? 'Initializing your dashboard...' : 'Loading your dashboard...'}
+            </p>
+            {retryCount > 0 && (
+              <p className="text-sm text-gray-400 mt-2">
+                Retrying... ({retryCount}/3)
+              </p>
+            )}
           </div>
         </div>
       </DashboardLayout>
     );
   }
 
-  // Error state
+  // Enhanced error state
   if (error) {
     return (
       <DashboardLayout>
@@ -1471,6 +1299,9 @@ const Dashboard = () => {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-red-700">{error}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  Please check your internet connection and try again.
+                </p>
               </div>
             </div>
           </div>
@@ -1487,7 +1318,7 @@ const Dashboard = () => {
     );
   }
 
-  const userUmid = user?.umid || "Not available"; // Safely access user.umid
+  const userUmid = user?.umid || "Not available";
 
   return (
     <DashboardLayout>
@@ -1505,7 +1336,7 @@ const Dashboard = () => {
           <ContentSection />
         </motion.div>
 
-        {/* QR Code Floating Button with explanatory text */}
+        {/* QR Code Floating Button */}
         <div className="fixed bottom-6 right-6 z-50">
           <motion.button
             onClick={() => setIsQRCodeModalOpen(true)}

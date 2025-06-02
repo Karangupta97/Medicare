@@ -75,18 +75,13 @@ export const uploadFile = async (file, userId, userName, isPermanent = false) =>
     }
 
     try {
-      // For permanent profile pictures, set public-read ACL
+      // Upload file without ACL (bucket doesn't support ACLs)
       const uploadParams = {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: s3Key,
         Body: file.buffer,
         ContentType: file.mimetype,
       };
-      
-      // Add ACL for public read access if it's a profile picture
-      if (isPermanent) {
-        uploadParams.ACL = 'public-read';
-      }
       
       await s3Client.send(new PutObjectCommand(uploadParams));
       console.log('File successfully uploaded to S3:', { key: s3Key });
@@ -102,28 +97,30 @@ export const uploadFile = async (file, userId, userName, isPermanent = false) =>
 
     let fileUrl;
     
-    if (isPermanent) {
-      // Use permanent URL for profile pictures
-      fileUrl = getPermanentUrl(process.env.AWS_S3_BUCKET, s3Key);
-      console.log('Generated permanent URL for profile picture:', { fileUrl });
-    } else {
-      // Use pre-signed URL with expiration for regular files
-      fileUrl = await getSignedUrl(
-        s3Client,
-        new GetObjectCommand({
-          Bucket: process.env.AWS_S3_BUCKET,
-          Key: s3Key,
-        }),
-        { expiresIn: 3600 }
-      );
-      console.log('Generated signed URL for uploaded file:', { fileUrl });
-    }
+    // Use signed URLs for both permanent and temporary files
+    // For profile pictures, use 30 minutes expiration time
+    const expirationTime = isPermanent ? 30 * 60 : 3600; // 30 minutes for profile pics, 1 hour for others
+    
+    fileUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: s3Key,
+      }),
+      { expiresIn: expirationTime }
+    );
+    
+    console.log(`Generated signed URL for ${isPermanent ? 'profile picture' : 'uploaded file'}:`, { 
+      fileUrl: fileUrl.split('?')[0] + '?...', // Log URL without exposing signature
+      expiresIn: `${expirationTime} seconds`
+    });
 
     return {
       s3Key,
       fileUrl,
       formattedFilename,
-      isPermanent
+      isPermanent,
+      expiresAt: isPermanent ? new Date(Date.now() + 30 * 60 * 1000) : new Date(Date.now() + 3600 * 1000)
     };
   } catch (error) {
     console.error('File upload error:', {
@@ -149,21 +146,18 @@ export const deleteFile = async (s3Key) => {
   }
 };export const getFileUrl = async (s3Key, isPermanent = false) => {
   try {
-    if (isPermanent) {
-      // Return permanent URL for profile pictures
-      return getPermanentUrl(process.env.AWS_S3_BUCKET, s3Key);
-    } else {
-      // Return pre-signed URL with expiration for regular files
-      const fileUrl = await getSignedUrl(
-        s3Client,
-        new GetObjectCommand({
-          Bucket: process.env.AWS_S3_BUCKET,
-          Key: s3Key,
-        }),
-        { expiresIn: 3600 } // URL expires in 1 hour
-      );
-      return fileUrl;
-    }
+    // Use signed URLs for both permanent and temporary files
+    const expirationTime = isPermanent ? 7 * 24 * 3600 : 3600; // 7 days for profile pics, 1 hour for others
+    
+    const fileUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: s3Key,
+      }),
+      { expiresIn: expirationTime }
+    );
+    return fileUrl;
   } catch (error) {
     console.error('S3 get URL error:', error);
     throw error;
@@ -192,10 +186,10 @@ export const uploadProfilePicture = async (file, userId, userName) => {
     // Use the uploadFile function with isPermanent=true for profile pictures
     const result = await uploadFile(file, userId, userName, true);
     
-    console.log('Profile picture uploaded successfully with permanent URL:', {
+    console.log('Profile picture uploaded successfully with signed URL:', {
       userId,
       s3Key: result.s3Key,
-      fileUrl: result.fileUrl
+      fileUrl: result.fileUrl.split('?')[0] + '?...' // Don't log full signed URL
     });
     
     return result;
@@ -205,6 +199,38 @@ export const uploadProfilePicture = async (file, userId, userName) => {
       userId,
       fileName: file?.originalname,
     });
+    throw error;
+  }
+};
+
+// Function to refresh URL if it's close to expiring (for profile pictures)
+export const refreshProfilePictureUrl = async (s3Key) => {
+  try {
+    if (!s3Key) {
+      throw new Error('S3 key is required to refresh URL');
+    }
+
+    // Generate new signed URL with 30 minutes expiration for profile pictures
+    const fileUrl = await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: s3Key,
+      }),
+      { expiresIn: 30 * 60 } // 30 minutes
+    );
+    
+    console.log('Profile picture URL refreshed:', {
+      s3Key,
+      newUrl: fileUrl.split('?')[0] + '?...' // Don't log full signed URL
+    });
+    
+    return {
+      fileUrl,
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes from now
+    };
+  } catch (error) {
+    console.error('URL refresh error:', error);
     throw error;
   }
 };

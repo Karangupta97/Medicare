@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import DashboardLayout from '../../components/User/DashboardLayout';
 import { 
@@ -9,16 +9,13 @@ import {
   FiDollarSign, FiUser, FiClipboard, FiThumbsUp, FiStar
 } from 'react-icons/fi';
 import { FaPills, FaHeartbeat, FaHospital, FaStethoscope, FaNotesMedical } from 'react-icons/fa';
-import { useAuthStore } from '../../store/authStore';
-import axios from 'axios';
+import { useAuthStore } from '../../store/Patient/authStore';
+import usePatientStore from '../../store/Patient/patientstore';
 import { toast } from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 const Notifications = () => {
   const { user, token } = useAuthStore();
-  const [notifications, setNotifications] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
@@ -28,178 +25,98 @@ const Notifications = () => {
     totalItems: 0
   });
 
-  // Fetch all notifications
-  const fetchNotifications = async () => {
+  // Get state and actions from patient store
+  const {
+    notifications,
+    isLoading,
+    error,
+    fetchNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    deleteNotification
+  } = usePatientStore();
+
+  // Memoize the fetch function
+  const fetchData = useCallback(async () => {
+    if (!token) return;
     try {
-      setIsLoading(true);
-      setError(null);
-      
-      if (!token) {
-        setError('No authentication token found');
-        toast.error('Please login to view your notifications');
-        return;
-      }
-
-      // Set up query parameters
-      const params = new URLSearchParams();
-      params.append('page', pagination.page);
-      params.append('limit', pagination.limit);
-      
-      if (filter !== 'all') {
-        params.append('type', filter);
-      }
-      
-      if (searchTerm) {
-        params.append('search', searchTerm);
-      }
-      
-      // Fetch notifications with filter/search if applied
-      const response = await axios.get(`/api/notifications?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      if (response.data && response.data.notifications) {
-        // Format notifications for display
-        const formattedNotifications = response.data.notifications.map(notification => ({
-          id: notification._id,
-          type: mapNotificationType(notification.type),
-          message: notification.message,
-          title: notification.title || '',
-          time: formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
-          read: notification.read,
-          link: notification.link,
-          createdAt: notification.createdAt
-        }));
-        
-        setNotifications(formattedNotifications);
-        
-        // Update pagination info if provided by the API
-        if (response.data.pagination) {
-          setPagination({
-            page: response.data.pagination.currentPage || 1,
-            limit: response.data.pagination.limit || 20,
-            totalPages: response.data.pagination.totalPages || 1,
-            totalItems: response.data.pagination.totalItems || 0
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      setError('Could not load your notifications. Please try again later.');
-      toast.error('Error loading notifications');
-      
-      // If in development environment and there's an error, use sample data
-      if (import.meta.env.DEV) {
-        const sampleNotifications = generateSampleNotifications();
-        setNotifications(sampleNotifications);
-        
-        // Set sample pagination
-        setPagination({
-          page: 1,
-          limit: 20,
-          totalPages: Math.ceil(sampleNotifications.length / 20),
-          totalItems: sampleNotifications.length
-        });
-      }
-    } finally {
-      setIsLoading(false);
+      await fetchNotifications(token);
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      toast.error('Failed to load notifications');
     }
-  };
+  }, [token, fetchNotifications]);
 
-  // Generate sample notifications for development
-  const generateSampleNotifications = () => {
-    const sampleTypes = ['report', 'appointment', 'reminder'];
-    const sampleMessages = [
-      'You uploaded a new health record',
-      'Appointment scheduled with Dr. Sarah Johnson',
-      'Your prescription refill is due tomorrow',
-      'Lab results are now available',
-      'You updated your profile information',
-      'Your annual check-up is due next week',
-      'Health record was viewed by Dr. Michael Chen',
-      'Completed your health assessment questionnaire',
-      'Medicare claim processed successfully',
-      'New message from your healthcare provider'
-    ];
-    
-    return Array.from({ length: 25 }, (_, i) => ({
-      id: `sample_${i}`,
-      type: sampleTypes[Math.floor(Math.random() * sampleTypes.length)],
-      message: sampleMessages[Math.floor(Math.random() * sampleMessages.length)],
-      title: 'Notification',
-      time: formatDistanceToNow(
-        new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
-        { addSuffix: true }
-      ),
-      read: Math.random() > 0.3,
-      link: '#',
-      createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString()
-    }));
-  };
-  
-  // Helper function to map backend notification types to UI types
-  const mapNotificationType = (type) => {
-    switch(type) {
-      case 'info': return 'report';
-      case 'warning': return 'reminder';
-      case 'success': return 'appointment';
-      case 'error': return 'reminder';
-      default: return 'report';
-    }
-  };
+  // Fetch notifications only when component mounts or token changes
+  useEffect(() => {
+    let isMounted = true;
+    let timeoutId;
 
-  // Mark a notification as read
-  const markNotificationAsRead = async (id) => {
+    const loadData = async () => {
+      if (isMounted) {
+        await fetchData();
+      }
+    };
+
+    // Debounce the fetch call
+    timeoutId = setTimeout(loadData, 300);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [fetchData]);
+
+  // Memoize handlers
+  const handleMarkAsRead = useCallback(async (id) => {
+    if (!token) return;
     try {
-      if (!token) return;
-      
-      await axios.put(`/api/notifications/${id}/read`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(n => n.id === id ? { ...n, read: true } : n)
-      );
-      
+      await markNotificationAsRead(token, id);
       toast.success('Marked as read');
     } catch (error) {
       console.error('Error marking notification as read:', error);
       toast.error('Could not mark as read');
     }
-  };
-  
-  // Mark all notifications as read
-  const markAllNotificationsAsRead = async () => {
+  }, [token, markNotificationAsRead]);
+
+  const handleMarkAllAsRead = useCallback(async () => {
+    if (!token) return;
     try {
-      if (!token) return;
-      
-      await axios.patch('/api/notifications/mark-all-read', {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(n => ({ ...n, read: true }))
-      );
-      
+      await markAllNotificationsAsRead(token);
       toast.success('All notifications marked as read');
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
       toast.error('Could not mark all as read');
     }
-  };
+  }, [token, markAllNotificationsAsRead]);
 
-  // Load notifications on component mount and when filter/search/pagination changes
-  useEffect(() => {
-    fetchNotifications();
-  }, [token, filter, searchTerm, pagination.page]);
+  const handleDeleteNotification = useCallback(async (id) => {
+    if (!token) return;
+    try {
+      await deleteNotification(token, id);
+      toast.success('Notification deleted');
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error('Could not delete notification');
+    }
+  }, [token, deleteNotification]);
+
+  // Memoize filter handlers
+  const handleFilterChange = useCallback((newFilter) => {
+    setFilter(newFilter);
+    setPagination(prev => ({ ...prev, page: 1 }));
+  }, []);
+
+  const handleSearch = useCallback((e) => {
+    e.preventDefault();
+    setPagination(prev => ({ ...prev, page: 1 }));
+  }, []);
+
+  const handlePageChange = useCallback((newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination(prev => ({ ...prev, page: newPage }));
+    }
+  }, [pagination.totalPages]);
 
   // Enhanced function to get appropriate icon based on notification type and content
   const getNotificationIcon = (notification) => {
@@ -415,25 +332,6 @@ const Notifications = () => {
     return groups;
   };
   
-  // Handler for pagination
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= pagination.totalPages) {
-      setPagination(prev => ({ ...prev, page: newPage }));
-    }
-  };
-  
-  // Handler for filter change
-  const handleFilterChange = (newFilter) => {
-    setFilter(newFilter);
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page when filter changes
-  };
-  
-  // Handler for search
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page when search changes
-  };
-
   // Group notifications by date
   const groupedNotifications = groupNotificationsByDate();
   
@@ -488,7 +386,7 @@ const Notifications = () => {
           </div>
           <div className="text-center mt-6">
             <button
-              onClick={fetchNotifications}
+              onClick={() => fetchData()}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700"
             >
               <FiRefreshCw className="mr-2 -ml-1 h-5 w-5" /> Retry
@@ -521,7 +419,7 @@ const Notifications = () => {
             
             <div className="flex items-center space-x-2">
               <button
-                onClick={markAllNotificationsAsRead}
+                onClick={handleMarkAllAsRead}
                 className="px-3 py-1.5 bg-violet-50 text-violet-700 rounded-md hover:bg-violet-100 transition-colors text-sm font-medium"
               >
                 Mark all as read
@@ -614,14 +512,14 @@ const Notifications = () => {
                     const styles = getNotificationStyles(notification);
                     return (
                       <motion.div
-                        key={notification.id}
+                        key={`today-${notification._id}`}
                         variants={itemVariants}
                         className={`px-6 py-3 ${styles.hoverBgColor} transition-colors ${
                           !notification.read ? styles.bgColor : ''
                         } ${styles.borderColor}`}
                         onClick={() => {
                           if (notification.link) window.location.href = notification.link;
-                          if (!notification.read) markNotificationAsRead(notification.id);
+                          if (!notification.read) handleMarkAsRead(notification._id);
                         }}
                       >
                         <div className="flex items-start gap-3">
@@ -656,14 +554,14 @@ const Notifications = () => {
                     const styles = getNotificationStyles(notification);
                     return (
                       <motion.div
-                        key={notification.id}
+                        key={`yesterday-${notification._id}`}
                         variants={itemVariants}
                         className={`px-6 py-3 ${styles.hoverBgColor} transition-colors ${
                           !notification.read ? styles.bgColor : ''
                         } ${styles.borderColor}`}
                         onClick={() => {
                           if (notification.link) window.location.href = notification.link;
-                          if (!notification.read) markNotificationAsRead(notification.id);
+                          if (!notification.read) handleMarkAsRead(notification._id);
                         }}
                       >
                         <div className="flex items-start gap-3">
@@ -698,14 +596,14 @@ const Notifications = () => {
                     const styles = getNotificationStyles(notification);
                     return (
                       <motion.div
-                        key={notification.id}
+                        key={`week-${notification._id}`}
                         variants={itemVariants}
                         className={`px-6 py-3 ${styles.hoverBgColor} transition-colors ${
                           !notification.read ? styles.bgColor : ''
                         } ${styles.borderColor}`}
                         onClick={() => {
                           if (notification.link) window.location.href = notification.link;
-                          if (!notification.read) markNotificationAsRead(notification.id);
+                          if (!notification.read) handleMarkAsRead(notification._id);
                         }}
                       >
                         <div className="flex items-start gap-3">
@@ -740,14 +638,14 @@ const Notifications = () => {
                     const styles = getNotificationStyles(notification);
                     return (
                       <motion.div
-                        key={notification.id}
+                        key={`earlier-${notification._id}`}
                         variants={itemVariants}
                         className={`px-6 py-3 ${styles.hoverBgColor} transition-colors ${
                           !notification.read ? styles.bgColor : ''
                         } ${styles.borderColor}`}
                         onClick={() => {
                           if (notification.link) window.location.href = notification.link;
-                          if (!notification.read) markNotificationAsRead(notification.id);
+                          if (!notification.read) handleMarkAsRead(notification._id);
                         }}
                       >
                         <div className="flex items-start gap-3">
@@ -905,4 +803,4 @@ const Notifications = () => {
   );
 };
 
-export default Notifications;
+export default React.memo(Notifications);

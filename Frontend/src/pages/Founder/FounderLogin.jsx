@@ -11,7 +11,7 @@ import {
   FiArrowLeft,
   FiUser
 } from "react-icons/fi";
-import Logo from "../../assets/logo.png";
+import Logo from "../../assets/Logo/textlogo.png";
 import { useFounderStore } from "../../store/founderStore";
 
 const FounderLogin = () => {

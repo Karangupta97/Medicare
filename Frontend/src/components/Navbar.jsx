@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import Logo from "../assets/Medicare logo.jpg";
+import Logo from "../assets/Logo/Whitebgtextlogo.jpg";
 import UserIcon from "../assets/user.png";
-import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus, FiSettings, FiBell } from 'react-icons/fi';
-import { useAuthStore } from "../store/authStore";
+import { FiUser, FiLogOut, FiHome, FiChevronDown, FiUpload, FiInfo, FiFileText, FiPlus, FiSettings, FiBell, FiBook } from 'react-icons/fi';
+import { FiLayout } from 'react-icons/fi';
+import { useAuthStore } from "../store/Patient/authStore";
+import usePatientStore from "../store/patient/patientstore";
 import LogoutModal from "./User/LogoutModal";
-import axios from "axios";
 
 const Navbar = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, refreshUserData, token } = useAuthStore();
+  const { unreadNotificationsCount, fetchAllMedicalData } = usePatientStore();
   const authUser = useAuthStore((state) => state.user) || user;
   
   // Refresh user data to get fresh profile picture when component mounts
@@ -23,44 +24,20 @@ const Navbar = ({ user, onLogout }) => {
     refreshUserData();
   }, [refreshUserData]);
 
-  // Fetch unread notification count
+  // Fetch medical data when component mounts or token changes
   useEffect(() => {
-    const fetchUnreadNotificationCount = async () => {
-      if (!token) return;
-      
-      try {
-        const response = await axios.get('/api/notifications?limit=1', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        if (response.data && response.data.unreadCount !== undefined) {
-          setUnreadNotifications(response.data.unreadCount);
+    const fetchData = async () => {
+      if (token) {
+        try {
+          await fetchAllMedicalData(token);
+        } catch (error) {
+          console.error('Error fetching medical data:', error);
         }
-      } catch (error) {
-        console.error('Error fetching notification count:', error);
       }
     };
     
-    fetchUnreadNotificationCount();
-    
-    // Set up WebSocket listener for real-time notification updates
-    if (window.socket && token) {
-      window.socket.on('notification', (notification) => {
-        // Ignore "Connection Established" notifications
-        if (notification.title !== 'Connection Established') {
-          fetchUnreadNotificationCount();
-        }
-      });
-    }
-    
-    return () => {
-      if (window.socket) {
-        window.socket.off('notification');
-      }
-    };
-  }, [token, location.pathname]);
+    fetchData();
+  }, [token, fetchAllMedicalData]);
 
   // Profile picture component with error handling
   const ProfilePicture = ({ className }) => {
@@ -68,25 +45,30 @@ const Navbar = ({ user, onLogout }) => {
     const [imgSrc, setImgSrc] = useState(UserIcon);
     
     useEffect(() => {
-      // Reset error state and update image source when user data changes
       if (authUser?.photoURL) {
         setImgError(false);
         
-        // For non-permanent URLs, add a cache-busting parameter if not already present
-        // For permanent URLs (from S3), use the URL as-is
         if (!authUser.photoIsPermanent && !authUser.photoURL.includes('?')) {
           setImgSrc(`${authUser.photoURL}?t=${new Date().getTime()}`);
         } else {
           setImgSrc(authUser.photoURL);
         }
       } else {
-        setImgSrc(UserIcon);
+        setImgSrc(null);
       }
     }, [authUser?.photoURL, authUser?.photoIsPermanent]);
     
+    if (imgError || !imgSrc) {
+      return (
+        <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
+          {authUser?.name?.charAt(0) || 'U'}
+        </div>
+      );
+    }
+    
     return (
       <img
-        src={imgError ? UserIcon : imgSrc}
+        src={imgSrc}
         alt="User"
         className={className || "w-full h-full object-cover"}
         onError={() => setImgError(true)}
@@ -113,25 +95,17 @@ const Navbar = ({ user, onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      // Call the logout function from auth store and wait for it to complete
       await logout();
       
-      // Call the onLogout prop if provided
       if (onLogout) {
         onLogout();
       }
       
-      // Close the menu
       setIsUserMenuOpen(false);
-      
-      // Navigate to home page
       navigate('/');
-      
-      // Force a page reload to clear any cached state
       window.location.reload();
     } catch (error) {
       console.error('Logout error:', error);
-      // Show error message to user
       alert('Failed to logout. Please try again.');
     }
   };
@@ -159,7 +133,7 @@ const Navbar = ({ user, onLogout }) => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-[1700px] flex justify-between items-center py-3 sm:py-4 px-4 sm:px-6 lg:px-8 relative z-40"
+        className="w-full max-w-[1700px] flex justify-between items-center py-2 sm:py-3 lg:py-4 px-4 sm:px-6 lg:px-8 relative z-40"
       >
         {/* Logout Modal */}
         <LogoutModal
@@ -171,7 +145,7 @@ const Navbar = ({ user, onLogout }) => {
         {/* Mobile Controls */}
         <div className="flex justify-between items-center w-full lg:hidden">
           <Link to="/" className="flex items-center">
-            <img className="w-24 sm:w-32 h-auto" src={Logo} alt="Logo" />
+            <img className="w-20 sm:w-24 md:w-32 h-auto" src={Logo} alt="Logo" />
           </Link>
 
           <div className="flex items-center space-x-3">
@@ -229,9 +203,9 @@ const Navbar = ({ user, onLogout }) => {
                       >
                         <FiBell className="w-4 h-4 text-gray-500" />
                         <span>Notifications</span>
-                        {unreadNotifications > 0 && (
+                        {unreadNotificationsCount > 0 && (
                           <span className="ml-auto bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full font-medium">
-                            {unreadNotifications}
+                            {unreadNotificationsCount}
                           </span>
                         )}
                       </Link>
@@ -260,14 +234,14 @@ const Navbar = ({ user, onLogout }) => {
         {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center justify-between w-full">
           <Link to="/" className="flex items-center">
-            <img className="w-40 h-auto" src={Logo} alt="Logo" />
+              <img className="w-32 lg:w-36 xl:w-40 h-auto" src={Logo} alt="Logo" />
           </Link>
           
           <nav className="flex space-x-6 xl:space-x-8 text-base xl:text-lg font-[Montserrat Alternates] font-semibold">
             <Link to="/" className="nav-link">Home</Link>
             <Link to="/health-records" className="nav-link">Health Records</Link>
             <Link to="/upload" className="nav-link">Upload Reports</Link>
-            <Link to="/about" className="nav-link">About Us</Link>
+            <Link to="/aboutus" className="nav-link">About Us</Link>
             <Link to="/dashboard" className="nav-link">Dashboard</Link>
           </nav>
 
@@ -276,9 +250,9 @@ const Navbar = ({ user, onLogout }) => {
               {/* Notification Bell */}
               <Link to="/notifications" className="relative p-2 hover:bg-gray-50 rounded-xl">
                 <FiBell className="w-6 h-6 text-gray-600" />
-                {unreadNotifications > 0 && (
+                {unreadNotificationsCount > 0 && (
                   <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold">
-                    {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                    {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
                   </span>
                 )}
               </Link>
@@ -329,9 +303,9 @@ const Navbar = ({ user, onLogout }) => {
                       >
                         <FiBell className="w-4 h-4 text-gray-500" />
                         <span>Notifications</span>
-                        {unreadNotifications > 0 && (
+                        {unreadNotificationsCount > 0 && (
                           <span className="ml-auto bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full font-medium">
-                            {unreadNotifications}
+                            {unreadNotificationsCount}
                           </span>
                         )}
                       </Link>
@@ -400,7 +374,7 @@ const Navbar = ({ user, onLogout }) => {
                   <Link to="/" className="mobile-nav-link">Home</Link>
                   <Link to="/health-records" className="mobile-nav-link">Health Records</Link>
                   <Link to="/upload" className="mobile-nav-link">Upload Reports</Link>
-                  <Link to="/about" className="mobile-nav-link">About Us</Link>
+                  <Link to="/aboutus" className="mobile-nav-link">About Us</Link>
                   <Link to="/profile" className="mobile-nav-link">Profile</Link>
                 </nav>
               </motion.div>
@@ -412,7 +386,7 @@ const Navbar = ({ user, onLogout }) => {
       {/* Bottom Navigation for Mobile and Medium Devices */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50">
         <div className="max-w-md mx-auto px-2 sm:px-4">
-          <nav className="flex justify-between items-center h-[70px] relative">
+          <nav className="flex justify-between items-center h-[60px] sm:h-[65px] relative">
             {/* Home Button */}
             <Link 
               to="/" 
@@ -489,14 +463,14 @@ const Navbar = ({ user, onLogout }) => {
             
             {/* About Button */}
             <Link 
-              to="/about" 
+              to="/aboutus" 
               className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
-                isActive('/about') 
+                isActive('/aboutus') 
                   ? 'text-[#252A61]' 
                   : 'text-gray-400 hover:text-[#252A61]'
               }`}
             >
-              {isActive('/about') && (
+              {isActive('/aboutus') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
                   className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
@@ -505,27 +479,27 @@ const Navbar = ({ user, onLogout }) => {
               )}
               <div className="relative">
                 <FiInfo className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
-                  isActive('/about') ? 'scale-110' : ''
+                  isActive('/aboutus') ? 'scale-110' : ''
                 }`} />
-                {isActive('/about') && (
+                {isActive('/aboutus') && (
                   <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
                 )}
               </div>
               <span className={`text-xs font-medium transition-all duration-300 ${
-                isActive('/about') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
+                isActive('/aboutus') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
               }`}>About</span>
             </Link>
             
-            {/* Profile Button */}
+            {/* Dashboard Button */}
             <Link 
-              to="/profile" 
+              to="/dashboard" 
               className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
-                isActive('/profile') 
+                isActive('/dashboard') 
                   ? 'text-[#252A61]' 
                   : 'text-gray-400 hover:text-[#252A61]'
               }`}
             >
-              {isActive('/profile') && (
+              {isActive('/dashboard') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
                   className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
@@ -533,16 +507,16 @@ const Navbar = ({ user, onLogout }) => {
                 />
               )}
               <div className="relative">
-                <FiUser className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
-                  isActive('/profile') ? 'scale-110' : ''
+                <FiLayout className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
+                  isActive('/dashboard') ? 'scale-110' : ''
                 }`} />
-                {isActive('/profile') && (
+                {isActive('/dashboard') && (
                   <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
                 )}
               </div>
               <span className={`text-xs font-medium transition-all duration-300 ${
-                isActive('/profile') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
-              }`}>Profile</span>
+                isActive('/dashboard') ? 'opacity-100 transform translate-y-0' : 'opacity-70 group-hover:opacity-100'
+              }`}>Dashboard</span>
             </Link>
           </nav>
         </div>
@@ -551,8 +525,6 @@ const Navbar = ({ user, onLogout }) => {
         <div className="absolute inset-0 bg-gradient-to-b from-white/60 to-white/95 backdrop-blur-xl -z-10"></div>
       </div>
       
-      {/* Adjusted bottom padding */}
-      <div className="lg:hidden h-[70px]"></div>
     </>
   );
 };

@@ -16,7 +16,7 @@ import {
   FaBirthdayCake,
 } from "react-icons/fa";
 import { FiX, FiEye, FiEdit } from "react-icons/fi";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import axios from "axios";
@@ -911,11 +911,17 @@ const Profile = () => {
                     onClick={handlePhotoClick}
                     className="group w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center relative overflow-hidden cursor-pointer"
                   >
-                    <img
-                      src={user?.photoURL || "/user.png"}
-                      alt={user.name}
-                      className="w-[90%] h-[90%] rounded-full object-cover border-2 sm:border-3 md:border-4 border-white transition-all group-hover:opacity- text-center"
-                    />
+                    {user?.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt={user.name}
+                        className="w-[90%] h-[90%] rounded-full object-cover border-2 sm:border-3 md:border-4 border-white transition-all group-hover:opacity- text-center"
+                      />
+                    ) : (
+                      <div className="w-[90%] h-[90%] rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl md:text-5xl border-2 sm:border-3 md:border-4 border-white">
+                        {user?.name?.charAt(0) || 'U'}
+                      </div>
+                    )}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all">
                       <div className="transform translate-y-full group-hover:translate-y-0 transition-transform duration-200">
                         <FaCamera className="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />

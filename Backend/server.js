@@ -23,6 +23,7 @@ import cluster from "node:cluster";
 import os from "os";
 import { sendNotificationToUser } from "./utils/notifications.js";
 import cookieParser from "cookie-parser";
+import reviewRoutes from "./routes/review.routes.js";
 
 // Define a simple logger
 const logger = {
@@ -123,6 +124,7 @@ else {
   app.use("/api/teams", teamRoutes); // Add team routes
   app.use("/api/doctor", doctorRoutes); // Add doctor routes
   app.use("/api/doctor-verification", doctorVerificationRoutes); // Move doctor verification to a separate path
+  app.use("/api/reviews", reviewRoutes); // Add review routes
 
   // Root route
   app.get("/", (req, res) => {

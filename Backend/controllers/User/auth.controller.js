@@ -3,7 +3,7 @@ import crypto from "crypto";
 
 import { User } from "../../models/User/user.model.js";
 import { generateTokenAndsendcookie } from "../../utils/generateTokenAndsendcookie.js";
-import { uploadFile, uploadProfilePicture, getFileUrl } from "../../services/s3.service.js";
+import { uploadFile, uploadProfilePicture, getFileUrl, refreshProfilePictureUrl } from "../../services/s3.service.js";
 import {
   sendVerificationEmail,
   sendWelcomeEmail,
@@ -311,63 +311,14 @@ export const updateProfile = async (req, res) => {
     const hasAddressData = addressLine1 || addressLine2 || state || district || city || postalCode;
     
     if (hasAddressData) {
-      const addressData = {
-        addressLine1: addressLine1 || '',
-        addressLine2: addressLine2 || '',
-        state: state || '',
-        district: district || '',
-        city: city || '',
-        postalCode: postalCode || ''
-      };
-
-      try {
-        // First validate the address
-        const validationResult = await validateAddress(addressData);
-        
-        if (!validationResult.is_valid) {
-          // If address is not valid but we still want to save it
-          console.log('Address validation warning:', validationResult.message || 'Address may be incomplete or invalid');
-          
-          // Add the raw address fields
-          if (addressLine1) updateFields.addressLine1 = addressLine1;
-          if (addressLine2) updateFields.addressLine2 = addressLine2;
-          if (state) updateFields.state = state;
-          if (district) updateFields.district = district;
-          if (city) updateFields.city = city;
-          if (postalCode) updateFields.postalCode = postalCode;
-        } else {
-          // Address is valid, standardize it
-          const standardizedAddress = await standardizeAddress(addressData);
-          
-          // Add the standardized address fields
-          updateFields.addressLine1 = standardizedAddress.addressLine1;
-          updateFields.addressLine2 = standardizedAddress.addressLine2;
-          updateFields.city = standardizedAddress.city;
-          updateFields.district = standardizedAddress.district;
-          updateFields.state = standardizedAddress.state;
-          updateFields.postalCode = standardizedAddress.postalCode;
-          
-          // Add geocoding data if available
-          if (standardizedAddress.latitude && standardizedAddress.longitude) {
-            updateFields.geoLocation = {
-              latitude: standardizedAddress.latitude,
-              longitude: standardizedAddress.longitude
-            };
-            updateFields.addressValidated = true;
-          }
-        }
-      } catch (addressError) {
-        console.error('Address validation error:', addressError);
-        
-        // Still update with raw address data if validation fails
-        if (addressLine1) updateFields.addressLine1 = addressLine1;
-        if (addressLine2) updateFields.addressLine2 = addressLine2;
-        if (city) updateFields.city = city;
-        if (district) updateFields.district = district;
-        if (state) updateFields.state = state;
-        if (postalCode) updateFields.postalCode = postalCode;
-        updateFields.addressValidated = false;
-      }
+      // Add the address fields directly without validation for now
+      if (addressLine1) updateFields.addressLine1 = addressLine1;
+      if (addressLine2) updateFields.addressLine2 = addressLine2;
+      if (state) updateFields.state = state;
+      if (district) updateFields.district = district;
+      if (city) updateFields.city = city;
+      if (postalCode) updateFields.postalCode = postalCode;
+      updateFields.addressValidated = false; // Mark as not validated since we don't have validation yet
     }
 
     // Handle profile photo upload
@@ -399,16 +350,17 @@ export const updateProfile = async (req, res) => {
       }
 
       try {
-        // Upload to S3 with permanent URL for profile pictures
-        const { fileUrl, s3Key } = await uploadProfilePicture(req.file, userId, req.user.name);
+        // Upload to S3 with signed URL for profile pictures
+        const { fileUrl, s3Key, expiresAt } = await uploadProfilePicture(req.file, userId, req.user.name);
         if (!fileUrl) {
           throw new Error('Failed to get file URL after upload');
         }
         
-        // Store both the permanent URL and the S3 key for future reference
+        // Store the signed URL, S3 key, and expiration info
         updateFields.photoURL = fileUrl;
-        updateFields.photoS3Key = s3Key; // Store the S3 key for potential future operations
-        updateFields.photoIsPermanent = true; // Mark this as a permanent URL
+        updateFields.photoS3Key = s3Key; // Store the S3 key for URL refresh
+        updateFields.photoIsPermanent = true; // Mark this as a long-term URL (7 days)
+        updateFields.photoURLExpiresAt = expiresAt; // Store expiration date
       } catch (uploadError) {
         console.error('Profile photo upload error:', {
           error: uploadError,
@@ -478,6 +430,37 @@ export const getUserData = async (req, res) => {
         message: "User not found",
       });
     }
+
+    // Check if profile picture URL needs refreshing (if it expires within 24 hours)
+    if (user.photoS3Key && user.photoURLExpiresAt) {
+      const now = new Date();
+      const expirationTime = new Date(user.photoURLExpiresAt);
+      const timeUntilExpiration = expirationTime.getTime() - now.getTime();
+      const hoursUntilExpiration = timeUntilExpiration / (1000 * 60 * 60);
+
+      // Refresh URL if it expires within 24 hours
+      if (hoursUntilExpiration < 24) {
+        try {
+          console.log('Refreshing profile picture URL for user:', req.user.id);
+          const { fileUrl, expiresAt } = await refreshProfilePictureUrl(user.photoS3Key);
+          
+          // Update user with new URL and expiration
+          await User.findByIdAndUpdate(req.user.id, {
+            photoURL: fileUrl,
+            photoURLExpiresAt: expiresAt
+          });
+          
+          user.photoURL = fileUrl;
+          user.photoURLExpiresAt = expiresAt;
+          
+          console.log('Profile picture URL refreshed successfully');
+        } catch (refreshError) {
+          console.error('Error refreshing profile picture URL:', refreshError);
+          // Continue with existing URL if refresh fails
+        }
+      }
+    }
+
     res.status(200).json({
       success: true,
       user
