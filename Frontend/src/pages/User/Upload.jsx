@@ -2,10 +2,10 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { FiUpload, FiX, FiCheck, FiAlertCircle, FiFile, FiInfo, FiCloud, FiFolder } from 'react-icons/fi';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import DashboardLayout from '../../components/User/DashboardLayout';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthStore } from '../../store/Patient/authStore';
+import usePatientStore from '../../store/patient/patientstore';
 
 const Upload = () => {
   const [files, setFiles] = useState([]);
@@ -18,11 +18,13 @@ const Upload = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
+  // Get uploadReport from patient store
+  const { uploadReport } = usePatientStore();
+
   useEffect(() => {
     const verifyAuth = async () => {
       try {
         setIsLoading(true);
-        // Only check auth if not already authenticated
         if (!isAuthenticated) {
           await checkAuth();
         }
@@ -35,10 +37,9 @@ const Upload = () => {
       }
     };
     verifyAuth();
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
 
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
-    // Handle rejected files
     if (rejectedFiles.length > 0) {
       rejectedFiles.forEach(({ file, errors }) => {
         if (errors[0]?.code === 'file-too-large') {
@@ -51,7 +52,6 @@ const Upload = () => {
       });
     }
 
-    // Filter out files that are already in the list
     const newFiles = acceptedFiles.filter(
       (file) => !files.some((f) => f.name === file.name)
     );
@@ -97,74 +97,22 @@ const Upload = () => {
 
     try {
       const file = files[0];
-      console.log('Starting file upload process...', {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-        hasToken: !!token
-      });
-      
       const formData = new FormData();
-      formData.append('file', file, file.name); // Add filename explicitly
+      formData.append('file', file, file.name);
       formData.append('description', description || `Uploaded on ${new Date().toLocaleDateString()}`);
       formData.append('category', category);
       formData.append('title', title);
 
-      // Log FormData contents
-      for (let pair of formData.entries()) {
-        console.log('FormData entry:', pair[0], pair[1]);
-      }
+      // Use uploadReport from patient store
+      await uploadReport(token, formData);
 
-      const response = await axios.post('/api/reports/upload', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-        withCredentials: true,
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          setUploadProgress((prev) => ({
-            ...prev,
-            total: percentCompleted,
-          }));
-        },
-      });
-
-      console.log('Upload successful:', response.data);
       toast.success('Report uploaded successfully!');
       setFiles([]);
       setDescription('');
       setTitle('');
     } catch (error) {
-      console.error('Upload error:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          headers: error.config?.headers,
-          data: error.config?.data
-        }
-      });
-      
-      if (error.response?.status === 404) {
-        toast.error('API endpoint not found. Please check if the server is running and accessible.');
-      } else if (error.response?.status === 401) {
-        toast.error('Session expired. Please login again.');
-        navigate('/login');
-      } else if (error.response?.status === 413) {
-        toast.error('File is too large. Maximum size is 10MB.');
-      } else if (error.response?.status === 415) {
-        toast.error('Invalid file type. Only PDF, JPG, PNG, and DICOM files are allowed.');
-      } else if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else if (error.request) {
-        toast.error('Network error: Could not connect to the server. Please check your internet connection.');
-      } else {
-        toast.error(`Error: ${error.message || 'Failed to upload report. Please try again.'}`);
-      }
+      console.error('Upload error:', error);
+      toast.error(error.response?.data?.message || 'Failed to upload report');
     } finally {
       setUploading(false);
       setUploadProgress({});

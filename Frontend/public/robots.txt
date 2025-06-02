@@ -3,7 +3,8 @@
 
 User-agent: *
 Allow: /
-Allow: /about
+Allow: /home
+Allow: /aboutus
 Allow: /team
 Allow: /login
 Allow: /signup
@@ -17,6 +18,7 @@ Allow: /hospital/*
 Allow: /doctor/login
 Allow: /doctor/signup
 Allow: /doctor/pending-verification
+Allow: /contact
 
 # Disallow admin, private, founder and staff pages
 Disallow: /admin/

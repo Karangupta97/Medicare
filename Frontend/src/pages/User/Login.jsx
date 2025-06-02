@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 import { FaEye, FaEyeSlash, FaUserMd, FaLock, FaGoogle, FaFacebook, FaStethoscope, FaHeartbeat, FaNotesMedical } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import medicalIllustration from "../../assets/Login.png";

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import myVideo from "../../assets/Email.mp4";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";

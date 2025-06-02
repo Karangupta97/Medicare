@@ -1,7 +1,8 @@
 import React, { Suspense } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useAuthStore } from "./store/authStore";
+import { HelmetProvider } from 'react-helmet-async';
+import { useAuthStore } from "./store/Patient/authStore";
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -57,6 +58,9 @@ import About2 from "./pages/About2";
 import Test from "./pages/Test";
 import Test1 from "./pages/Test1";
 import Team from "./pages/Team";
+import DetailReview from "./pages/DetailReview";
+import HealthRecords from "./pages/User/HealthRecords";
+
 //components
 import Loading from "./components/Loading";
 
@@ -340,7 +344,10 @@ const App = () => {
   }
 
   return (
-    <>
+    <HelmetProvider>
+      <Suspense fallback={<Loading />}>
+        <Toaster position="top-center" reverseOrder={false} />
+        <RestoreButton />
       <Routes>
         {/* Admin */}
         {/* User */}
@@ -423,6 +430,14 @@ const App = () => {
         <Route
           path="/user-lookup"
           element={<UserLookup />}
+        />
+        <Route
+          path="/health-records"
+          element={
+            <ProtectedRoute>
+              <HealthRecords />
+            </ProtectedRoute>
+          }
         />
         {/* Hospital */}
         <Route
@@ -626,22 +641,20 @@ const App = () => {
         />
         {/* Public */}
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/about2" element={<About2 />} />
+        <Route path="/aboutus" element={<About />} />
+        <Route path="/aboutus2" element={<About2 />} />
         <Route path="/team" element={<Team />} />
         <Route path="/working-on-it" element={<WorkingOnIt />} />
         <Route path="/test" element={<Test />} />
         <Route path="/test1" element={<Test1 />} />
+        <Route path="/detail-review" element={<DetailReview />} />
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-
-      <Toaster position="bottom-center" />
-      <RestoreButton />
-
       <Analytics />
       <SpeedInsights />
-    </>
+      </Suspense>
+    </HelmetProvider>
   );
 };
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import usericon from "../../assets/user.png";
-import MedicareLogo from "../../assets/Medicare logo 1.png"; // Import the Medicare logo
-import HandLogo from "../../assets/hand logo.png"; // Import the hand logo
-import {
+import MedicareLogo from "../../assets/Logo/Medicare logo 1.png"; // Import the Medicare logo
+  import HandLogo from "../../assets/Logo/hand logo.png"; // Import the hand logo
+  import {
   FiGrid,
   FiUser,
   FiSettings,
@@ -13,7 +13,7 @@ import {
   FiActivity,
   FiX,
   FiSearch} from "react-icons/fi";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 import LogoutModal from "../User/LogoutModal";
 
 const HospitalDashboardLayout = ({ children }) => {
@@ -109,13 +109,21 @@ const HospitalDashboardLayout = ({ children }) => {
           setImgSrc(user.photoURL);
         }
       } else {
-        setImgSrc(usericon);
+        setImgSrc(null);
       }
     }, [user?.photoURL]);
     
+    if (imgError || !imgSrc) {
+      return (
+        <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
+          {user?.name?.charAt(0) || 'U'}
+        </div>
+      );
+    }
+    
     return (
       <img
-        src={imgError ? usericon : imgSrc}
+        src={imgSrc}
         alt="Profile"
         className={className || "w-full h-full object-cover"}
         onError={() => setImgError(true)}

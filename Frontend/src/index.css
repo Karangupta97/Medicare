@@ -1,3 +1,5 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,7 +9,8 @@ html, body, #root {
   overflow-x: hidden;
   width: 100%;
   max-width: 100%;
-  position: relative;
+  font-family: 'Satoshi', sans-serif;
+  /* position: relative; */
 }
 
 @layer components {
@@ -148,4 +151,22 @@ html, body, #root {
 /* Glass Morphism */
 .glass {
   @apply bg-white bg-opacity-10 backdrop-blur-lg;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(200%);
+  }
+}
+.animate-scroll {
+  animation: scroll 8s linear infinite;
 }

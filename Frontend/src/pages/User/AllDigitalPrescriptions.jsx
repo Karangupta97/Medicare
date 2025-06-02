@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
+import usePatientStore from "../../store/patient/patientstore";
 import DashboardLayout from "../../components/User/DashboardLayout";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { 
@@ -14,48 +14,35 @@ import {
 
 const AllDigitalPrescriptions = () => {
   const { user, token } = useAuthStore();
-  const [prescriptions, setPrescriptions] = useState([]);
+  const { 
+    prescriptions,
+    isLoading,
+    error,
+    fetchPrescriptions
+  } = usePatientStore();
+
   const [filteredPrescriptions, setFilteredPrescriptions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
   const [sortBy, setSortBy] = useState("newest"); // "newest", "oldest", "doctor", "hospital"
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch prescriptions from backend
+  // Fetch prescriptions from store
   useEffect(() => {
-    const fetchPrescriptions = async () => {
+    const loadPrescriptions = async () => {
       try {
-        setLoading(true);
-        
-        const response = await axios.get('/api/user/digital-prescriptions', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        if (response.data && response.data.success) {
-          setPrescriptions(response.data.prescriptions || []);
-          setFilteredPrescriptions(response.data.prescriptions || []);
-        } else {
-          setError("Failed to load prescriptions");
-          toast.error("Failed to load prescriptions");
-        }
+        await fetchPrescriptions(token);
       } catch (err) {
         console.error("Error fetching prescriptions:", err);
-        setError("An error occurred while fetching prescriptions");
         toast.error("An error occurred while fetching prescriptions");
-      } finally {
-        setLoading(false);
       }
     };
 
     if (token) {
-      fetchPrescriptions();
+      loadPrescriptions();
     }
-  }, [token]);
+  }, [token, fetchPrescriptions]);
 
   // Filter prescriptions when search term or filter changes
   useEffect(() => {
@@ -215,7 +202,7 @@ const AllDigitalPrescriptions = () => {
   };
 
   // Loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <DashboardLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

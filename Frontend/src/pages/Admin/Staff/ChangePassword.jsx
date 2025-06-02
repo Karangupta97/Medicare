@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useStaffStore } from "../../../store/staffStore";
 import { FaLock, FaEye, FaEyeSlash, FaCheck, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../../../assets/logo.png";
+import logo from "../../../assets/Logo/textlogo.png";
 import toast from "react-hot-toast";
 
 const ChangePassword = () => {

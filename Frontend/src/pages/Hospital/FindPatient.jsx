@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import DigitalPrescription from "../../components/Hospital/DigitalPrescription";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 /*==========================================
  * PATIENT INFO COMPONENT
  * ============================================

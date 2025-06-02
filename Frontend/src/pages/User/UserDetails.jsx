@@ -4,7 +4,7 @@ import axios from "axios";
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiShield, FiCalendar, FiCreditCard, FiAlertTriangle, FiCheckCircle, FiDownload, FiShare2, FiSearch } from "react-icons/fi";
 import Loading from "../../components/Loading";
 import { toast } from "react-hot-toast";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 import { motion } from "framer-motion";
 import FloatingActionButton from "../../components/FloatingActionButton";
 

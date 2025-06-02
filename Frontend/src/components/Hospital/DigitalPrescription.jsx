@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   FiEdit, 
   FiX, 
-  FiPlus, 
+  FiPlus,
   FiFileText, 
   FiUser, 
   FiAlertCircle, 
@@ -18,8 +18,8 @@ import {
   FiCheckCircle
 } from "react-icons/fi";
 import { toast } from "react-hot-toast";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import usePatientStore from "../../store/patient/patientstore";
 
 // Utility function to calculate age from date of birth
 const calculateAge = (dob) => {
@@ -42,6 +42,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const { createPrescription } = usePatientStore();
 
   const handleChange = (e, index, field) => {
     const { value } = e.target;
@@ -104,12 +105,10 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
         createdAt: new Date().toISOString()
       };
 
-      // Send prescription data to backend
-      console.log("Sending prescription data:", prescriptionData);
-      const response = await axios.post('/api/hospital/digital-prescriptions', prescriptionData);
+      // Use createPrescription from patient store
+      const newPrescription = await createPrescription(prescriptionData);
       
-      if (response.data.success) {
-        console.log("Prescription created successfully:", response.data.prescription);
+      if (newPrescription) {
         toast.success('Prescription created successfully');
         setIsOpen(false);
         
@@ -122,7 +121,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
         
         // Call the callback if provided to refresh parent component
         if (onPrescriptionSaved) {
-          onPrescriptionSaved(response.data.prescription);
+          onPrescriptionSaved(newPrescription);
         }
       }
     } catch (error) {

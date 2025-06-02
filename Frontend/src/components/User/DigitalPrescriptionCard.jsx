@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { safeExecute } from "../../utils/errorHandling";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/Patient/authStore";
 
 const DigitalPrescriptionCard = ({ prescription, onView }) => {
   const navigate = useNavigate();

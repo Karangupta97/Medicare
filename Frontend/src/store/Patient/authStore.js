@@ -1,6 +1,6 @@
 import axios from "axios";
 import { create } from "zustand";
-import { safeStorageAccess } from "../utils/errorHandling";
+import { safeStorageAccess } from "../../utils/errorHandling";
 
 // const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
 // const API_URL = "http://localhost:4000";
