@@ -9,7 +9,14 @@ export default defineConfig({
   publicDir: 'public',
   build: {
     outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name].[hash][extname]'
+      }
+    }
   },
+  assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
   resolve: {
     alias: {
       // Define an alias for the src directory
