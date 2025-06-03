@@ -28,7 +28,7 @@ import {
   FiClock,
   FiSearch,
 } from "react-icons/fi";
-import { useAuthStore } from "../../store/Patient/authStore";
+import useAuthStore from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
 import LogoutModal from "../../components/User/LogoutModal";
 

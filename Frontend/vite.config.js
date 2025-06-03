@@ -16,19 +16,21 @@ export default defineConfig({
       }
     }
   },
-  assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
+  assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg', '**/*.webp'],
   resolve: {
     alias: {
       // Define an alias for the src directory
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      // Add an alias for assets
+      '@assets': path.resolve(__dirname, './src/assets')
     }
   },
   server: {
     historyApiFallback: true,
     proxy: {
       "/api": {
-        target: "http://localhost:4000", 
-        // target: "https://api.medicares.in",
+        // target: "http://localhost:4000", 
+        target: "https://api.medicares.in",
         // target: "https://medicare-backend-pdci8.ondigitalocean.app", 
         // target: "https://medicare-3c0t.onrender.com", 
         changeOrigin: true,

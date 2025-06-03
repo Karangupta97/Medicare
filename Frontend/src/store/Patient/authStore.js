@@ -141,7 +141,7 @@ let profileCache = null;
 let profileCacheTimestamp = 0;
 const PROFILE_CACHE_TTL = 30000; // 30 seconds
 
-export const useAuthStore = create((set, get) => ({
+const useAuthStore = create((set, get) => ({
   user: null,
   token: initialToken,
   userId: initialUserId,
@@ -586,3 +586,6 @@ export const useAuthStore = create((set, get) => ({
     }
   }
 }));
+
+export { useAuthStore };
+export default useAuthStore;
