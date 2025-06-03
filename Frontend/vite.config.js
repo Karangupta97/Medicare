@@ -30,7 +30,7 @@ export default defineConfig({
     historyApiFallback: true,
     proxy: {
       "/api": {
-        // target: "http://localhost:4000", 
+        target: "http://localhost:4000", 
         target: "https://api.medicares.in",
         // target: "https://medicare-backend-pdci8.ondigitalocean.app", 
         // target: "https://medicare-3c0t.onrender.com", 
