@@ -283,7 +283,7 @@ export const DashboardLayout = ({ children, activePage }) => {
       {/* Mobile sidebar backdrop */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-gray-600 bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-gray-600/0.5 z-20 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         ></div>
       )}

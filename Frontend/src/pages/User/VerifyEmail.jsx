@@ -155,7 +155,7 @@ const VerifyEmail = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="w-full md:w-1/2 bg-white bg-opacity-60 p-8 rounded-[30px] shadow-lg flex flex-col items-center backdrop-blur-sm"
+          className="w-full md:w-1/2 bg-white/0.6 p-8 rounded-[30px] shadow-lg flex flex-col items-center backdrop-blur-sm"
         >
           <h2 className="text-2xl md:text-3xl text-[#252A61] font-bold mb-4 text-center">
             Verify Your Email
