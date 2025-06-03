@@ -117,7 +117,7 @@ const DigitalPrescriptionCard = ({ prescription, onView }) => {
       <div className={`w-full h-1.5 bg-${statusColor}-500`}></div>
       
       {/* Header */}
-      <div className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3">
+      <div className="border-b border-gray-100 bg-linear-to-r from-blue-50 to-indigo-50 px-4 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <div className="bg-white p-1.5 rounded-md shadow-sm mr-2 border border-blue-100">

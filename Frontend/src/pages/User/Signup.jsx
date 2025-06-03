@@ -134,7 +134,7 @@ const Signup = () => {
       {/* Mobile Medical Section */}
       <div className="lg:hidden fixed top-0 left-0 w-full h-full pointer-events-none z-0">
         {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4318FF]/3 via-[#4318FF]/5 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-[#4318FF]/3 via-[#4318FF]/5 to-transparent"></div>
 
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -251,7 +251,7 @@ const Signup = () => {
               />
               {/* Features Overlay */}
               <div className="absolute inset-0 flex flex-col justify-center">
-                <div className="bg-gradient-to-b from-[#4318FF]/70 via-[#4318FF]/50 to-[#4318FF]/30 backdrop-blur-[2px] w-full h-full rounded-[40px]">
+                <div className="bg-linear-to-b from-[#4318FF]/70 via-[#4318FF]/50 to-[#4318FF]/30 backdrop-blur-[2px] w-full h-full rounded-[40px]">
                   <div className="h-full flex flex-col justify-center px-12">
                     <h2 className="text-[42px] font-bold text-white text-center tracking-tight mb-8 drop-shadow-lg">
                       Medicare Portal

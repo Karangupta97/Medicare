@@ -259,7 +259,7 @@ const DashboardLayout = ({ children }) => {
     
     if (imgError || !imgSrc) {
       return (
-        <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
+        <div className={`${className || "w-full h-full"} rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
           {user?.name?.charAt(0) || 'U'}
         </div>
       );
@@ -347,7 +347,7 @@ const DashboardLayout = ({ children }) => {
                 {!isSidebarCollapsed && (
                   <h3 className="text-xs uppercase text-white/50 px-2 mb-1 font-semibold tracking-wider flex items-center">
                     <span>{category.title}</span>
-                    <div className="ml-2 h-px bg-white/20 flex-grow"></div>
+                    <div className="ml-2 h-px bg-white/20 grow"></div>
                   </h3>
                 )}
                 

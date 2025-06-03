@@ -86,7 +86,7 @@ const StaffLogin = () => {
       variants={containerVariants}
     >
       {/* Left Side - Brand and Illustration */}
-      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-blue-600 to-indigo-800 text-white p-10 items-center justify-center">
+      <div className="hidden lg:flex lg:w-[55%] bg-linear-to-br from-blue-600 to-indigo-800 text-white p-10 items-center justify-center">
         <div className="max-w-xl">
           <motion.div 
             className="mb-10"
@@ -248,7 +248,7 @@ const StaffLogin = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 mt-0.5 shrink-0 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   <span>{error}</span>

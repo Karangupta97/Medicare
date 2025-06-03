@@ -445,7 +445,7 @@ const Reports = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-380 mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div>
@@ -739,7 +739,7 @@ const Reports = () => {
               onClick={e => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="w-full p-3 sm:p-4 md:p-5 flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
+              <div className="w-full p-3 sm:p-4 md:p-5 flex items-center justify-between border-b border-gray-200 bg-linear-to-r from-white to-gray-50">
                 <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                   {previewModal.report.contentType?.startsWith('image/') ? (
                     <div className="p-1.5 sm:p-2 rounded-lg bg-purple-50 text-purple-600">
@@ -922,7 +922,7 @@ const Reports = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-3 sm:p-4 md:p-8 text-center bg-gradient-to-b from-gray-900 to-gray-800">
+                    <div className="w-full h-full flex flex-col items-center justify-center p-3 sm:p-4 md:p-8 text-center bg-linear-to-b from-gray-900 to-gray-800">
                       <div className="bg-white/10 backdrop-blur-sm p-3 sm:p-4 md:p-8 rounded-xl sm:rounded-2xl shadow-2xl border border-white/5 max-w-2xl w-full transform transition-all duration-300 hover:scale-[1.01] hover:shadow-blue-500/10">
                         <div className="mb-4 sm:mb-6 p-4 sm:p-5 rounded-full bg-white/5 w-12 sm:w-16 md:w-24 h-12 sm:h-16 md:h-24 mx-auto flex items-center justify-center">
                           {previewModal.report.category === 'medical' ? (

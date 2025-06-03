@@ -245,7 +245,7 @@ const Dashboard = () => {
       <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
         <div className="flex-1 w-0 p-4">
           <div className="flex items-start">
-            <div className={`flex-shrink-0 pt-0.5 rounded-full p-1 ${
+            <div className={`shrink-0 pt-0.5 rounded-full p-1 ${
               notification.type === 'warning' || notification.type === 'error' ? 'bg-amber-100' : 
               notification.type === 'success' ? 'bg-green-100' : 'bg-blue-100'
             }`}>
@@ -394,20 +394,20 @@ const Dashboard = () => {
       transition={{ duration: 0.5 }}
       className="mb-4 sm:mb-6 md:mb-8"
     >
-      <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 shadow-sm border border-blue-100">
+      <div className="bg-linear-to-r from-blue-500/10 to-indigo-500/10 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 shadow-sm border border-blue-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-3 md:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="hidden md:flex h-10 sm:h-12 md:h-16 w-10 sm:w-12 md:w-16 rounded-full bg-blue-600 shadow-md items-center justify-center overflow-hidden">
               {user?.photoURL ? (
                 <img src={user.photoURL} alt={user.name} className="h-10 sm:h-12 md:h-16 w-10 sm:w-12 md:w-16 rounded-full object-cover border-2 sm:border-3 md:border-4 border-white" />
               ) : (
-                <div className="h-10 sm:h-12 md:h-16 w-10 sm:w-12 md:w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg sm:text-xl md:text-2xl flex items-center justify-center">
+                <div className="h-10 sm:h-12 md:h-16 w-10 sm:w-12 md:w-16 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg sm:text-xl md:text-2xl flex items-center justify-center">
                   {user?.name?.charAt(0) || "U"}
                 </div>
               )}
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-0.5 sm:mb-1 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-0.5 sm:mb-1 bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 {user?.name ? `Welcome, ${user.name.split(' ')[0]}` : 'Welcome'}
               </h1>
               <div className="flex items-center text-gray-600 text-xs sm:text-sm md:text-base">
@@ -456,7 +456,7 @@ const Dashboard = () => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setIsQRCodeModalOpen(true)}
-              className="hidden md:flex items-center gap-1 sm:gap-2 ml-1 sm:ml-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm shadow-md"
+              className="hidden md:flex items-center gap-1 sm:gap-2 ml-1 sm:ml-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm shadow-md"
             >
               <FiGrid size={12} />
               My Medicare ID
@@ -472,7 +472,7 @@ const Dashboard = () => {
       variants={itemVariants}
       className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4 sm:mb-6"
     >
-      <div className="p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+      <div className="p-3 sm:p-4 bg-linear-to-r from-gray-50 to-blue-50 border-b border-gray-200">
         <h3 className="font-semibold text-gray-800 text-sm sm:text-base">Quick Actions</h3>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4">
@@ -508,7 +508,7 @@ const Dashboard = () => {
       className="grid grid-cols-1 md:grid-cols-1 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6"
     >
       <div className="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden transform transition-all hover:shadow-xl">
-        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 h-16 sm:h-20 md:h-28 flex items-center justify-center">
+        <div className="bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 h-16 sm:h-20 md:h-28 flex items-center justify-center">
           <div className="flex items-center gap-1 sm:gap-2 text-white">
             <FiShield size={20} className="text-white drop-shadow-md w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7" />
             <h2 className="text-base sm:text-lg md:text-xl font-bold drop-shadow-md">Your Medicare Dashboard</h2>
@@ -524,7 +524,7 @@ const Dashboard = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg sm:text-xl md:text-2xl">
+                <div className="w-full h-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg sm:text-xl md:text-2xl">
                   {user?.name?.charAt(0) || "U"}
                 </div>
               )}
@@ -593,11 +593,11 @@ const Dashboard = () => {
                   <h3 className="font-medium text-gray-700 text-xs sm:text-sm md:text-base">Total Reports</h3>
                 </div>
                 <div className="mt-2 sm:mt-3 md:mt-4">
-                  <p className="text-lg sm:text-xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">{reports.length}</p>
+                  <p className="text-lg sm:text-xl md:text-3xl font-bold bg-linear-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">{reports.length}</p>
                   <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">Total documents</p>
                 </div>
               </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-linear-to-br from-indigo-100 to-indigo-200 flex items-center justify-center shadow-sm">
                 <FiFileText className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-indigo-600" />
               </div>
             </div>
@@ -624,13 +624,13 @@ const Dashboard = () => {
                   <h3 className="font-medium text-gray-700 text-xs sm:text-sm md:text-base">Total Prescriptions</h3>
                 </div>
                 <div className="mt-2 sm:mt-3 md:mt-4">
-                  <p className="text-lg sm:text-xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                  <p className="text-lg sm:text-xl md:text-3xl font-bold bg-linear-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                     {prescriptions ? prescriptions.length : 0}
                   </p>
                   <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">Active prescriptions</p>
                 </div>
               </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-linear-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-sm">
                 <FiClipboard className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600" />
               </div>
             </div>
@@ -657,11 +657,11 @@ const Dashboard = () => {
                   <h3 className="font-medium text-gray-700 text-xs sm:text-sm md:text-base">Notifications</h3>
                 </div>
                 <div className="mt-2 sm:mt-3 md:mt-4">
-                  <p className="text-lg sm:text-xl md:text-3xl font-bold bg-gradient-to-r from-amber-500 to-amber-700 bg-clip-text text-transparent">{unreadNotificationsCount}</p>
+                  <p className="text-lg sm:text-xl md:text-3xl font-bold bg-linear-to-r from-amber-500 to-amber-700 bg-clip-text text-transparent">{unreadNotificationsCount}</p>
                   <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">Unread alerts</p>
                 </div>
               </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center shadow-sm">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-linear-to-br from-amber-100 to-amber-200 flex items-center justify-center shadow-sm">
                 <FiBell className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-600" />
               </div>
             </div>
@@ -684,7 +684,7 @@ const Dashboard = () => {
         variants={itemVariants}
         className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
       >
-        <div className="border-b border-gray-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-100 to-violet-200">
+        <div className="border-b border-gray-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-linear-to-r from-violet-100 to-violet-200">
           <h3 className="font-semibold text-gray-800 flex items-center text-sm sm:text-base">
             <FiBell className="mr-1.5 sm:mr-2 text-violet-600 w-3.5 h-3.5 sm:w-4 sm:h-4" /> Notifications
           </h3>
@@ -871,7 +871,7 @@ const Dashboard = () => {
           className="mb-4 sm:mb-5 md:mb-6"
         >
           <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
-            <div className="border-b border-gray-100 px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-gradient-to-r from-blue-50 to-cyan-50 flex justify-between items-center">
+            <div className="border-b border-gray-100 px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-linear-to-r from-blue-50 to-cyan-50 flex justify-between items-center">
               <div className="flex items-center">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center mr-2 sm:mr-3">
                   <FiClipboard className="text-blue-600 w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
@@ -1072,13 +1072,13 @@ const Dashboard = () => {
           variants={itemVariants}
           className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden"
         >
-          <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+          <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-linear-to-r from-purple-500 to-indigo-600 text-white">
             <h3 className="font-semibold flex items-center text-sm sm:text-base">
               <FiHeart className="mr-1.5 sm:mr-2 w-3.5 h-3.5 sm:w-4 sm:h-4" /> Healthcare Resources
             </h3>
           </div>
 
-          <div className="bg-gradient-to-b from-purple-50 to-white p-3 sm:p-4">
+          <div className="bg-linear-to-b from-purple-50 to-white p-3 sm:p-4">
             <div className="space-y-2 sm:space-y-3">
               <a
                 href="https://www.medicare.gov/blog"
@@ -1172,7 +1172,7 @@ const Dashboard = () => {
           variants={itemVariants}
           className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden"
         >
-          <div className="border-b border-gray-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-amber-50 to-amber-100">
+          <div className="border-b border-gray-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-linear-to-r from-amber-50 to-amber-100">
             <h3 className="font-semibold text-gray-800 flex items-center text-sm sm:text-base">
               <FiTarget className="mr-1.5 sm:mr-2 text-amber-600 w-3.5 h-3.5 sm:w-4 sm:h-4" /> Wellness Tips
             </h3>
@@ -1231,7 +1231,7 @@ const Dashboard = () => {
         {/* Help & Support Card */}
         <motion.div
           variants={itemVariants}
-          className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg sm:rounded-xl shadow-sm border border-blue-200 overflow-hidden"
+          className="bg-linear-to-br from-blue-50 to-indigo-100 rounded-lg sm:rounded-xl shadow-sm border border-blue-200 overflow-hidden"
         >
           <div className="p-3 sm:p-4 md:p-5 text-center">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full mx-auto flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
@@ -1294,7 +1294,7 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
             <div className="flex">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <FiAlertTriangle className="h-5 w-5 text-red-500" />
               </div>
               <div className="ml-3">
@@ -1347,7 +1347,7 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
           >
-            <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-lg transition-colors mb-2 group-hover:shadow-xl">
+            <div className="p-4 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-lg transition-colors mb-2 group-hover:shadow-xl">
               <FiGrid size={24} />
             </div>
             <motion.span 

@@ -376,7 +376,7 @@ const Notifications = () => {
         <div className="max-w-5xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
             <div className="flex">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <FiAlertTriangle className="h-5 w-5 text-red-500" />
               </div>
               <div className="ml-3">

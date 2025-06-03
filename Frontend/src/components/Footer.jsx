@@ -11,7 +11,7 @@ const Footer = () => {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="w-full bg-[#252a61] text-white pt-8 pb-6 sm:pt-10 sm:pb-8 md:pt-12 md:pb-8"
+      className="w-full bg-primary text-white pt-8 pb-6 sm:pt-10 sm:pb-8 md:pt-12 md:pb-8"
     >
       <div className="max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
         {/* Top footer with columns */}

@@ -528,7 +528,7 @@ const Profile = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
             <div className="flex items-start gap-2 sm:gap-3">
-              <div className="p-1.5 sm:p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
+              <div className="p-1.5 sm:p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg shrink-0">
                 <FaIdCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-blue-500 dark:text-blue-400" />
               </div>
               <div>
@@ -693,7 +693,7 @@ const Profile = () => {
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-4 md:mb-6">
           <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-1.5 sm:gap-2">
-            <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+            <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg shrink-0">
               <FaShieldAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
             </div>
             Account Security
@@ -706,7 +706,7 @@ const Profile = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg shrink-0">
                 <FaShieldAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
               </div>
               <div>
@@ -759,7 +759,7 @@ const Profile = () => {
 
           <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg shrink-0">
                 <FaClock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 dark:text-green-400" />
               </div>
               <div>
@@ -775,7 +775,7 @@ const Profile = () => {
 
           <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg shrink-0">
                 <svg
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500"
                   fill="none"
@@ -818,7 +818,7 @@ const Profile = () => {
 
           <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+              <div className="p-1.5 sm:p-2 bg-green-50 dark:bg-green-900/30 rounded-lg shrink-0">
                 <svg
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500"
                   fill="none"
@@ -897,7 +897,7 @@ const Profile = () => {
         <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-6">
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
             <motion.div
-              className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-6 lg:p-8 mb-3 sm:mb-4 md:mb-6 relative overflow-hidden backdrop-blur-md bg-opacity-50"
+              className="bg-linear-to-r from-blue-500 to-purple-600 rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-6 lg:p-8 mb-3 sm:mb-4 md:mb-6 relative overflow-hidden backdrop-blur-md bg-opacity-50"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
@@ -906,10 +906,10 @@ const Profile = () => {
               <div className="absolute bottom-0 left-0 w-20 h-20 sm:w-32 sm:h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 bg-purple-500/20 rounded-full -ml-10 sm:-ml-16 md:-ml-24 lg:-ml-32 -mb-10 sm:-mb-16 md:-mb-24 lg:-mb-32 blur-3xl"></div>
 
               <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-4 z-10 w-full">
-                <div className="relative flex-shrink-0 mb-3 sm:mb-0 flex flex-col items-center">
+                <div className="relative shrink-0 mb-3 sm:mb-0 flex flex-col items-center">
                   <div
                     onClick={handlePhotoClick}
-                    className="group w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center relative overflow-hidden cursor-pointer"
+                    className="group w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center relative overflow-hidden cursor-pointer"
                   >
                     {user?.photoURL ? (
                       <img
@@ -918,7 +918,7 @@ const Profile = () => {
                         className="w-[90%] h-[90%] rounded-full object-cover border-2 sm:border-3 md:border-4 border-white transition-all group-hover:opacity- text-center"
                       />
                     ) : (
-                      <div className="w-[90%] h-[90%] rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl md:text-5xl border-2 sm:border-3 md:border-4 border-white">
+                      <div className="w-[90%] h-[90%] rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl md:text-5xl border-2 sm:border-3 md:border-4 border-white">
                         {user?.name?.charAt(0) || 'U'}
                       </div>
                     )}

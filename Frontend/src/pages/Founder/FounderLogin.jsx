@@ -248,7 +248,7 @@ const FounderLogin = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-linear-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           {isLoading ? (
             <>
@@ -327,7 +327,7 @@ const FounderLogin = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-medium text-white bg-linear-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           {isLoading ? (
             <>
@@ -376,7 +376,7 @@ const FounderLogin = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-linear-to-br from-blue-900 via-blue-800 to-indigo-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background abstract elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[30%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-600/10 blur-3xl"></div>
@@ -418,7 +418,7 @@ const FounderLogin = () => {
           className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800"
         >
           {/* Card header */}
-          <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 dark:from-gray-800 dark:to-gray-800/80 dark:border-gray-700">
+          <div className="p-6 bg-linear-to-r from-blue-50 to-indigo-50 border-b border-gray-200 dark:from-gray-800 dark:to-gray-800/80 dark:border-gray-700">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
                 <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50">
@@ -439,7 +439,7 @@ const FounderLogin = () => {
             {/* Security warning */}
             <div className="mb-6 py-3 px-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-900/30 rounded-xl">
               <div className="flex items-start">
-                <FiAlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" />
+                <FiAlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 shrink-0 mt-0.5" />
                 <p className="ml-3 text-xs text-yellow-700 dark:text-yellow-500">
                   This secure area is restricted to Medicare founding members only. All access attempts are logged.
                 </p>

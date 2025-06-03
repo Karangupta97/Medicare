@@ -108,7 +108,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-md mx-auto">
         <Link 
           to="/login"
@@ -230,32 +230,32 @@ const ResetPassword = () => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-xs">
                             <div className="flex items-center">
                               {password.length >= 8 ? 
-                                <FiCheck className="text-green-500 mr-1.5 flex-shrink-0" /> : 
-                                <FiX className="text-red-500 mr-1.5 flex-shrink-0" />}
+                                <FiCheck className="text-green-500 mr-1.5 shrink-0" /> : 
+                                <FiX className="text-red-500 mr-1.5 shrink-0" />}
                               <span className="text-gray-600 dark:text-gray-400">At least 8 characters</span>
                             </div>
                             <div className="flex items-center">
                               {password.match(/[A-Z]/) ? 
-                                <FiCheck className="text-green-500 mr-1.5 flex-shrink-0" /> : 
-                                <FiX className="text-red-500 mr-1.5 flex-shrink-0" />}
+                                <FiCheck className="text-green-500 mr-1.5 shrink-0" /> : 
+                                <FiX className="text-red-500 mr-1.5 shrink-0" />}
                               <span className="text-gray-600 dark:text-gray-400">Uppercase letter</span>
                             </div>
                             <div className="flex items-center">
                               {password.match(/[a-z]/) ? 
-                                <FiCheck className="text-green-500 mr-1.5 flex-shrink-0" /> : 
-                                <FiX className="text-red-500 mr-1.5 flex-shrink-0" />}
+                                <FiCheck className="text-green-500 mr-1.5 shrink-0" /> : 
+                                <FiX className="text-red-500 mr-1.5 shrink-0" />}
                               <span className="text-gray-600 dark:text-gray-400">Lowercase letter</span>
                             </div>
                             <div className="flex items-center">
                               {password.match(/[0-9]/) ? 
-                                <FiCheck className="text-green-500 mr-1.5 flex-shrink-0" /> : 
-                                <FiX className="text-red-500 mr-1.5 flex-shrink-0" />}
+                                <FiCheck className="text-green-500 mr-1.5 shrink-0" /> : 
+                                <FiX className="text-red-500 mr-1.5 shrink-0" />}
                               <span className="text-gray-600 dark:text-gray-400">Number</span>
                             </div>
                             <div className="flex items-center">
                               {password.match(/[^A-Za-z0-9]/) ? 
-                                <FiCheck className="text-green-500 mr-1.5 flex-shrink-0" /> : 
-                                <FiX className="text-red-500 mr-1.5 flex-shrink-0" />}
+                                <FiCheck className="text-green-500 mr-1.5 shrink-0" /> : 
+                                <FiX className="text-red-500 mr-1.5 shrink-0" />}
                               <span className="text-gray-600 dark:text-gray-400">Special character</span>
                             </div>
                           </div>
@@ -326,7 +326,7 @@ const ResetPassword = () => {
                     disabled={isSubmitting || password !== confirmPassword || passwordStrength.score < 3 || !password}
                     className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 relative overflow-hidden group"
             >
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer"></span>
+                    <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer"></span>
                     {isSubmitting ? (
                       <div className="flex items-center justify-center">
                         <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -348,7 +348,7 @@ const ResetPassword = () => {
                         exit={{ opacity: 0, y: -10 }}
                         className="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm flex items-start"
                       >
-                        <FiAlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <FiAlertCircle className="h-5 w-5 text-red-500 mr-2 shrink-0 mt-0.5" />
                         <span>{error}</span>
                       </motion.div>
             )}
@@ -362,7 +362,7 @@ const ResetPassword = () => {
                         exit={{ opacity: 0, y: -10 }}
                         className="p-4 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm flex items-start"
                       >
-                        <FiCheck className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <FiCheck className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
                         <span>{message}</span>
                       </motion.div>
             )}

@@ -204,7 +204,7 @@ const PhotoEditorModal = ({ isOpen, onClose, onSave, imageUrl }) => {
         }}
       >
         {/* Simple Header */}
-        <div className="px-4 sm:px-6 py-4 border-b border-white/10 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
+        <div className="px-4 sm:px-6 py-4 border-b border-white/10 bg-linear-to-r from-blue-900/20 to-purple-900/20">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-bold text-white">
               {step === 'edit' ? 'Select Image' : 'Crop & Rotate'}
@@ -219,13 +219,13 @@ const PhotoEditorModal = ({ isOpen, onClose, onSave, imageUrl }) => {
         </div>
 
         {/* Main Content */}
-        <div className="p-4 sm:p-6 flex-grow overflow-y-auto">
+        <div className="p-4 sm:p-6 grow overflow-y-auto">
           {step === 'edit' && (
             <div className="text-center h-full flex items-center justify-center">
               <div 
                 className={`w-full max-w-xl mx-auto border-2 border-dashed rounded-2xl p-6 
                   transition-all duration-300 cursor-pointer 
-                  bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm 
+                  bg-linear-to-br from-white/5 to-transparent backdrop-blur-sm 
                   ${isDragging 
                     ? 'border-blue-500 bg-blue-500/10 scale-105' 
                     : 'border-white/20 hover:border-blue-500/50'}`}
@@ -372,7 +372,7 @@ const PhotoEditorModal = ({ isOpen, onClose, onSave, imageUrl }) => {
         </div>
 
         {/* Footer with actions */}
-        <div className="px-4 sm:px-6 py-4 border-t border-white/10 bg-gradient-to-r from-black/30 to-black/20 backdrop-blur-sm flex justify-between items-center">
+        <div className="px-4 sm:px-6 py-4 border-t border-white/10 bg-linear-to-r from-black/30 to-black/20 backdrop-blur-sm flex justify-between items-center">
           <button
             onClick={() => {
               if (step === 'crop') setStep('edit');

@@ -237,10 +237,10 @@ const PrescriptionDetail = () => {
         {/* Prescription Content */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 mb-4" ref={prescriptionRef}>
           {/* Prescription Header */}
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-2 sm:px-4 py-3 border-b border-gray-200">
+          <div className="bg-linear-to-r from-blue-50 to-blue-100 px-2 sm:px-4 py-3 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
               <div className="flex items-center">
-                <div className="bg-white p-1.5 rounded-md shadow-sm mr-2 flex-shrink-0">
+                <div className="bg-white p-1.5 rounded-md shadow-sm mr-2 shrink-0">
                   <FiFileText className="text-blue-600 text-base sm:text-lg" />
                 </div>
                 <div className="min-w-0">
@@ -286,9 +286,9 @@ const PrescriptionDetail = () => {
                 : "bg-blue-50 text-blue-700 border border-blue-200"}`}
             >
               {prescription.status === "Active" ? (
-                <FiCheckCircle className="mr-2 flex-shrink-0" />
+                <FiCheckCircle className="mr-2 shrink-0" />
               ) : (
-                <FiInfo className="mr-2 flex-shrink-0" />
+                <FiInfo className="mr-2 shrink-0" />
               )}
               <span className="text-xs font-medium">
                 This prescription is currently {prescription.status || "Active"}
@@ -299,10 +299,10 @@ const PrescriptionDetail = () => {
               {/* Doctor Info */}
               <div className="bg-gray-50 rounded-lg p-2 sm:p-4">
                 <h3 className="text-xs text-gray-500 mb-1 flex items-center">
-                  <FiUser className="mr-2 flex-shrink-0" /> Prescribed By
+                  <FiUser className="mr-2 shrink-0" /> Prescribed By
                 </h3>
                 <div className="flex items-start gap-2">
-                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                     <FiUser className="text-blue-600 text-xs sm:text-base" />
                   </div>
                   <div className="min-w-0">
@@ -317,10 +317,10 @@ const PrescriptionDetail = () => {
               {/* Hospital Info */}
               <div className="bg-gray-50 rounded-lg p-2 sm:p-4">
                 <h3 className="text-xs text-gray-500 mb-1 flex items-center">
-                  <FiBriefcase className="mr-2 flex-shrink-0" /> Hospital/Clinic
+                  <FiBriefcase className="mr-2 shrink-0" /> Hospital/Clinic
                 </h3>
                 <div className="flex items-start gap-2">
-                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                     <FiBriefcase className="text-blue-600 text-xs sm:text-base" />
                   </div>
                   <div className="min-w-0">
@@ -422,7 +422,7 @@ const PrescriptionDetail = () => {
                 <h3 className="text-xs sm:text-sm font-medium text-gray-800 mb-2">Follow-up</h3>
                 <div className="bg-blue-50 rounded-lg p-2 sm:p-4 border border-blue-100">
                   <div className="flex items-start">
-                    <FiCalendar className="text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <FiCalendar className="text-blue-600 mt-0.5 mr-2 shrink-0" />
                     <div>
                       <p className="text-xs sm:text-sm text-gray-800">{prescription.followUp}</p>
                       {prescription.followUpDate && (

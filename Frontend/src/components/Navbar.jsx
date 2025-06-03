@@ -60,7 +60,7 @@ const Navbar = ({ user, onLogout }) => {
     
     if (imgError || !imgSrc) {
       return (
-        <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
+        <div className={`${className || "w-full h-full"} rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
           {authUser?.name?.charAt(0) || 'U'}
         </div>
       );
@@ -262,7 +262,7 @@ const Navbar = ({ user, onLogout }) => {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
                 >
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#252A61] to-[#4318FF]">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-linear-to-br from-[#252A61] to-[#4318FF]">
                     <ProfilePicture />
                   </div>
                   <FiChevronDown className="w-4 h-4 text-gray-600 group-hover:text-gray-800" />
@@ -399,7 +399,7 @@ const Navbar = ({ user, onLogout }) => {
               {isActive('/') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-px w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
@@ -428,7 +428,7 @@ const Navbar = ({ user, onLogout }) => {
               {isActive('/health-records') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-px w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
@@ -473,7 +473,7 @@ const Navbar = ({ user, onLogout }) => {
               {isActive('/aboutus') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-px w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
@@ -502,7 +502,7 @@ const Navbar = ({ user, onLogout }) => {
               {isActive('/dashboard') && (
                 <motion.div 
                   layoutId="bottomNavIndicator"
-                  className="absolute -top-[1px] w-12 h-1 bg-[#252A61] rounded-full"
+                  className="absolute -top-px w-12 h-1 bg-[#252A61] rounded-full"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
@@ -522,7 +522,7 @@ const Navbar = ({ user, onLogout }) => {
         </div>
         
         {/* Enhanced glass effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/60 to-white/95 backdrop-blur-xl -z-10"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-white/60 to-white/95 backdrop-blur-xl -z-10"></div>
       </div>
       
     </>

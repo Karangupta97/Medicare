@@ -372,7 +372,7 @@ const Team = () => {
               <div className="relative">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6">
                   Meet The{" "}
-                  <span className="bg-gradient-to-r from-[#252A61] to-[#6236FF] bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-[#252A61] to-[#6236FF] bg-clip-text text-transparent">
                     Team
                   </span>
                 </h1>
@@ -398,7 +398,7 @@ const Team = () => {
             className="mb-16"
           >
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500">
-              <div className="relative bg-gradient-to-br from-[#252A61]/5 to-[#6236FF]/5 dark:from-[#252A61]/10 dark:to-[#6236FF]/10">
+              <div className="relative bg-linear-to-br from-[#252A61]/5 to-[#6236FF]/5 dark:from-[#252A61]/10 dark:to-[#6236FF]/10">
                 <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                   <div className="lg:flex lg:items-center lg:gap-12">
@@ -410,14 +410,14 @@ const Team = () => {
                         className="relative group cursor-pointer"
                         onClick={() => setShowImageModal(true)}
                       >
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#252A61] to-[#6236FF] blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-pulse"></div>
+                        <div className="absolute inset-0 rounded-full bg-linear-to-r from-[#252A61] to-[#6236FF] blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-pulse"></div>
                         <div className="relative w-48 h-48 lg:w-64 lg:h-64 rounded-full overflow-hidden ring-4 ring-white dark:ring-gray-700 shadow-2xl">
                           <img
                             src={SelfImage}
                             alt="Karan Gupta"
                             className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#252A61]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                          <div className="absolute inset-0 bg-linear-to-t from-[#252A61]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                           
                           {/* Click to expand indicator */}
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -482,7 +482,7 @@ const Team = () => {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                                className={`p-4 rounded-xl bg-gradient-to-br ${
+                                className={`p-4 rounded-xl bg-linear-to-br ${
                                   activeMetric === index
                                     ? `from-${metric.color}-50 to-${metric.color}-100 dark:from-${metric.color}-900/30 dark:to-${metric.color}-800/30 ring-2 ring-${metric.color}-500/50`
                                     : 'from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700'
@@ -556,7 +556,7 @@ const Team = () => {
                                       : skill.name
                                   )
                                 }
-                                className="group relative flex flex-col items-center cursor-pointer flex-shrink-0 min-w-[70px]"
+                                className="group relative flex flex-col items-center cursor-pointer shrink-0 min-w-[70px]"
                               >
                                 <div
                                   className={`p-3 rounded-xl transition-all duration-300 ${
@@ -647,7 +647,7 @@ const Team = () => {
                                 whileHover={{ scale: 1.02, x: 5 }}
                                 className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-300 cursor-pointer group"
                               >
-                                <div className="w-2 h-2 bg-gradient-to-r from-[#252A61] to-[#6236FF] rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+                                <div className="w-2 h-2 bg-linear-to-r from-[#252A61] to-[#6236FF] rounded-full group-hover:scale-150 transition-transform duration-300"></div>
                                 <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors duration-300">
                                   {achievement}
                                 </span>
@@ -719,9 +719,9 @@ const Team = () => {
                               rel="noopener noreferrer"
                               whileHover={{ scale: 1.05, y: -2 }}
                               whileTap={{ scale: 0.95 }}
-                              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 text-pink-600 hover:text-white transition-all duration-300 group relative overflow-hidden"
+                              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-linear-to-br from-purple-500/10 to-pink-500/10 text-pink-600 hover:text-white transition-all duration-300 group relative overflow-hidden"
                             >
-                              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 transform translate-y-full transition-transform duration-300 group-hover:translate-y-0"></div>
+                              <div className="absolute inset-0 bg-linear-to-br from-purple-500 to-pink-500 transform translate-y-full transition-transform duration-300 group-hover:translate-y-0"></div>
                               <FiInstagram className="w-5 h-5 relative z-10 group-hover:scale-110 transition-transform duration-300" />
                               <span className="text-sm font-medium relative z-10">
                                 Instagram
@@ -738,7 +738,7 @@ const Team = () => {
           </motion.div>
 
           {/* Enhanced Key Features Section with interactive hover effects */}
-          <div className="bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-900 dark:to-gray-900/50 border-t border-gray-200 dark:border-gray-700 py-20">
+          <div className="bg-linear-to-b from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-900 dark:to-gray-900/50 border-t border-gray-200 dark:border-gray-700 py-20">
             <div className="container mx-auto px-4">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -753,11 +753,11 @@ const Team = () => {
                     whileInView={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 1, delay: 0.2 }}
                     viewport={{ once: true }}
-                    className="absolute inset-0 bg-gradient-to-r from-[#252A61]/5 to-[#6236FF]/5 blur-3xl rounded-full"
+                    className="absolute inset-0 bg-linear-to-r from-[#252A61]/5 to-[#6236FF]/5 blur-3xl rounded-full"
                   />
                   <div className="relative">
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-                      <span className="bg-gradient-to-r from-[#252A61] to-[#6236FF] bg-clip-text text-transparent">
+                      <span className="bg-linear-to-r from-[#252A61] to-[#6236FF] bg-clip-text text-transparent">
                         Key Features
                       </span>
                     </h2>
@@ -787,13 +787,13 @@ const Team = () => {
                   onHoverEnd={() => setHoveredFeature(null)}
                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-3xl transition-all duration-150 p-8 border border-gray-100 dark:border-gray-700 flex flex-col relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
                   <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                     viewport={{ once: true }}
-                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
+                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-linear-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -811,11 +811,11 @@ const Team = () => {
                     </svg>
                   </motion.div>
 
-                  <div className="relative flex-grow">
+                  <div className="relative grow">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-150">
                       QR-Based Medical Records
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 grow leading-relaxed">
                       Access your complete medical history instantly through a
                       secure, personalized QR code. Share with healthcare
                       providers for immediate access to your health information.
@@ -877,13 +877,13 @@ const Team = () => {
                   onHoverEnd={() => setHoveredFeature(null)}
                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-3xl transition-all duration-150 p-8 border border-gray-100 dark:border-gray-700 flex flex-col relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
                   <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                     viewport={{ once: true }}
-                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
+                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -901,11 +901,11 @@ const Team = () => {
                     </svg>
                   </motion.div>
 
-                  <div className="relative flex-grow">
+                  <div className="relative grow">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-150">
                       Hospital Management
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 grow leading-relaxed">
                       Specialized dashboard for hospitals to manage patient
                       records, appointments, and treatment plans. Track patient
                       history and generate comprehensive medical reports.
@@ -964,22 +964,22 @@ const Team = () => {
                   onHoverEnd={() => setHoveredFeature(null)}
                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-3xl transition-all duration-150 p-8 border border-gray-100 dark:border-gray-700 flex flex-col relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
                   <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
                     viewport={{ once: true }}
-                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
+                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
                   >
                     <FiShield className="h-8 w-8 text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors duration-150" />
                   </motion.div>
 
-                  <div className="relative flex-grow">
+                  <div className="relative grow">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-150">
                       User-Controlled Access
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 grow leading-relaxed">
                       Full control over who can access your medical records.
                       Grant and revoke access permissions for healthcare
                       providers with detailed access logs for complete
@@ -1041,22 +1041,22 @@ const Team = () => {
                   onHoverEnd={() => setHoveredFeature(null)}
                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-3xl transition-all duration-150 p-8 border border-gray-100 dark:border-gray-700 flex flex-col relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-red-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
                   <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
                     viewport={{ once: true }}
-                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
+                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-linear-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
                   >
                     <FiActivity className="h-8 w-8 text-red-600 dark:text-red-400 group-hover:text-red-700 dark:group-hover:text-red-300 transition-colors duration-150" />
                   </motion.div>
 
-                  <div className="relative flex-grow">
+                  <div className="relative grow">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-150">
                       Real-time Notifications
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 grow leading-relaxed">
                       Receive instant alerts for new reports, appointments, and
                       record access events. Stay informed about your healthcare
                       journey with customizable notification preferences.
@@ -1120,22 +1120,22 @@ const Team = () => {
                   onHoverEnd={() => setHoveredFeature(null)}
                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-3xl transition-all duration-150 p-8 border border-gray-100 dark:border-gray-700 flex flex-col relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-yellow-500/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
                   <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.5 }}
                     viewport={{ once: true }}
-                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
+                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
                   >
                     <FiCloud className="h-8 w-8 text-yellow-600 dark:text-yellow-400 group-hover:text-yellow-700 dark:group-hover:text-yellow-300 transition-colors duration-150" />
                   </motion.div>
 
-                  <div className="relative flex-grow">
+                  <div className="relative grow">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors duration-150">
                       Secure File Upload
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 grow leading-relaxed">
                       Easily upload medical reports, prescriptions, and test
                       results. All files are encrypted and securely stored in
                       AWS S3 with strict access controls and security measures.
@@ -1194,22 +1194,22 @@ const Team = () => {
                   onHoverEnd={() => setHoveredFeature(null)}
                   className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-3xl transition-all duration-150 p-8 border border-gray-100 dark:border-gray-700 flex flex-col relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-150"></div>
                   <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.6 }}
                     viewport={{ once: true }}
-                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
+                    className="relative rounded-2xl w-16 h-16 flex items-center justify-center bg-linear-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 mb-8 group-hover:scale-125 group-hover:rotate-6 transition-all duration-150"
                   >
                     <FiUsers className="h-8 w-8 text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors duration-150" />
                   </motion.div>
 
-                  <div className="relative flex-grow">
+                  <div className="relative grow">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-150">
                       Role-Based Access Control
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 flex-grow leading-relaxed">
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 grow leading-relaxed">
                       Tailored interfaces for patients, hospitals, medical
                       professionals, and administrators. Each role has specific
                       permissions and capabilities designed for their needs.
@@ -1266,7 +1266,7 @@ const Team = () => {
                   viewport={{ once: true }}
                   className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
                 >
-                  <div className="p-8 bg-gradient-to-r from-[#252A61]/10 to-[#6236FF]/10 dark:from-[#252A61]/20 dark:to-[#6236FF]/20">
+                  <div className="p-8 bg-linear-to-r from-[#252A61]/10 to-[#6236FF]/10 dark:from-[#252A61]/20 dark:to-[#6236FF]/20">
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
                       How Medicare Compares
                     </h3>
@@ -1716,7 +1716,7 @@ const Team = () => {
                 />
                 
                 {/* Image caption */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+                <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6">
                   <h3 className="text-white text-xl font-bold mb-1">Karan Gupta</h3>
                   <p className="text-white/80 text-sm">Founder & CEO, Full Stack Developer</p>
                 </div>

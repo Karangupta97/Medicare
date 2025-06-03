@@ -379,7 +379,7 @@ const DoctorVerification = () => {
                         >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                              <div className="shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                                 <FaStethoscope className="h-5 w-5 text-blue-600" />
                             </div>
                             <div className="ml-4">
@@ -475,7 +475,7 @@ const DoctorVerification = () => {
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                              <div className="shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
                                 <FaStethoscope className="h-5 w-5 text-green-600" />
                               </div>
                               <div className="ml-4">
@@ -574,7 +574,7 @@ const DoctorVerification = () => {
                         >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
+                              <div className="shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
                                 <FaStethoscope className="h-5 w-5 text-red-600" />
                             </div>
                             <div className="ml-4">
@@ -655,7 +655,7 @@ const DoctorVerification = () => {
               </button>
               
               <div className="sm:flex sm:items-start">
-                <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:h-10 sm:w-10">
+                <div className="shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:h-10 sm:w-10">
                   <FaStethoscope className="h-6 w-6 text-blue-600" />
                 </div>
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">

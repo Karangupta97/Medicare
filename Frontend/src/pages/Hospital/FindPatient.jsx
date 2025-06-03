@@ -47,13 +47,13 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
       {/* Patient header with photo and basic info */}
       <div className="relative">
         {/* Enhanced background pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/30"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-indigo-50/30"></div>
         <div className="absolute top-0 right-0 w-48 h-48 bg-blue-100 rounded-bl-full opacity-20 transform -rotate-12"></div>
         
         <div className="relative pt-8 px-6 pb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center p-1 shadow-xl">
+              <div className="w-24 h-24 rounded-full bg-linear-to-r from-blue-500 to-indigo-600 flex items-center justify-center p-1 shadow-xl">
                 <div className="bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden">
                   {imgSrc && !imgError ? (
                     <img 
@@ -101,14 +101,14 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
             <div className="flex flex-wrap gap-2">
               <a 
                 href={`/hospital/patient-history/${patient._id}`} 
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-100 shadow-sm hover:shadow-md"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-linear-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-100 shadow-sm hover:shadow-md"
               >
                 <FiFileText className="w-4 h-4" />
                 <span>View History</span>
               </a>
               
               <div className="group relative">
-                <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all duration-200 border border-green-100 shadow-sm hover:shadow-md">
+                <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-linear-to-r from-green-50 to-emerald-50 text-green-700 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all duration-200 border border-green-100 shadow-sm hover:shadow-md">
                   <FiClipboard className="w-4 h-4" />
                   <span>Add Note</span>
                 </button>
@@ -120,7 +120,7 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
               {/* Enhanced refresh button */}
               <button
                 onClick={() => refreshPatientData('header-refresh-icon')}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-100 shadow-sm hover:shadow-md"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-linear-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-100 shadow-sm hover:shadow-md"
               >
                 <svg id="header-refresh-icon" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -155,7 +155,7 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
                   toast.success("Prescription saved successfully");
                 }}
                 customTrigger={
-                  <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                  <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md">
                     <FiPlus className="w-4 h-4" />
                     <span>Write Prescription</span>
                   </button>
@@ -169,7 +169,7 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
       {/* Enhanced patient details grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 pb-6">
         {/* DOB Info */}
-        <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
+        <div className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-bl-full opacity-20 transform scale-0 group-hover:scale-100 transition-transform duration-300 origin-top-right"></div>
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
             <FiCalendar className="w-5 h-5 text-blue-600" />
@@ -186,7 +186,7 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
         </div>
         
         {/* Phone Info */}
-        <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
+        <div className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-bl-full opacity-20 transform scale-0 group-hover:scale-100 transition-transform duration-300 origin-top-right"></div>
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
             <FiPhone className="w-5 h-5 text-blue-600" />
@@ -203,7 +203,7 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
         </div>
         
         {/* Email Info */}
-        <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
+        <div className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-bl-full opacity-20 transform scale-0 group-hover:scale-100 transition-transform duration-300 origin-top-right"></div>
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
             <FiMail className="w-5 h-5 text-blue-600" />
@@ -220,7 +220,7 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
         </div>
         
         {/* Address Info */}
-        <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
+        <div className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-lg flex items-start gap-3 transition-all duration-200 hover:shadow-md relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-bl-full opacity-20 transform scale-0 group-hover:scale-100 transition-transform duration-300 origin-top-right"></div>
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
             <FiMapPin className="w-5 h-5 text-blue-600" />
@@ -255,7 +255,7 @@ const PatientInfo = ({ patient, setPrescriptions, reports, setReports }) => {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="p-4 bg-gradient-to-r from-red-50 to-rose-50 rounded-lg border border-red-100"
+              className="p-4 bg-linear-to-r from-red-50 to-rose-50 rounded-lg border border-red-100"
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-medium text-red-800 flex items-center gap-2">
@@ -559,7 +559,7 @@ const ReportCard = ({ report, onView, onRefreshUrl }) => {
     >
       {/* Card Header with gradient background */}
       <div className={`relative overflow-hidden`}>
-        <div className={`absolute inset-0 bg-gradient-to-r ${categoryInfo.gradientFrom} ${categoryInfo.gradientTo} transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
+        <div className={`absolute inset-0 bg-linear-to-r ${categoryInfo.gradientFrom} ${categoryInfo.gradientTo} transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
         <div className="flex items-center p-4 border-b border-gray-100 relative z-10">
           <div className={`w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mr-3 transition-transform ${isHovered ? 'scale-110' : ''} duration-300`}>
             {categoryInfo.icon}
@@ -605,7 +605,7 @@ const ReportCard = ({ report, onView, onRefreshUrl }) => {
               exit={{ opacity: 0, height: 0 }}
               className="mb-4 p-2 bg-amber-50 border border-amber-100 rounded-lg text-amber-700 text-sm flex items-center gap-2 overflow-hidden"
             >
-              <FiAlertCircle className="w-4 h-4 flex-shrink-0" />
+              <FiAlertCircle className="w-4 h-4 shrink-0" />
               <span>The access link has expired. Please refresh it.</span>
             </motion.div>
           )}
@@ -750,7 +750,7 @@ const PrescriptionCard = ({ prescription }) => {
     >
       {/* Card Header */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
         <div className="flex items-center p-4 border-b border-blue-100 relative z-10">
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm mr-3 transform group-hover:scale-110 transition-transform">
             <FiFileText className="w-6 h-6 text-blue-600" />
@@ -1577,7 +1577,7 @@ const getFilteredReports = () => {
 
   return (
     <HospitalDashboardLayout>
-      <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-380 mx-auto px-4 sm:px-6 lg:px-8">
         {/* Floating refresh indicator */}
         <AnimatePresence>
           {isRefreshing && (
@@ -1638,13 +1638,13 @@ const getFilteredReports = () => {
         >
           <div className="p-6 pb-4 relative">
             {/* Enhanced background pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/30"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-indigo-50/30"></div>
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-100 rounded-bl-full opacity-20 transform -rotate-12"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-100 rounded-tr-full opacity-20 transform rotate-12"></div>
             
             <div className="relative z-10">
               <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-linear-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
                   <FiSearch className="w-5 h-5 text-white" />
                 </div>
                 Find Patient by UMID
@@ -1680,7 +1680,7 @@ const getFilteredReports = () => {
                   className={`px-6 py-3.5 rounded-xl font-medium text-white shadow-sm flex items-center justify-center gap-2 transition-all duration-200 ${
                     isSearching 
                       ? 'bg-blue-400 cursor-not-allowed' 
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-md'
+                      : 'bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-md'
                   }`}
                 >
                   {isSearching ? (
@@ -1736,12 +1736,12 @@ const getFilteredReports = () => {
                     onClick={() => handleSelectRecentSearch(search.umid)}
                     className="group relative inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 text-gray-800 text-sm rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center mr-1.5">
+                    <div className="w-5 h-5 rounded-full bg-linear-to-r from-blue-500 to-indigo-600 flex items-center justify-center mr-1.5">
                       <FiUser className="w-3 h-3 text-white" />
                     </div>
                     <span className="truncate max-w-[150px] font-medium">{search.name}</span>
                     <span className="text-xs text-gray-500 ml-1.5 hidden sm:inline-block">({search.umid})</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <FiSearch className="w-4 h-4 mr-1" /> Search
                     </div>
                   </button>

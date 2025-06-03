@@ -71,7 +71,7 @@ const Test = () => {
   };
 
   return (
-    <div className="relative flex h-screen items-center justify-center bg-gradient-to-b from-[#B8C5FD] to-[#E8C3D5]">
+    <div className="relative flex h-screen items-center justify-center bg-linear-to-b from-[#B8C5FD] to-[#E8C3D5]">
       <div className="w-[1700px] h-[900px] left-[110px] top-[10px] absolute opacity-60 bg-[#f0f7ff] rounded-[72px] blur-[3px] backdrop-blur-[100px]" />
       <div className="w-[1600px] h-[800px] opacity-60 absolute  rounded-[72px]  ">
         {/*blur-[3px]*/}

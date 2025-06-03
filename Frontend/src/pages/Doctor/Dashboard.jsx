@@ -88,7 +88,7 @@ const DoctorDashboard = () => {
 
         <div className="flex-1 flex">
           {/* Sidebar */}
-          <div className="bg-indigo-800 text-white w-64 flex-shrink-0 hidden md:block">
+          <div className="bg-indigo-800 text-white w-64 shrink-0 hidden md:block">
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-center h-16 border-b border-indigo-700">
                 <span className="text-xl font-semibold">Dr. {doctor?.fullName?.split(' ')[0]}</span>

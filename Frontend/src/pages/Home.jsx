@@ -339,7 +339,7 @@ const Home = () => {
             className="w-full relative -mt-2 px-5"
           >
             {/* Desktop Hero Section with improved gradients and layout */}
-            <div className="hidden md:block rounded-[30px] lg:rounded-[50px] overflow-hidden bg-gradient-to-r from-[#1a1f4d] via-[#252a61] to-[#2f347c] shadow-2xl h-[800px] ">
+            <div className="hidden md:block rounded-[30px] lg:rounded-[50px] overflow-hidden bg-linear-to-r from-[#1a1f4d] via-primary to-[#2f347c] shadow-2xl h-[800px] ">
               <div className="relative ">
                 {/* Enhanced animated background elements */}
                 <div className="absolute top-0 right-0 w-96 h-96 bg-blue-300/30 rounded-full mix-blend-overlay filter blur-3xl opacity-30 animate-blob"></div>
@@ -369,7 +369,7 @@ const Home = () => {
                             className="h-12 w-12 object-contain"
                           />
                         </div>
-                        <h3 className="text-white/90 pl-5 text-2xl font-[500] tracking-wide">
+                        <h3 className="text-white/90 pl-5 text-2xl font-medium tracking-wide">
                           Medicare
                         </h3>
                       </motion.div>
@@ -382,18 +382,18 @@ const Home = () => {
                         className="mb-8"
                       >
                         <h1
-                          className="text-5xl lg:text-6xl xl:text-7xl font-[700] mb-4 leading-tight cursor-pointer"
+                          className="text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 leading-tight cursor-pointer"
                           onClick={scrollToVision}
                         >
-                          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-200">
+                          <span className="bg-clip-text text-transparent bg-linear-to-r from-white via-blue-100 to-purple-200">
                             Healthcare
                           </span>
                           <br />
-                          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-300">
+                          <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-200 to-purple-300">
                             Reimagined
                           </span>
                         </h1>
-                        <p className="text-3xl text-white/80 font-[400]">
+                        <p className="text-3xl text-white/80 font-normal">
                           for the Digital Age
                         </p>
                       </motion.div>
@@ -470,7 +470,7 @@ const Home = () => {
 
                   {/* Right Column -Image Section */}
                   <div className="relative hidden lg:flex items-end justify-center p-8">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full filter blur-3xl"></div>
+                    <div className="absolute inset-0 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-full filter blur-3xl"></div>
                     <motion.div
                       initial={{ opacity: 0, y: 50 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -560,7 +560,7 @@ const Home = () => {
             </div>
 
             {/* Mobile and Tablet Hero Section - Enhanced for all device sizes */}
-            <div className="md:hidden bg-gradient-to-r from-[#252a61] to-[#3a3f7a] rounded-2xl overflow-hidden p-3 sm:p-4">
+            <div className="md:hidden bg-linear-to-r from-primary to-[#3a3f7a] rounded-2xl overflow-hidden p-3 sm:p-4">
               {/* Decorative background elements */}
               <div className="absolute top-0 right-0 w-20 h-20 bg-blue-400/20 rounded-full filter blur-xl opacity-30 animate-pulse"></div>
               {/* <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-400/20 rounded-full filter blur-xl opacity-30 animate-pulse animation-delay-1000"></div> */}
@@ -581,11 +581,11 @@ const Home = () => {
                   </div>
 
                   <h1 className="font-bold text-white mb-1">
-                    <span className="text-x bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+                    <span className="text-x bg-clip-text text-transparent bg-linear-to-r from-white to-blue-200">
                       Healthcare
                     </span>
                     <br />
-                    <span className="text-xl bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-purple-300">
+                    <span className="text-xl bg-clip-text text-transparent bg-linear-to-r from-blue-200 to-purple-300">
                       Reimagined
                     </span>
                   </h1>
@@ -654,7 +654,7 @@ const Home = () => {
                   src={HealthRecordsimage}
                   alt="Hospital"
                 />
-                <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-[#252a61]">
+                <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-primary">
                   Hospital
                 </span>
               </Link>
@@ -677,7 +677,7 @@ const Home = () => {
                   src={FindHospitalimage}
                   alt="Doctor"
                 />
-                <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-[#252a61]">
+                <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-primary">
                   Doctor
                 </span>
               </Link>
@@ -696,7 +696,7 @@ const Home = () => {
                   src={HealthRecordsimage}
                   alt="Health Records"
                 />
-                <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-[#252a61]">
+                <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold text-primary">
                   Medical
                 </span>
               </Link>
@@ -719,13 +719,13 @@ const Home = () => {
                 transition={{ duration: 0.6 }}
                 className="text-center mb-12 md:mb-16"
               >
-                <span className="inline-block px-3 py-1 text-xs md:text-sm bg-[#eef1ff] text-[#252a61] rounded-full mb-3 font-[500]">
+                <span className="inline-block px-3 py-1 text-xs md:text-sm bg-[#eef1ff] text-primary rounded-full mb-3 font-medium">
                   Why Choose Us
                 </span>
-                <h2 className="text-2xl md:text-4xl font-[700] text-[#252a61] mb-4">
+                <h2 className="text-2xl md:text-4xl font-bold text-primary mb-4">
                   Why Choose Medicare
                 </h2>
-                <p className="text-gray-600 max-w-2xl mx-auto font-[400]">
+                <p className="text-gray-600 max-w-2xl mx-auto font-normal">
                   We're revolutionizing healthcare management with our secure,
                   accessible, and user-friendly platform
                 </p>
@@ -736,7 +736,7 @@ const Home = () => {
                   {
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -756,7 +756,7 @@ const Home = () => {
                   {
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -776,7 +776,7 @@ const Home = () => {
                   {
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -796,7 +796,7 @@ const Home = () => {
                   {
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -816,7 +816,7 @@ const Home = () => {
                   {
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -836,7 +836,7 @@ const Home = () => {
                   {
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -892,7 +892,7 @@ const Home = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center px-6 py-3 bg-[#252a61] text-white font-medium rounded-lg transition-all duration-300 hover:bg-[#363b7e] shadow-md"
+                    className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg transition-all duration-300 hover:bg-[#363b7e] shadow-md"
                   >
                     Learn More About Us
                     <svg
@@ -921,7 +921,7 @@ const Home = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="w-full py-14 my-4 md:py-8 md:my-4 bg-gradient-to-b from-indigo-50 to-white"
+            className="w-full py-14 my-4 md:py-8 md:my-4 bg-linear-to-b from-indigo-50 to-white"
           >
             <div className="max-w-7xl mx-auto px-4">
               <motion.div
@@ -933,14 +933,14 @@ const Home = () => {
               >
                 <div className="md:order-2">
                   <div className="relative">
-                    <div className="absolute inset-0 -m-10 bg-gradient-to-r from-purple-500/20 to-[#252A61]/20 rounded-full filter blur-3xl opacity-30"></div>
+                    <div className="absolute inset-0 -m-10 bg-linear-to-r from-purple-500/20 to-[#252A61]/20 rounded-full filter blur-3xl opacity-30"></div>
                     <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                       <img
                         className="w-full h-auto object-cover"
                         src="https://images.unsplash.com/photo-1580281657702-257584239a55?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                         alt="Digital healthcare"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                      <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent flex items-end">
                         <div className="p-6 text-white">
                           <span className="text-sm bg-purple-600 py-1 px-3 rounded-full font-medium">
                             Our Vision
@@ -982,7 +982,7 @@ const Home = () => {
                       "Elimination of administrative barriers to quality care",
                     ].map((point, index) => (
                       <li key={index} className="flex items-start">
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
+                        <div className="shrink-0 w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mt-0.5">
                           <FiCheck className="w-4 h-4" />
                         </div>
                         <span className="ml-3 text-gray-700">{point}</span>
@@ -1000,7 +1000,7 @@ const Home = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="w-full py-14 my-4 md:py-10 md:my-4 bg-gradient-to-b from-[#eef1ff] to-white"
+            className="w-full py-14 my-4 md:py-10 md:my-4 bg-linear-to-b from-[#eef1ff] to-white"
           >
             <div className="max-w-7xl mx-auto px-4">
               <motion.div
@@ -1010,10 +1010,10 @@ const Home = () => {
                 transition={{ duration: 0.6 }}
                 className="text-center mb-12 md:mb-16"
               >
-                <h2 className="text-2xl md:text-4xl font-[700] text-[#252a61] mb-4">
+                <h2 className="text-2xl md:text-4xl font-bold text-primary mb-4">
                   Our Services
                 </h2>
-                <p className="text-gray-600 max-w-2xl mx-auto font-[400]">
+                <p className="text-gray-600 max-w-2xl mx-auto font-normal">
                   Comprehensive healthcare solutions designed to simplify your
                   medical journey
                 </p>
@@ -1026,7 +1026,7 @@ const Home = () => {
                     desc: "Securely store and manage your medical records in one place, accessible anytime.",
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1045,7 +1045,7 @@ const Home = () => {
                     desc: "Schedule and manage your medical appointments with ease and receive reminders.",
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1065,7 +1065,7 @@ const Home = () => {
                     desc: "Access and manage digital prescriptions securely, with automated reminders for medications and easy sharing with pharmacies.",
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1084,7 +1084,7 @@ const Home = () => {
                     desc: "Get insights into your health data and trends to make informed decisions.",
                     icon: (
                       <svg
-                        className="w-8 h-8 text-[#252a61]"
+                        className="w-8 h-8 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1115,12 +1115,12 @@ const Home = () => {
                   >
                     {service.comingSoon && (
                       <>
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#252a61]/95 via-[#252a61]/90 to-[#252a61]/95 backdrop-blur-[2px] transition-all duration-500 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center">
+                        <div className="absolute inset-0 bg-linear-to-br from-primary/95 via-primary/90 to-primary/95 backdrop-blur-[2px] transition-all duration-500 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center">
                           <div className="transform scale-95 group-hover:scale-100 transition-transform duration-500 space-y-4">
                             <div className="relative">
-                              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-25"></div>
+                              <div className="absolute -inset-1 bg-linear-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-25"></div>
                               <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-6 py-3">
-                                <span className="text-white font-[500] text-lg tracking-wide">
+                                <span className="text-white font-medium text-lg tracking-wide">
                                   Coming Soon
                                 </span>
                               </div>
@@ -1132,7 +1132,7 @@ const Home = () => {
                           </div>
                         </div>
                         <div className="absolute top-4 right-4 z-10">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-[500] bg-gradient-to-r from-blue-100 to-purple-100 text-[#252a61] border border-blue-200/30">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-linear-to-r from-blue-100 to-purple-100 text-primary border border-blue-200/30">
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
                             Coming Soon
                           </span>
@@ -1142,10 +1142,10 @@ const Home = () => {
                     <div className="w-16 h-16 bg-[#eef1ff] rounded-full flex items-center justify-center mb-6">
                       {service.icon}
                     </div>
-                    <h3 className="text-xl font-[700] text-[#252A61] mb-3">
+                    <h3 className="text-xl font-bold text-[#252A61] mb-3">
                       {service.title}
                     </h3>
-                    <p className="text-gray-600 text-sm md:text-base font-[400]">
+                    <p className="text-gray-600 text-sm md:text-base font-normal">
                       {service.desc}
                     </p>
                   </motion.div>
@@ -1163,7 +1163,7 @@ const Home = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="inline-flex items-center px-6 py-3 bg-[#252a61] text-white font-[500] rounded-lg transition-all duration-300 hover:bg-[#363b7e] shadow-md"
+                    className="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg transition-all duration-300 hover:bg-[#363b7e] shadow-md"
                   >
                     Explore All Services
                     <FiArrowRight className="ml-2" />
@@ -1179,7 +1179,7 @@ const Home = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-8 sm:mt-10 md:mt-12 bg-gradient-to-br from-white to-gray-50 p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl shadow-lg max-w-3xl mx-auto border border-gray-100"
+            className="mt-8 sm:mt-10 md:mt-12 bg-linear-to-br from-white to-gray-50 p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl shadow-lg max-w-3xl mx-auto border border-gray-100"
           >
             <div className="text-center mb-8">
               <h3 className="text-xl sm:text-2xl font-semibold text-[#252A61] mb-3">

@@ -48,7 +48,7 @@ const SuccessModal = ({ isOpen, onClose, message, redirectTo = '/' }) => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50"
+              className="absolute inset-0 bg-linear-to-br from-green-50 to-blue-50"
             />
 
             {/* Content */}

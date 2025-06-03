@@ -65,7 +65,7 @@ const UserLookup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white">
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -88,7 +88,7 @@ const UserLookup = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 max-w-md mx-auto mb-8"
         >
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white">
+          <div className="bg-linear-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white">
             <div className="flex items-center">
               <FiUser className="mr-2" size={20} />
               <h2 className="text-xl font-semibold">Find Medicare User</h2>
@@ -119,7 +119,7 @@ const UserLookup = () => {
               
               {error && (
                 <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg flex items-start">
-                  <FiAlertTriangle className="mr-2 mt-0.5 flex-shrink-0" />
+                  <FiAlertTriangle className="mr-2 mt-0.5 shrink-0" />
                   <span className="text-sm">{error}</span>
                 </div>
               )}

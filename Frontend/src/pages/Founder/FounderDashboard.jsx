@@ -397,7 +397,7 @@ const FounderDashboard = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-800 dark:to-indigo-900 rounded-2xl shadow-lg p-6 text-white"
+          className="bg-linear-to-r from-blue-600 to-indigo-700 dark:from-blue-800 dark:to-indigo-900 rounded-2xl shadow-lg p-6 text-white"
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
@@ -431,7 +431,7 @@ const FounderDashboard = () => {
               title="Total Users" 
               value={(data.stats?.totalUsers || 0).toLocaleString()} 
               icon={Users}
-              gradient="bg-gradient-to-r from-blue-500 to-indigo-500"
+              gradient="bg-linear-to-r from-blue-500 to-indigo-500"
               animation={1}
             />
             
@@ -439,7 +439,7 @@ const FounderDashboard = () => {
               title="Total Reports" 
               value={(data.stats?.totalReports || 0).toLocaleString()} 
               icon={FileText}
-              gradient="bg-gradient-to-r from-purple-500 to-pink-500"
+              gradient="bg-linear-to-r from-purple-500 to-pink-500"
               animation={2}
             />
             
@@ -448,7 +448,7 @@ const FounderDashboard = () => {
               value={(data.stats?.activeStaff || 0).toLocaleString()} 
               subtitle={`+${data.stats?.activeAdmins || 0} admins`}
               icon={Shield}
-              gradient="bg-gradient-to-r from-green-500 to-emerald-500"
+              gradient="bg-linear-to-r from-green-500 to-emerald-500"
               animation={3}
             />
             
@@ -457,7 +457,7 @@ const FounderDashboard = () => {
               value={`${Math.round(data.stats?.monthlyAPIUsage?.percentage || 0)}%`} 
               subtitle={`${((data.stats?.monthlyAPIUsage?.used || 0) / 1000).toLocaleString()}k calls`}
               icon={Server}
-              gradient="bg-gradient-to-r from-amber-500 to-orange-500"
+              gradient="bg-linear-to-r from-amber-500 to-orange-500"
               animation={4}
             />
           </div>
@@ -545,7 +545,7 @@ const FounderDashboard = () => {
             </h3>
             
             <div className="space-y-6">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/20">
+              <div className="p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/20">
                 <div className="flex justify-between items-center">
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Monthly Revenue</p>
                   <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">

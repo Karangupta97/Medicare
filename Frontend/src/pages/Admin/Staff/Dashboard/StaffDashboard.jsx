@@ -107,7 +107,7 @@ export const DashboardLayout = ({ children, activePage }) => {
           {/* User Info */}
           <div className="p-4 border-b border-gray-100">
             <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {staffData?.photoURL ? (
                   <img 
                     src={staffData.photoURL} 
@@ -342,7 +342,7 @@ const ActivityItem = ({ user, action, time, avatarUrl, category }) => {
 
   return (
     <div className="flex items-start space-x-3 py-3 hover:bg-gray-50 px-2 rounded-lg -mx-2 transition-colors">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {avatarUrl ? (
           <img src={avatarUrl} className="h-9 w-9 rounded-full border border-gray-200" alt={user} />
         ) : (
@@ -415,7 +415,7 @@ const TaskItem = ({ task, status, dueDate, priority }) => {
             </span>
           </div>
         </div>
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusClasses(status)}`}>
             {status === 'Completed' && <FaCheckCircle className="mr-1 h-3 w-3" />}
             {status === 'Overdue' && <FaExclamationTriangle className="mr-1 h-3 w-3" />}
@@ -466,7 +466,7 @@ const Alert = ({ type, message }) => {
 
   return (
     <div className={`flex items-center p-4 mb-6 rounded-lg border ${getAlertClasses()}`}>
-      <div className="flex-shrink-0 mr-3">
+      <div className="shrink-0 mr-3">
         {getIcon()}
       </div>
       <div className="flex-1 min-w-0">
@@ -491,7 +491,7 @@ const UpcomingAppointment = ({ patient, time, type, status }) => {
   return (
     <div className="flex items-center justify-between py-3 hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors">
       <div className="flex items-center space-x-3">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
             <FaUserInjured className="h-5 w-5 text-blue-600" />
           </div>

@@ -187,7 +187,7 @@ layer(base);
 
 /* Glass Morphism */
 .glass {
-  @apply bg-white/0.1 backdrop-blur-lg;
+  @apply bg-white/10 backdrop-blur-lg;
 }
 .hide-scrollbar {
   -ms-overflow-style: none;

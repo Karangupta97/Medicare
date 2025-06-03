@@ -73,7 +73,7 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
           <div className="flex justify-center mb-5">
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 rounded-xl shadow-sm"
+              className="bg-linear-to-br from-blue-50 to-indigo-100 p-4 rounded-xl shadow-sm"
             >
               <QRCodeCanvas
                 value={qrValue}

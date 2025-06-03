@@ -1002,7 +1002,7 @@ const PrescriptionReminders = () => {
             exit={{ opacity: 0, height: 0 }}
             className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden"
           >
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-800 flex items-center">
                 <FiBell className="text-blue-600 mr-2" />
                 {editingReminder
@@ -1333,7 +1333,7 @@ const PrescriptionReminders = () => {
             )}
 
             {/* Tips section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-100 p-6">
+            <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-100 p-6">
               <h3 className="font-semibold text-gray-800 flex items-center mb-4">
                 <FiInfo className="mr-2 text-blue-600" /> Medication Reminder
                 Tips

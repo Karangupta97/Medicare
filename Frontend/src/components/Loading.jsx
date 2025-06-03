@@ -6,7 +6,7 @@ const Loading = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-50 via-white to-indigo-50" />
       
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">

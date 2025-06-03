@@ -10,7 +10,7 @@ import FloatingActionButton from "../../components/FloatingActionButton";
 
 const PublicLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
       <div>
         {children}
       </div>
@@ -21,7 +21,7 @@ const PublicLayout = ({ children }) => {
 // New clean layout for authenticated users without sidebar
 const CleanLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
       <div>
         {children}
       </div>
@@ -247,7 +247,7 @@ END:VCARD`;
         variants={itemVariants}
         className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden mb-6 sm:mb-8"
       >
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 h-24 sm:h-32 md:h-40 flex items-center justify-center">
+        <div className="bg-linear-to-r from-blue-600 to-indigo-700 h-24 sm:h-32 md:h-40 flex items-center justify-center">
           <div className="flex items-center gap-2 text-white">
             <FiUser size={28} className="text-white drop-shadow-md" />
             <h2 className="text-xl md:text-2xl font-bold drop-shadow-md">Medicare User Profile</h2>
@@ -258,7 +258,7 @@ END:VCARD`;
           <div className="flex flex-col md:flex-row items-center gap-5 sm:gap-6 md:gap-8 mb-6 sm:mb-8">
             {/* User photo */}
             <div className="-mt-16 sm:-mt-20 md:-mt-24 relative z-10">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 sm:border-6 border-white shadow-xl ring-2 ring-blue-100 bg-white flex-shrink-0 mx-auto md:mx-0">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 sm:border-6 border-white shadow-xl ring-2 ring-blue-100 bg-white shrink-0 mx-auto md:mx-0">
                 {user?.photoURL ? (
                   <img
                     src={user.photoURL}
@@ -266,7 +266,7 @@ END:VCARD`;
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl md:text-5xl">
+                  <div className="w-full h-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl md:text-5xl">
                     {user?.name?.charAt(0) || "U"}
                   </div>
                 )}

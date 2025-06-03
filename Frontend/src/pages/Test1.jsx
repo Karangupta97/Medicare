@@ -10,7 +10,7 @@ export default function BottomNavbar() {
 
         {/* Floating central button */}
         <div className="absolute -top-7 left-1/2 transform -translate-x-1/2">
-          <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 rounded-full shadow-lg border-4 border-white">
+          <div className="bg-linear-to-br from-blue-500 to-indigo-500 p-4 rounded-full shadow-lg border-4 border-white">
             <FaPlus className="text-white" size={20} />
           </div>
         </div>

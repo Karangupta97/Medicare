@@ -291,7 +291,7 @@ const FounderDashboardLayout = ({ children }) => {
           }`}
         >
           {/* Sidebar header with logo */}
-          <div className="flex items-center justify-between h-16 px-4 bg-gradient-to-r from-blue-700 to-indigo-800 dark:from-blue-900 dark:to-indigo-950">
+          <div className="flex items-center justify-between h-16 px-4 bg-linear-to-r from-blue-700 to-indigo-800 dark:from-blue-900 dark:to-indigo-950">
             <motion.div 
               initial={false}
               animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : "auto" }}
@@ -319,7 +319,7 @@ const FounderDashboardLayout = ({ children }) => {
           {/* Founder profile summary */}
           {founder && (
             <div className={`flex items-center px-4 py-3 bg-blue-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 ${collapsed ? "justify-center" : ""}`}>
-              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white overflow-hidden ring-2 ring-white dark:ring-gray-700">
+              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 text-white overflow-hidden ring-2 ring-white dark:ring-gray-700">
                 {founder.photoURL ? (
                   <img 
                     src={founder.photoURL}
@@ -374,7 +374,7 @@ const FounderDashboardLayout = ({ children }) => {
                     className={`
                       flex items-center ${collapsed ? "justify-center px-2" : "px-3"} py-2 my-1 text-sm font-medium rounded-lg transition-all duration-150
                       ${isActive(item.path) 
-                        ? "bg-gradient-to-r from-blue-500/10 to-indigo-500/10 dark:from-blue-900/50 dark:to-indigo-900/50 text-blue-700 dark:text-blue-400 border-l-4 border-blue-600 dark:border-blue-500" 
+                        ? "bg-linear-to-r from-blue-500/10 to-indigo-500/10 dark:from-blue-900/50 dark:to-indigo-900/50 text-blue-700 dark:text-blue-400 border-l-4 border-blue-600 dark:border-blue-500" 
                         : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800/60"}
                     `}
                     title={collapsed ? item.name : ""}
@@ -455,7 +455,7 @@ const FounderDashboardLayout = ({ children }) => {
                   <p className="text-xs text-gray-500 dark:text-gray-400">CEO & Founder</p>
                 </div>
                 
-                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 overflow-hidden ring-2 ring-white dark:ring-gray-700">
+                <div className="h-9 w-9 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 overflow-hidden ring-2 ring-white dark:ring-gray-700">
                   {founder?.photoURL ? (
                     <img 
                       src={founder.photoURL}

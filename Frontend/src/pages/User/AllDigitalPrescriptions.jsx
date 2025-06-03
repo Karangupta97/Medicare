@@ -142,7 +142,7 @@ const AllDigitalPrescriptions = () => {
           <div className="p-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-blue-50 flex-shrink-0">
+                <div className="p-2 rounded-full bg-blue-50 shrink-0">
                   <FiFileText className="text-blue-600" />
                 </div>
                 <div className="min-w-0">
@@ -218,7 +218,7 @@ const AllDigitalPrescriptions = () => {
               <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div className="animate-pulse">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0"></div>
+                    <div className="h-10 w-10 rounded-full bg-gray-200 shrink-0"></div>
                     <div className="flex-1">
                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                       <div className="h-3 bg-gray-200 rounded w-1/2"></div>

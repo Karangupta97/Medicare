@@ -115,7 +115,7 @@ const HospitalDashboardLayout = ({ children }) => {
     
     if (imgError || !imgSrc) {
       return (
-        <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
+        <div className={`${className || "w-full h-full"} rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}>
           {user?.name?.charAt(0) || 'U'}
         </div>
       );
@@ -134,7 +134,7 @@ const HospitalDashboardLayout = ({ children }) => {
   // Adjust the sidebar layout for mobile devices
   const Sidebar = () => {
     return (
-      <div className="w-full md:w-64 h-auto md:h-full bg-[#252a61] text-white flex flex-col">
+      <div className="w-full md:w-64 h-auto md:h-full bg-primary text-white flex flex-col">
         {/* Ensure the sidebar fits within the viewport for mobile devices */}
         <div className="flex flex-col items-center justify-center py-4">
           <img src="/logo.png" alt="Medicare Logo" className="w-16 h-16" />

@@ -40,12 +40,12 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden relative">
       {/* Enhanced background with advanced medical-themed gradients */}
-      <div className="fixed inset-0 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 z-0">
+      <div className="fixed inset-0 bg-linear-to-br from-blue-100 via-indigo-100 to-purple-100 z-0">
         {/* Larger, more refined background elements with parallax effect */}
         <div className="w-full h-full absolute inset-0 overflow-hidden">
           {/* Blue gradient blob with enhanced parallax */}
           <div 
-            className="absolute w-[120%] h-[120%] top-[-20%] right-[-20%] bg-gradient-to-br from-[#a1b5fa] to-[#e8c3d5] opacity-50 rounded-full blur-[80px] transition-transform duration-200 ease-out"
+            className="absolute w-[120%] h-[120%] top-[-20%] right-[-20%] bg-linear-to-br from-[#a1b5fa] to-accent opacity-50 rounded-full blur-[80px] transition-transform duration-200 ease-out"
             style={{ 
               transform: `translate(${mousePosition.x * -30}px, ${mousePosition.y * -30}px)`,
               filter: `hue-rotate(${mousePosition.x * 15}deg)`
@@ -54,7 +54,7 @@ const NotFound = () => {
           
           {/* Purple gradient blob with enhanced parallax */}
           <div 
-            className="absolute w-[100%] h-[100%] bottom-[-10%] left-[-10%] bg-gradient-to-tr from-purple-300 to-blue-200 opacity-50 rounded-full blur-[100px] transition-transform duration-200 ease-out"
+            className="absolute w-full h-full bottom-[-10%] left-[-10%] bg-linear-to-tr from-purple-300 to-blue-200 opacity-50 rounded-full blur-[100px] transition-transform duration-200 ease-out"
             style={{ 
               transform: `translate(${mousePosition.x * 30}px, ${mousePosition.y * 30}px)`,
               filter: `hue-rotate(${mousePosition.y * -15}deg)`
@@ -63,7 +63,7 @@ const NotFound = () => {
 
           {/* Additional cyan blob with rotation effect */}
           <div 
-            className="absolute w-[80%] h-[80%] top-[20%] left-[30%] bg-gradient-to-tr from-cyan-200 to-indigo-200 opacity-40 rounded-full blur-[120px] transition-all duration-300 ease-out"
+            className="absolute w-[80%] h-[80%] top-[20%] left-[30%] bg-linear-to-tr from-cyan-200 to-indigo-200 opacity-40 rounded-full blur-[120px] transition-all duration-300 ease-out"
             style={{ 
               transform: `translate(${mousePosition.x * -15}px, ${mousePosition.y * 15}px) rotate(${mousePosition.x * 5}deg)`,
               filter: `brightness(${1 + Math.abs(mousePosition.x) * 0.2})`
@@ -108,10 +108,10 @@ const NotFound = () => {
           </div>
           
           {/* Enhanced background gradients for depth with animation */}
-          <div className="absolute top-0 right-0 w-full h-60 bg-gradient-to-b from-blue-200 to-transparent opacity-40 animate-breathe-light"></div>
-          <div className="absolute bottom-0 left-0 w-full h-60 bg-gradient-to-t from-purple-200 to-transparent opacity-40 animate-breathe-light animation-delay-300"></div>
-          <div className="absolute bottom-0 right-0 w-1/2 h-60 bg-gradient-to-tl from-indigo-300 to-transparent opacity-30 animate-breathe-light animation-delay-600"></div>
-          <div className="absolute top-0 left-0 w-1/2 h-60 bg-gradient-to-br from-blue-300 to-transparent opacity-30 animate-breathe-light animation-delay-900"></div>
+          <div className="absolute top-0 right-0 w-full h-60 bg-linear-to-b from-blue-200 to-transparent opacity-40 animate-breathe-light"></div>
+          <div className="absolute bottom-0 left-0 w-full h-60 bg-linear-to-t from-purple-200 to-transparent opacity-40 animate-breathe-light animation-delay-300"></div>
+          <div className="absolute bottom-0 right-0 w-1/2 h-60 bg-linear-to-tl from-indigo-300 to-transparent opacity-30 animate-breathe-light animation-delay-600"></div>
+          <div className="absolute top-0 left-0 w-1/2 h-60 bg-linear-to-br from-blue-300 to-transparent opacity-30 animate-breathe-light animation-delay-900"></div>
         </div>
       </div>
       
@@ -125,10 +125,10 @@ const NotFound = () => {
         {/* Enhanced medical cross symbol with better animations */}
         <div className="mb-6 transform hover:rotate-45 transition-transform duration-300 hover:shadow-xl">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-[#252A61] rounded-md flex items-center justify-center shadow-lg relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <span className="text-white text-4xl md:text-5xl font-bold relative z-10">+</span>
             <div className="absolute inset-0 opacity-0 group-hover:opacity-80 transition-opacity duration-500 pointer-events-none">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-500 animate-pulse-wave mix-blend-overlay"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-blue-400 to-indigo-500 animate-pulse-wave mix-blend-overlay"></div>
             </div>
           </div>
           <div className="absolute w-16 h-16 md:w-20 md:h-20 bg-[#252A61] rounded-md opacity-30 blur-md animate-pulse"></div>
@@ -173,9 +173,9 @@ const NotFound = () => {
             {/* Enhanced backdrop specifically for the 404 area */}
             <div className="absolute -inset-20 -z-10 opacity-70">
               {/* Animated background orbs specific to 404 area */}
-              <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-[80px] animate-orbit-slow"></div>
-              <div className="absolute top-1/4 right-1/3 w-48 h-48 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 rounded-full blur-[60px] animate-orbit-slow animation-delay-300" style={{ animationDirection: "reverse" }}></div>
-              <div className="absolute bottom-1/3 left-1/4 w-56 h-56 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-full blur-[70px] animate-orbit-slow animation-delay-600"></div>
+              <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-linear-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-[80px] animate-orbit-slow"></div>
+              <div className="absolute top-1/4 right-1/3 w-48 h-48 bg-linear-to-r from-indigo-500/20 to-pink-500/20 rounded-full blur-[60px] animate-orbit-slow animation-delay-300" style={{ animationDirection: "reverse" }}></div>
+              <div className="absolute bottom-1/3 left-1/4 w-56 h-56 bg-linear-to-r from-cyan-400/20 to-blue-400/20 rounded-full blur-[70px] animate-orbit-slow animation-delay-600"></div>
               
               {/* Digital medical grid pattern for 404 background */}
               <div className="absolute inset-0 opacity-5">
@@ -228,19 +228,19 @@ const NotFound = () => {
             </div>
 
             {/* Replace white shadows with colored shadows for depth */}
-            <h1 className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-gradient-to-br from-blue-900/20 to-indigo-900/20 opacity-80 blur-xl absolute inset-0 select-none transform translate-x-3 translate-y-3">
+            <h1 className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-linear-to-br from-blue-900/20 to-indigo-900/20 opacity-80 blur-xl absolute inset-0 select-none transform translate-x-3 translate-y-3">
               404
             </h1>
-            <h1 className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-gradient-to-br from-purple-800/20 to-indigo-800/20 opacity-80 blur-lg absolute inset-0 select-none transform translate-x-2 translate-y-2">
+            <h1 className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-linear-to-br from-purple-800/20 to-indigo-800/20 opacity-80 blur-lg absolute inset-0 select-none transform translate-x-2 translate-y-2">
               404
             </h1>
-            <h1 className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-gradient-to-br from-cyan-700/30 to-blue-700/30 opacity-80 blur-sm absolute inset-0 select-none transform translate-x-1 translate-y-1">
+            <h1 className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-linear-to-br from-cyan-700/30 to-blue-700/30 opacity-80 blur-sm absolute inset-0 select-none transform translate-x-1 translate-y-1">
               404
             </h1>
             
             {/* Main text with enhanced styling and subtle hover animation */}
             <h1 
-              className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-gradient-to-br from-[#2b3a8c] via-[#4c5ec9] to-[#6d74dd] leading-none tracking-tight relative transition-transform duration-500 ease-out group-hover:scale-105"
+              className="text-[12rem] sm:text-[18rem] md:text-[25rem] font-bold text-transparent bg-clip-text bg-linear-to-br from-[#2b3a8c] via-[#4c5ec9] to-[#6d74dd] leading-none tracking-tight relative transition-transform duration-500 ease-out group-hover:scale-105"
               style={{ 
                 textShadow: '0 4px 12px rgba(37, 42, 97, 0.3), 0 8px 24px rgba(76, 94, 201, 0.2)',
                 animation: 'float-subtle 6s ease-in-out infinite',
@@ -251,7 +251,7 @@ const NotFound = () => {
             
             {/* Metallic texture overlay for more realistic effect */}
             <div 
-              className="absolute inset-0 bg-gradient-to-t from-transparent via-white to-transparent opacity-50 mix-blend-overlay group-hover:opacity-70 transition-opacity duration-300"
+              className="absolute inset-0 bg-linear-to-t from-transparent via-white to-transparent opacity-50 mix-blend-overlay group-hover:opacity-70 transition-opacity duration-300"
               style={{
                 backgroundSize: '200% 100%',
                 backgroundPosition: 'right bottom',
@@ -267,7 +267,7 @@ const NotFound = () => {
               }}
             >
               <div 
-                className="absolute h-[300%] w-[50px] bg-gradient-to-b from-transparent via-white to-transparent opacity-30 rotate-12 blur-sm top-[-100%] group-hover:animate-sweep-light"
+                className="absolute h-[300%] w-[50px] bg-linear-to-b from-transparent via-white to-transparent opacity-30 rotate-12 blur-sm -top-full group-hover:animate-sweep-light"
                 style={{ 
                   left: '-30%',
                 }}
@@ -276,7 +276,7 @@ const NotFound = () => {
             
             {/* Animated glow effect */}
             <div className="absolute inset-0 z-[-1] opacity-40 blur-2xl">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 animate-pulse-slow"></div>
+              <div className="absolute inset-0 bg-linear-to-tr from-blue-500/20 to-purple-500/20 animate-pulse-slow"></div>
             </div>
             
             {/* Enhanced backdrop glow */}
@@ -294,7 +294,7 @@ const NotFound = () => {
               {Array.from({ length: 12 }).map((_, i) => (
                 <div
                   key={`glow-${i}`}
-                  className="absolute bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-xl"
+                  className="absolute bg-linear-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-xl"
                   style={{
                     width: `${Math.random() * 120 + 50}px`,
                     height: `${Math.random() * 120 + 50}px`,
@@ -360,8 +360,8 @@ const NotFound = () => {
           to="/"
           className="inline-flex items-center justify-center px-8 py-3 bg-[#252A61] text-white rounded-full text-lg hover:bg-[#3b3b98] transition-all duration-300 hover:shadow-xl transform hover:scale-105 relative overflow-hidden group"
         >
-          <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity"></span>
-          <span className="absolute -inset-[100%] w-[300%] h-full bg-gradient-to-r from-transparent via-white to-transparent opacity-20 group-hover:animate-shimmer"></span>
+          <span className="absolute inset-0 w-full h-full bg-linear-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity"></span>
+          <span className="absolute -inset-full w-[300%] h-full bg-linear-to-r from-transparent via-white to-transparent opacity-20 group-hover:animate-shimmer"></span>
           <FaHome className="mr-2 group-hover:scale-110 transition-transform duration-300" />
           <span className="relative z-10">Return to Medicare Home</span>
           <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none blur-md" style={{ background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(79, 70, 229, 0.5) 70%, transparent 100%)' }}></div>

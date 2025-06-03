@@ -156,7 +156,7 @@ const FloatingActionButton = ({ link = '/user-lookup', icon = <FiSearch size={24
           className="flex flex-col items-center gap-1 group"
           onClick={(e) => isDragging && e.preventDefault()}
         >
-          <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-105">
+          <div className="p-4 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all group-hover:scale-105">
             {icon}
           </div>
           {!isDragging && (

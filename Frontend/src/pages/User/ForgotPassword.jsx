@@ -51,7 +51,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -86,7 +86,7 @@ const ForgotPassword = () => {
               className="p-4 bg-green-50 dark:bg-green-900/30 rounded-lg mb-6"
             >
               <div className="flex items-start">
-                <CheckCircle className="text-green-500 mr-3 mt-0.5 flex-shrink-0" size={18} />
+                <CheckCircle className="text-green-500 mr-3 mt-0.5 shrink-0" size={18} />
                 <div>
                   <h3 className="font-medium text-green-800 dark:text-green-300">Success!</h3>
                   <p className="text-sm text-green-700 dark:text-green-400 mt-1">{success}</p>
@@ -155,7 +155,7 @@ const ForgotPassword = () => {
 
               {error && (
                 <div className="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm flex items-start">
-                  <AlertCircle className="text-red-500 mr-3 mt-0.5 flex-shrink-0" size={18} />
+                  <AlertCircle className="text-red-500 mr-3 mt-0.5 shrink-0" size={18} />
                   <span>{error}</span>
                 </div>
               )}

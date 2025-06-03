@@ -84,7 +84,7 @@ const HospitalDashboard = () => {
 
   return (
     <HospitalDashboardLayout>
-      <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-380 mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
@@ -184,7 +184,7 @@ const HospitalDashboard = () => {
                       <tr key={patient.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center p-[2px]">
+                            <div className="w-8 h-8 rounded-full bg-linear-to-r from-blue-500 to-blue-600 flex items-center justify-center p-[2px]">
                               <div className="bg-white rounded-full w-full h-full flex items-center justify-center overflow-hidden">
                                 {patient.photoURL ? (
                                   <img 

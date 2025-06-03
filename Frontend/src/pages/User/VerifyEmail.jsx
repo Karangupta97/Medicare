@@ -115,7 +115,7 @@ const VerifyEmail = () => {
   }, [otp]);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-[#B8C5FD] to-[#E8C3D5] px-4 py-8">
+    <div className="relative flex min-h-screen items-center justify-center bg-linear-to-b from-[#B8C5FD] to-[#E8C3D5] px-4 py-8">
       {/* Background Blur */}
       <motion.div 
         initial={{ opacity: 0 }}

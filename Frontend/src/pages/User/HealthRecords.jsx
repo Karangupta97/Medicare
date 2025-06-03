@@ -394,7 +394,7 @@ const HealthRecords = () => {
                           {formatDate(item.createdAt)}
                         </p>
                       </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ml-2 shrink-0
                         ${activeTab === 'reports' 
                           ? item.category === 'medical' ? 'bg-green-100 text-green-800' :
                             item.category === 'lab' ? 'bg-purple-100 text-purple-800' :

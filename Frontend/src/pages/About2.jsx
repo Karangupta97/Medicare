@@ -96,7 +96,7 @@ const About = () => {
       </div>
       
       {/* Hero Section with Parallax Effect */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-[#eef2ff] to-white dark:from-gray-800 dark:to-gray-900 pt-16 pb-20 md:pt-24 md:pb-28">
+      <div className="relative overflow-hidden bg-linear-to-b from-[#eef2ff] to-white dark:from-gray-800 dark:to-gray-900 pt-16 pb-20 md:pt-24 md:pb-28">
         <div className="absolute inset-0 z-0 opacity-50">
           <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-[#252A61]/10 blur-3xl"></div>
           <div className="absolute top-[20%] -left-[5%] w-[30%] h-[30%] rounded-full bg-[#4338ca]/10 blur-3xl"></div>
@@ -110,7 +110,7 @@ const About = () => {
             className="text-center"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-              About <span className="text-[#252A61] bg-clip-text bg-gradient-to-r from-indigo-700 to-blue-500">Medicare</span>
+              About <span className="text-[#252A61] bg-clip-text bg-linear-to-r from-indigo-700 to-blue-500">Medicare</span>
             </h1>
             <p className="mt-6 max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
               Revolutionizing healthcare through technology and putting patients at the center of their medical journey.
@@ -151,14 +151,14 @@ const About = () => {
             className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
           >
             <div className="relative">
-              <div className="absolute inset-0 -m-10 bg-gradient-to-r from-[#252A61]/20 to-blue-500/20 rounded-full filter blur-3xl opacity-30"></div>
+              <div className="absolute inset-0 -m-10 bg-linear-to-r from-[#252A61]/20 to-blue-500/20 rounded-full filter blur-3xl opacity-30"></div>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img 
                   className="w-full h-auto object-cover" 
                   src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                   alt="Medical professionals" 
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent flex items-end">
                   <div className="p-6 text-white">
                     <span className="text-sm bg-[#252A61] py-1 px-3 rounded-full font-medium">Our Purpose</span>
                     <h3 className="text-2xl font-bold mt-2">Transforming Healthcare</h3>
@@ -188,7 +188,7 @@ const About = () => {
                   {icon: <FiUser />, text: "Personalized medical journey"}
                 ].map((item, index) => (
                   <div key={index} className="flex items-center space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-[#252A61] dark:text-blue-400">
+                    <div className="shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-[#252A61] dark:text-blue-400">
                       {item.icon}
                     </div>
                     <span className="text-gray-700 dark:text-gray-300">{item.text}</span>
@@ -203,7 +203,7 @@ const About = () => {
       {/* Vision Section - Enhanced */}
       <section 
         id="vision-section" 
-        className="py-16 md:py-24 bg-gradient-to-b from-indigo-50 to-white dark:from-gray-800 dark:to-gray-900"
+        className="py-16 md:py-24 bg-linear-to-b from-indigo-50 to-white dark:from-gray-800 dark:to-gray-900"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -214,14 +214,14 @@ const About = () => {
           >
             <div className="md:order-2">
               <div className="relative">
-                <div className="absolute inset-0 -m-10 bg-gradient-to-r from-purple-500/20 to-[#252A61]/20 rounded-full filter blur-3xl opacity-30"></div>
+                <div className="absolute inset-0 -m-10 bg-linear-to-r from-purple-500/20 to-[#252A61]/20 rounded-full filter blur-3xl opacity-30"></div>
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <img 
                     className="w-full h-auto object-cover" 
                     src="https://images.unsplash.com/photo-1580281657702-257584239a55?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                     alt="Digital healthcare" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent flex items-end">
                     <div className="p-6 text-white">
                       <span className="text-sm bg-purple-600 py-1 px-3 rounded-full font-medium">Our Vision</span>
                       <h3 className="text-2xl font-bold mt-2">Healthcare of Tomorrow</h3>
@@ -254,7 +254,7 @@ const About = () => {
                   "Elimination of administrative barriers to quality care"
                 ].map((point, index) => (
                   <li key={index} className="flex items-start">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-600 dark:text-purple-400 mt-0.5">
+                    <div className="shrink-0 w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-600 dark:text-purple-400 mt-0.5">
                       <FiCheck className="w-4 h-4" />
                     </div>
                     <span className="ml-3 text-gray-700 dark:text-gray-300">{point}</span>
@@ -357,7 +357,7 @@ const About = () => {
       {/* Services Section - Enhanced with Icons */}
       <section 
         id="services-section" 
-        className="py-16 md:py-24 bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900"
+        className="py-16 md:py-24 bg-linear-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -483,7 +483,7 @@ const About = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible.team ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl shadow-xl p-8 md:p-12 flex flex-col md:flex-row items-center md:space-x-8"
+            className="bg-linear-to-r from-red-50 to-blue-50 dark:from-gray-800 dark:to-gray-800 rounded-2xl shadow-xl p-8 md:p-12 flex flex-col md:flex-row items-center md:space-x-8"
           >
             <div className="mb-8 md:mb-0 md:w-1/2">
               <img
