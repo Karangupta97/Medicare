@@ -29,7 +29,7 @@ import {
   Eye,
   Lock
 } from "lucide-react";
-import Logo from "../../assets/logo/textlogo.png";
+import Logo from "../../assets/Logo/textlogo.png";
 import { useFounderStore } from "../../store/founderStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { safeStorageAccess } from "../../utils/errorHandling";
