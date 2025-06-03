@@ -84,14 +84,18 @@ else {
   app.use(
     cors({
       origin: function(origin, callback) {
-        const allowedOrigins = process.env.NODE_ENV === "production"
-          ? ["https://medicares.in", "https://www.medicares.in"] 
-          : ["http://localhost:5173"]; // Vite's default port
+        const allowedOrigins = [
+          "https://medicares.in", 
+          "https://www.medicares.in",
+          "http://localhost:5173", // Vite's default port for development
+          "http://localhost:3000"  // Additional development port
+        ];
           
         // Check if origin is allowed or if it's null (like for same-origin requests)
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
+          console.log(`CORS: Origin '${origin}' not allowed`);
           callback(new Error('Not allowed by CORS'));
         }
       },
@@ -169,13 +173,17 @@ else {
   io = new Server(httpServer, {
     cors: {
       origin: function(origin, callback) {
-        const allowedOrigins = process.env.NODE_ENV === "production"
-          ? ["https://medicares.in", "https://www.medicares.in"]
-          : ["http://localhost:5173"];
+        const allowedOrigins = [
+          "https://medicares.in", 
+          "https://www.medicares.in",
+          "http://localhost:5173", // Vite's default port for development
+          "http://localhost:3000"  // Additional development port
+        ];
           
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
+          console.log(`CORS: Origin '${origin}' not allowed`);
           callback(new Error('Not allowed by CORS'));
         }
       },
