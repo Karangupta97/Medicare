@@ -457,7 +457,7 @@ const Team = () => {
                                 whileHover={{ scale: 1.05 }}
                                 className="px-4 py-2 rounded-full bg-[#252A61] text-white text-sm font-semibold shadow-lg"
                               >
-                                Founder & CEO
+                                Founder & CEO of Medicare
                               </motion.span>
                               <span className="px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium">
                                 Full Stack Developer
@@ -529,6 +529,7 @@ const Team = () => {
                         </motion.div>
 
                         {/* Enhanced Tech Stack with interactive skill details */}
+                        {/* 
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -580,7 +581,6 @@ const Team = () => {
                                   {skill.name}
                                 </span>
 
-                                {/* Skill level indicator */}
                                 <div className="mt-1 w-8 h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                                   <motion.div
                                     initial={{ width: 0 }}
@@ -594,7 +594,6 @@ const Team = () => {
                                   />
                                 </div>
 
-                                {/* Skill details tooltip */}
                                 <AnimatePresence>
                                   {selectedSkill === skill.name && (
                                     <motion.div
@@ -626,6 +625,7 @@ const Team = () => {
                             ))}
                           </div>
                         </motion.div>
+                        */}
 
                         {/* Enhanced Achievements */}
                         {/* <motion.div
@@ -1718,7 +1718,7 @@ const Team = () => {
                 {/* Image caption */}
                 <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-6">
                   <h3 className="text-white text-xl font-bold mb-1">Karan Gupta</h3>
-                  <p className="text-white/80 text-sm">Founder & CEO, Full Stack Developer</p>
+                  <p className="text-white/80 text-sm">Founder & CEO of Medicare, Full Stack Developer</p>
                 </div>
               </div>
             </motion.div>
