@@ -10,22 +10,10 @@ import {
   sendPasswordResetEmail,
   sendPasswordResetSuccessEmail,
 } from "../../services/emails/emails.js";
+import generatePatientUMID from "../../UMID/patient.UMID.js";
 import dotenv from "dotenv";
 
 dotenv.config();
-
-export const generateUMID = () => {
-  // Generate 4 groups of 5-digit numbers
-  const group1 = String(Math.floor(10000 + Math.random() * 90000));
-  const group2 = String(Math.floor(10000 + Math.random() * 90000));
-  const group3 = String(Math.floor(10000 + Math.random() * 90000));
-  const group4 = String(Math.floor(10000 + Math.random() * 90000));
-
-  // Format in required pattern: MED-XXXXX XXXXX XXXXX XXXXX
-  const umid = `MED-${group1} ${group2} ${group3} ${group4}`;
-  console.log("Generated UMID:", umid);
-  return umid;
-};
 
 export const signup = async (req, res) => {
   const { email, password, name, lastname, photoURL } = req.body;
@@ -46,7 +34,7 @@ export const signup = async (req, res) => {
       100000 + Math.random() * 900000
     ).toString();
     // Generate a Unique UMID
-    const uniqueUMID = generateUMID();
+    const userUMID = generatePatientUMID();
 
     // Create a new user
     const user = new User({
@@ -54,7 +42,7 @@ export const signup = async (req, res) => {
       password: hashedPassword,
       name,
       lastname,
-      umid: uniqueUMID,
+      umid: userUMID,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 10 * 60 * 1000, // 10 min expiry
       photoURL,
@@ -98,7 +86,7 @@ export const verifyEmail = async (req, res) => {
     user.verificationToken = undefined;
     user.verificationTokenExpiresAt = undefined;
     await user.save();
-    await sendWelcomeEmail(user.email, user.name); // Corrected function call
+    await sendWelcomeEmail(user.email, user.name);
     res.status(200).json({
       success: true,
       message: "Email verified successfully",
@@ -294,32 +282,18 @@ export const updateProfile = async (req, res) => {
     const {
       phone, 
       dob, 
-      addressLine1, 
-      addressLine2, 
-      state, 
-      district,
-      city, 
-      postalCode,
+      gender,
+      bloodGroup,
     } = req.body;
     const userId = req.user.id;
     
     const updateFields = {};
     if (phone) updateFields.phone = phone;
     if (dob) updateFields.dob = dob;
+    if (gender) updateFields.gender = gender;
+    if (bloodGroup) updateFields.bloodGroup = bloodGroup;
 
-    // Process address data if provided
-    const hasAddressData = addressLine1 || addressLine2 || state || district || city || postalCode;
-    
-    if (hasAddressData) {
-      // Add the address fields directly without validation for now
-      if (addressLine1) updateFields.addressLine1 = addressLine1;
-      if (addressLine2) updateFields.addressLine2 = addressLine2;
-      if (state) updateFields.state = state;
-      if (district) updateFields.district = district;
-      if (city) updateFields.city = city;
-      if (postalCode) updateFields.postalCode = postalCode;
-      updateFields.addressValidated = false; // Mark as not validated since we don't have validation yet
-    }
+    // Note: Address updates are handled by a separate endpoint for proper validation
 
     // Handle profile photo upload
     if (req.file) {

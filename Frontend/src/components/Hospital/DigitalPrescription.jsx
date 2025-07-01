@@ -20,6 +20,7 @@ import {
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import usePatientStore from "../../store/Patient/patientstore";
+import { useAuthStore } from "../../store/Patient/authStore";
 
 // Utility function to calculate age from date of birth
 const calculateAge = (dob) => {
@@ -43,6 +44,7 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const { createPrescription } = usePatientStore();
+  const { token } = useAuthStore();
 
   const handleChange = (e, index, field) => {
     const { value } = e.target;
@@ -90,12 +92,17 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
       day: 'numeric'
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      // Validate that we have a token
+      if (!token) {
+        toast.error('Authentication required. Please log in again.');
+        return;
+      }
+
       // Add patient details and current date to the prescription
       const prescriptionData = {
         ...formData,
@@ -105,8 +112,8 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
         createdAt: new Date().toISOString()
       };
 
-      // Use createPrescription from patient store
-      const newPrescription = await createPrescription(prescriptionData);
+      // Use createPrescription from patient store with token
+      const newPrescription = await createPrescription(prescriptionData, token);
       
       if (newPrescription) {
         toast.success('Prescription created successfully');
@@ -122,11 +129,16 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
         // Call the callback if provided to refresh parent component
         if (onPrescriptionSaved) {
           onPrescriptionSaved(newPrescription);
-        }
-      }
+        }      }
     } catch (error) {
       console.error("Error creating prescription:", error);
-      toast.error(error.response?.data?.message || "Failed to create prescription");
+      
+      // Check if this is a cancellation error
+      if (error.message === 'Request was cancelled') {
+        toast.error("Prescription creation was cancelled. Please try again.");
+      } else {
+        toast.error(error.response?.data?.message || error.message || "Failed to create prescription");
+      }
     } finally {
       setIsSubmitting(false);
     }

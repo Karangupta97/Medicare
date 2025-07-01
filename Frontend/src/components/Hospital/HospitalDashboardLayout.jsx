@@ -60,12 +60,12 @@ const HospitalDashboardLayout = ({ children }) => {
   }, []);
 
   const menuItems = [
-    { icon: FiGrid, label: "Dashboard", path: "/hospital/hospital-dashboard" },
-    { icon: FiSearch, label: "Find Patient", path: "/hospital/hospital-dashboard/find-patient" },
-    { icon: FiUser, label: "Profile", path: "/hospital/hospital-dashboard/profile" },
-    { icon: FiSettings, label: "Settings", path: "/hospital/hospital-dashboard/settings" },
-    { icon: FiHelpCircle, label: "Help", path: "/hospital/hospital-dashboard/help" },
-    { icon: FiActivity, label: "Anilit", path: "/hospital/hospital-dashboard/analytics" },
+    { icon: FiGrid, label: "Dashboard", path: "/hospital/dashboard" },
+    { icon: FiSearch, label: "Find Patient", path: "/hospital/find-patient" },
+    { icon: FiUser, label: "Profile", path: "/hospital/profile" },
+    { icon: FiSettings, label: "Settings", path: "/hospital/settings" },
+    { icon: FiHelpCircle, label: "Help", path: "/hospital/help" },
+    { icon: FiActivity, label: "Anilit", path: "/hospital/analytics" },
   ];
 
   useEffect(() => {

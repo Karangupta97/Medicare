@@ -1224,12 +1224,11 @@ const getFilteredReports = () => {
    * UTILITY FUNCTIONS
    * ============================================
    */
-  
-  // UMID format validation function
+    // UMID format validation function
   const isValidUMID = (umid) => {
-    // Format should be "MED-XXXXX XXXXX XXXXX XXXXX" where X is a digit
-    // Exactly 4 groups of exactly 5 digits, no more, no less
-    const umidRegex = /^MED-\d{5}\s\d{5}\s\d{5}\s\d{5}$/;
+    // Format should be "AB12345XY" where A,B,X,Y are letters and 1,2,3,4,5 are digits
+    // Exactly 2 letters + 5 digits + 2 letters = 9 characters total
+    const umidRegex = /^[A-Z]{2}\d{5}[A-Z]{2}$/;
     return umidRegex.test(umid);
   };
 
@@ -1249,11 +1248,10 @@ const getFilteredReports = () => {
       toast.error("Please enter a valid UMID");
       return;
     }
-    
-    // Validate UMID format
+      // Validate UMID format
     if (!isValidUMID(trimmedUMID)) {
-      toast.error("Invalid UMID format. Format should be MED-XXXXX XXXXX XXXXX XXXXX");
-      setError("Invalid UMID format. Please enter UMID in the format: MED-XXXXX XXXXX XXXXX XXXXX");
+      toast.error("Invalid UMID format. Format should be AB12345XY (2 letters + 5 digits + 2 letters)");
+      setError("Invalid UMID format. Please enter UMID in the format: AB12345XY (2 letters + 5 digits + 2 letters)");
       return;
     }
     
@@ -1480,63 +1478,21 @@ const getFilteredReports = () => {
       }
     }
   }, [activeSection, reports, isLoadingReports, isRefreshing]);
-
   // Format the UMID input as the user types
   const handleUMIDInput = (e) => {
     // Get the raw input value
-    let input = e.target.value;
+    let input = e.target.value.toUpperCase();
     
-    // Strip all non-alphanumeric characters except for hyphen
-    let sanitized = input.replace(/[^0-9A-Za-z-]/g, '');
+    // Remove all non-alphanumeric characters
+    let sanitized = input.replace(/[^0-9A-Z]/g, '');
     
-    // Handle the MED- prefix
-    if (!sanitized.toUpperCase().startsWith("MED-")) {
-      // If it starts with M, E, D in sequence, add the hyphen
-      if (sanitized.toUpperCase().startsWith("MED")) {
-        sanitized = "MED-" + sanitized.substring(3);
-      } 
-      // If it doesn't start with MED, but has other content, add MED- prefix
-      else if (sanitized.length > 0) {
-        sanitized = "MED-" + sanitized;
-      }
-    }
-    
-    // Convert to uppercase for consistency
-    sanitized = sanitized.toUpperCase();
-    
-    // Remove any digits beyond the max length (MED- + 20 digits)
-    if (sanitized.length > 24) { // "MED-" is 4 chars + 20 digits
-      sanitized = sanitized.substring(0, 24);
-    }
-    
-    // Format the UMID with proper spacing
-    let formatted = '';
-    
-    // Always add the MED- prefix
-    if (sanitized.length >= 4) {
-      formatted = sanitized.substring(0, 4); // MED-
-      
-      // Get all characters after the prefix
-      let remainder = sanitized.substring(4);
-      
-      // Add each group of 5 digits with spaces between them
-      for (let i = 0; i < 4; i++) { // 4 groups of 5 digits each
-        if (i < remainder.length / 5) {
-          // Add a space before each group (except the first one)
-          if (i > 0) formatted += " ";
-          
-          // Add up to 5 digits for this group
-          const start = i * 5;
-          const end = Math.min(start + 5, remainder.length);
-          formatted += remainder.substring(start, end);
-        }
-      }
-    } else {
-      formatted = sanitized;
+    // Limit to 9 characters (2 letters + 5 digits + 2 letters)
+    if (sanitized.length > 9) {
+      sanitized = sanitized.substring(0, 9);
     }
     
     // Update the input value
-    setSearchQuery(formatted);
+    setSearchQuery(sanitized);
   };
 
   // Handle selecting a recent search
@@ -1657,11 +1613,10 @@ const getFilteredReports = () => {
                   </div>
                   <input
                     type="text"
-                    className="block w-full rounded-xl border-0 py-3.5 pl-10 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 shadow-sm transition-all duration-200"
-                    placeholder="Enter patient UMID (e.g., MED-12345 67890 12345 67890)"
+                    className="block w-full rounded-xl border-0 py-3.5 pl-10 pr-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 shadow-sm transition-all duration-200"                    placeholder="Enter patient UMID (e.g., AB12345XY)"
                     value={searchQuery}
                     onChange={handleUMIDInput}
-                    maxLength={30}
+                    maxLength={9}
                     aria-label="Patient UMID"
                   />
                   {searchQuery && (
@@ -1704,7 +1659,7 @@ const getFilteredReports = () => {
                 <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center mr-2">
                   <FiInfo className="h-3 w-3 text-blue-600" />
                 </div>
-                <p className="text-xs text-gray-500">Format: MED-XXXXX XXXXX XXXXX XXXXX (where X is a digit)</p>
+                <p className="text-xs text-gray-500">Format: AB12345XY (2 letters + 5 digits + 2 letters)</p>
               </div>
             </div>
           </div>

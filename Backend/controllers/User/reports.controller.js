@@ -3,6 +3,7 @@ import { uploadFile, deleteFile, getFileUrl } from "../../services/s3.service.js
 import { io } from "../../server.js";
 import { sendNotificationToUser } from "../../utils/notifications.js";
 import { createNotification } from "../User/notifications.controller.js";
+import { checkStorageLimitBeforeUpload, getUserStorageInfo } from "../../utils/checkStorageLimit.js";
 
 // Valid categories
 const VALID_CATEGORIES = ['medical', 'lab', 'prescription', 'other'];
@@ -114,13 +115,46 @@ export const uploadReport = async (req, res) => {
       });
     }
 
-    // Validate file size (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
     if (file.size > maxSize) {
       console.error(`File size too large: ${file.size} bytes`);
       return res.status(413).json({
         success: false,
-        message: 'File size too large. Maximum size is 10MB.',
+        message: 'File size too large. Maximum size is 5MB.',
+      });
+    }
+
+    // // Check storage limit before uploading
+    try {
+      const storageCheck = await checkStorageLimitBeforeUpload(req.user.id, file.size);
+      
+      if (storageCheck.wouldExceedLimit) {
+        console.log(`Storage limit exceeded for user ${req.user.id}:`, storageCheck);
+        return res.status(413).json({
+          success: false,
+          error: 'STORAGE_LIMIT_EXCEEDED',
+          message: 'Storage limit exceeded. Please upgrade your plan to upload more files.',
+          details: {
+            currentUsage: storageCheck.currentUsage,
+            storageLimit: storageCheck.storageLimit,
+            fileSize: storageCheck.newFileSize,
+            availableSpace: storageCheck.availableSpace,
+            usagePercentage: storageCheck.usagePercentage,
+            planType: storageCheck.planType,
+            // Convert bytes to human readable format
+            currentUsageMB: Math.round(storageCheck.currentUsage / (1024 * 1024) * 100) / 100,
+            storageLimitMB: Math.round(storageCheck.storageLimit / (1024 * 1024) * 100) / 100,
+            fileSizeMB: Math.round(storageCheck.newFileSize / (1024 * 1024) * 100) / 100,
+            availableSpaceMB: Math.round(storageCheck.availableSpace / (1024 * 1024) * 100) / 100
+          }
+        });
+      }
+    } catch (storageError) {
+      console.error('Error checking storage limit:', storageError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to check storage limit. Please try again.',
       });
     }
 

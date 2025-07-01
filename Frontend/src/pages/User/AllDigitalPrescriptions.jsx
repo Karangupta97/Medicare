@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
-import DashboardLayout from "../../components/User/DashboardLayout";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
 import { 
-  FiFileText, FiSearch, FiFilter, FiCalendar, FiDownload, 
-  FiPrinter, FiGrid, FiList, FiPlus, FiArrowLeft, FiAlertTriangle,
-  FiChevronDown, FiCheck, FiX, FiRefreshCw
+  FiFileText, FiSearch, FiFilter, FiCalendar, 
+  FiGrid, FiList, FiAlertTriangle,
+  FiChevronDown, FiCheck, FiX, FiRefreshCw, FiActivity, FiClock,
+  FiTrendingUp, FiUser, FiMapPin, FiPackage, FiBookOpen, FiStar,
+  FiSliders, FiHeart
 } from "react-icons/fi";
 
 const AllDigitalPrescriptions = () => {
@@ -19,9 +20,7 @@ const AllDigitalPrescriptions = () => {
     isLoading,
     error,
     fetchPrescriptions
-  } = usePatientStore();
-
-  const [filteredPrescriptions, setFilteredPrescriptions] = useState([]);
+  } = usePatientStore();  const [filteredPrescriptions, setFilteredPrescriptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
@@ -42,13 +41,18 @@ const AllDigitalPrescriptions = () => {
     if (token) {
       loadPrescriptions();
     }
-  }, [token, fetchPrescriptions]);
-
-  // Filter prescriptions when search term or filter changes
+  }, [token, fetchPrescriptions]);  // Filter prescriptions when search term or filter changes
   useEffect(() => {
-    if (!prescriptions.length) return;
+    if (!prescriptions.length) {
+      setFilteredPrescriptions([]);
+      return;
+    }
     
     let results = [...prescriptions];
+    
+    // Calculate date for recent filter
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
     // Apply search filter
     if (searchTerm) {
@@ -66,13 +70,10 @@ const AllDigitalPrescriptions = () => {
     // Apply category filter
     if (selectedFilter !== "all") {
       if (selectedFilter === "active") {
-        results = results.filter(prescription => prescription.status === "Active");
+        results = results.filter(prescription => prescription.status === "Active" || !prescription.status);
       } else if (selectedFilter === "completed") {
         results = results.filter(prescription => prescription.status === "Completed");
       } else if (selectedFilter === "recent") {
-        // Get prescriptions from last 30 days
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         results = results.filter(prescription => 
           new Date(prescription.createdAt) >= thirtyDaysAgo
         );
@@ -128,7 +129,6 @@ const AllDigitalPrescriptions = () => {
     setSelectedFilter('all');
     setSortBy('newest');
   };
-
   // List view prescription item component
   const PrescriptionListItem = ({ prescription }) => {
     return (
@@ -136,320 +136,392 @@ const AllDigitalPrescriptions = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 group"
       >
         <Link to={`/digital-prescriptions/${prescription._id}`} className="block">
-          <div className="p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-full bg-blue-50 shrink-0">
-                  <FiFileText className="text-blue-600" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shrink-0 group-hover:from-blue-100 group-hover:to-indigo-100 dark:group-hover:from-blue-800/30 dark:group-hover:to-indigo-800/30 transition-all duration-300">
+                  <FiFileText className="text-blue-600 dark:text-blue-400 w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-gray-800 truncate">
+                  <h3 className="font-semibold text-gray-900 dark:text-white truncate">
                     Prescription #{prescription._id.substring(0, 8)}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <FiCalendar className="w-3 h-3" />
                     {formatDate(prescription.createdAt)}
                   </p>
                 </div>
               </div>
               
               <div className="sm:text-right">
-                <div className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium
-                  ${prescription.status === "Active" ? "bg-green-100 text-green-800" : 
-                    prescription.status === "Completed" ? "bg-blue-100 text-blue-800" : 
-                    "bg-gray-100 text-gray-800"}`}
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+                  ${(prescription.status === "Active" || !prescription.status) ? 
+                    "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400" : 
+                    prescription.status === "Completed" ? 
+                    "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" : 
+                    "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
                 >
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    (prescription.status === "Active" || !prescription.status) ? "bg-emerald-500" :
+                    prescription.status === "Completed" ? "bg-blue-500" : "bg-gray-500"
+                  }`}></div>
                   {prescription.status || "Active"}
                 </div>
               </div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-2">
-              <div>
-                <p className="text-xs text-gray-500">Doctor</p>
-                <p className="text-sm font-medium text-gray-800 truncate">
-                  Dr. {prescription.doctor || "Not specified"}
-                </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <FiUser className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Doctor</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    Dr. {prescription.doctor || "Not specified"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-500">Hospital</p>
-                <p className="text-sm font-medium text-gray-800 truncate">
-                  {prescription.hospitalName || "Not specified"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Medications</p>
-                <p className="text-sm font-medium text-gray-800">
-                  {prescription.medications ? prescription.medications.length : 0} prescribed
-                </p>
+              <div className="flex items-center gap-2">
+                <FiMapPin className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Hospital</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {prescription.hospitalName || "Not specified"}
+                  </p>
+                </div>
+              </div>              <div className="flex items-center gap-2">
+                <FiPackage className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Medications</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {prescription.medications ? prescription.medications.length : 0} prescribed
+                  </p>
+                </div>
               </div>
             </div>
             
             {prescription.diagnosis && (
-              <div className="mt-3">
-                <p className="text-xs text-gray-500">Diagnosis</p>
-                <p className="text-sm text-gray-700 line-clamp-2">
-                  {prescription.diagnosis}
-                </p>
+              <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <FiActivity className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Diagnosis</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                      {prescription.diagnosis}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
+            
+            <div className="mt-4 flex items-center justify-between">
+              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                <span className="flex items-center gap-1">
+                  <FiClock className="w-3 h-3" />
+                  Created {formatDate(prescription.createdAt)}
+                </span>
+              </div>
+              <div className="text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="text-xs font-medium">View Details →</span>
+              </div>
+            </div>
           </div>
         </Link>
       </motion.div>
     );
   };
-
   // Loading state
   if (isLoading) {
     return (
-      <DashboardLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Digital Prescriptions</h1>
-              <p className="text-gray-600 mt-1">View and manage all your medical prescriptions</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="animate-pulse">
+              <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-64 mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-96"></div>
             </div>
           </div>
           
+          {/* Filters Skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
+            <div className="animate-pulse">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-10 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Cards Skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div className="animate-pulse">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="h-10 w-10 rounded-full bg-gray-200 shrink-0"></div>
+                    <div className="h-12 w-12 rounded-xl bg-gray-200 dark:bg-gray-700 shrink-0"></div>
                     <div className="flex-1">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                     </div>
                   </div>
-                  <div className="h-3 bg-gray-200 rounded mb-3 w-full"></div>
-                  <div className="h-3 bg-gray-200 rounded mb-3 w-full"></div>
-                  <div className="h-3 bg-gray-200 rounded w-4/5"></div>
+                  <div className="space-y-3">
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
-
   // Error state
   if (error) {
     return (
-      <DashboardLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8">
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="rounded-full bg-red-100 h-16 w-16 flex items-center justify-center mb-6">
-                <FiAlertTriangle className="text-red-500 text-2xl" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
-                Unable to Load Prescriptions
-              </h2>
-              <p className="text-gray-600 max-w-md mb-6">
-                {error || "We encountered an error while loading your prescriptions. Please try again later."}
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link
-                  to="/dashboard"
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
-                >
-                  <FiArrowLeft className="inline mr-2" />
-                  Back to Dashboard
-                </Link>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  <FiRefreshCw className="inline mr-2" />
-                  Try Again
-                </button>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 sm:p-12 text-center"
+          >
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/20 dark:to-pink-900/20 rounded-2xl flex items-center justify-center mb-6">
+              <FiAlertTriangle className="text-red-500 dark:text-red-400 text-3xl" />
             </div>
-          </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Unable to Load Prescriptions
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-md mx-auto mb-8">
+              {error || "We encountered an error while loading your prescriptions. Please try again later."}
+            </p>            <div className="flex justify-center">
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+              >
+                <FiRefreshCw className="mr-2" />
+                Try Again
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
-
   return (
-    <DashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Digital Prescriptions</h1>
-            <p className="text-gray-600 mt-1">View and manage all your medical prescriptions</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent mb-2">
+              Digital Prescriptions
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-lg sm:text-xl">
+              Manage and track all your medical prescriptions in one place
+            </p>
           </div>
-          
-          <div className="flex flex-wrap gap-3">
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700 text-sm"
-            >
-              <FiArrowLeft className="mr-2" />
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-        
+        </motion.div>        
         {/* Filters and search */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 overflow-hidden"
+        >
+          <div className="flex flex-col lg:flex-row gap-6 p-6">
             {/* Search field */}
             <div className="flex-1">
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiSearch className="text-gray-400" />
-                </div>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <FiSearch className="text-gray-400 w-5 h-5" />                </div>
                 <input
                   type="text"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Search by doctor, hospital, or medication..."
+                  className="block w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl leading-5 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm transition-all duration-300"
+                  placeholder="Search by doctor, hospital, diagnosis, or medication..."
                   value={searchTerm}
                   onChange={handleSearchChange}
                 />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                  >
+                    <FiX className="text-gray-400 hover:text-gray-600 w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
             
             {/* Filters toggle for mobile */}
-            <div className="sm:hidden">
+            <div className="lg:hidden">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300"
               >
-                <span><FiFilter className="inline mr-2" /> Filters</span>
-                <FiChevronDown className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                <span className="flex items-center">
+                  <FiSliders className="mr-2 w-4 h-4" /> 
+                  Filters & Sort
+                </span>
+                <FiChevronDown className={`transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
               </button>
             </div>
             
             {/* Filter Buttons - Desktop */}
-            <div className="hidden sm:flex items-center gap-2 overflow-x-auto py-1">
-              <span className="text-gray-600 text-sm whitespace-nowrap">
-                <FiFilter className="inline mr-1" /> Filter:
+            <div className="hidden lg:flex items-center gap-3">
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium flex items-center gap-1">
+                <FiFilter className="w-4 h-4" /> 
+                Filter:
               </span>
-              
-              <button
-                onClick={() => handleFilterChange('all')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap
-                  ${selectedFilter === 'all' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              >
-                All
-              </button>
-              
-              <button
-                onClick={() => handleFilterChange('active')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap
-                  ${selectedFilter === 'active' 
-                    ? 'bg-green-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              >
-                Active
-              </button>
-              
-              <button
-                onClick={() => handleFilterChange('completed')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap
-                  ${selectedFilter === 'completed' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              >
-                Completed
-              </button>
-              
-              <button
-                onClick={() => handleFilterChange('recent')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap
-                  ${selectedFilter === 'recent' 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              >
-                Recent
-              </button>
-            </div>
-          </div>
-          
-          {/* Mobile Filters */}
-          {showFilters && (
-            <div className="sm:hidden p-4 pt-0 border-t border-gray-100">
-              <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="flex gap-2">
                 <button
                   onClick={() => handleFilterChange('all')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium
-                    ${selectedFilter === 'all' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                    selectedFilter === 'all' 
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
                 >
                   All
                 </button>
                 
                 <button
                   onClick={() => handleFilterChange('active')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium
-                    ${selectedFilter === 'active' 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                    selectedFilter === 'active' 
+                      ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
                 >
                   Active
                 </button>
                 
                 <button
                   onClick={() => handleFilterChange('completed')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium
-                    ${selectedFilter === 'completed' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                    selectedFilter === 'completed' 
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
                 >
                   Completed
                 </button>
                 
                 <button
                   onClick={() => handleFilterChange('recent')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium
-                    ${selectedFilter === 'recent' 
-                      ? 'bg-purple-600 text-white' 
-                      : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                    selectedFilter === 'recent' 
+                      ? 'bg-gradient-to-r from-orange-600 to-yellow-600 text-white shadow-lg' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
                 >
                   Recent
                 </button>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <label htmlFor="mobileSortBy" className="text-sm text-gray-600 whitespace-nowrap">
-                  <FiCalendar className="inline mr-1" /> Sort by:
-                </label>
-                <select
-                  id="mobileSortBy"
-                  value={sortBy}
-                  onChange={handleSortChange}
-                  className="block w-full py-1.5 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="doctor">Doctor Name</option>
-                  <option value="hospital">Hospital Name</option>
-                </select>
-              </div>
             </div>
-          )}
+          </div>
+          
+          {/* Mobile Filters */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm"
+              >
+                <div className="p-6 space-y-4">                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => handleFilterChange('all')}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                        selectedFilter === 'all' 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      All
+                    </button>
+                    
+                    <button
+                      onClick={() => handleFilterChange('active')}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                        selectedFilter === 'active' 
+                          ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      Active
+                    </button>
+                    
+                    <button
+                      onClick={() => handleFilterChange('completed')}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                        selectedFilter === 'completed' 
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      Completed
+                    </button>
+                    
+                    <button
+                      onClick={() => handleFilterChange('recent')}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                        selectedFilter === 'recent' 
+                          ? 'bg-gradient-to-r from-orange-600 to-yellow-600 text-white' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      Recent
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <label htmlFor="mobileSortBy" className="text-sm text-gray-600 dark:text-gray-400 font-medium flex items-center gap-1">
+                      <FiCalendar className="w-4 h-4" /> 
+                      Sort by:
+                    </label>
+                    <select
+                      id="mobileSortBy"
+                      value={sortBy}
+                      onChange={handleSortChange}
+                      className="flex-1 py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm transition-all duration-300"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="doctor">Doctor Name</option>
+                      <option value="hospital">Hospital Name</option>
+                    </select>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           {/* Advanced Options - Desktop */}
-          <div className="hidden sm:flex sm:flex-row items-center justify-between p-4 pt-0 mt-4 border-t border-gray-100">
+          <div className="hidden lg:flex lg:flex-row items-center justify-between p-6 pt-0 mt-6 border-t border-gray-200 dark:border-gray-700">
             {/* Sort options */}
-            <div className="flex items-center gap-2">
-              <label htmlFor="sortBy" className="text-sm text-gray-600 whitespace-nowrap">
-                <FiCalendar className="inline mr-1" /> Sort by:
+            <div className="flex items-center gap-3">
+              <label htmlFor="sortBy" className="text-sm text-gray-600 dark:text-gray-400 font-medium flex items-center gap-1">
+                <FiCalendar className="w-4 h-4" /> 
+                Sort by:
               </label>
               <select
                 id="sortBy"
                 value={sortBy}
                 onChange={handleSortChange}
-                className="block w-full py-1.5 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 sm:text-sm transition-all duration-300"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -459,8 +531,8 @@ const AllDigitalPrescriptions = () => {
             </div>
             
             {/* View mode and result count */}
-            <div className="flex items-center">
-              <div className="text-sm text-gray-600 mr-4">
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                 {filteredPrescriptions.length} {filteredPrescriptions.length === 1 ? 'prescription' : 'prescriptions'} found
               </div>
               
@@ -468,108 +540,153 @@ const AllDigitalPrescriptions = () => {
               {(searchTerm || selectedFilter !== 'all' || sortBy !== 'newest') && (
                 <button
                   onClick={resetFilters}
-                  className="mr-3 flex items-center text-sm text-blue-600 hover:text-blue-800"
+                  className="flex items-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors duration-300"
                 >
-                  <FiX className="mr-1" /> Reset filters
+                  <FiX className="mr-1 w-4 h-4" /> 
+                  Reset filters
                 </button>
               )}
               
               {/* View mode toggle */}
-              <button
-                onClick={toggleViewMode}
-                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-                title={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
-              >
-                {viewMode === 'grid' ? (
-                  <FiList className="text-gray-600" />
-                ) : (
-                  <FiGrid className="text-gray-600" />
-                )}
-              </button>
+              <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-lg transition-all duration-300 ${
+                    viewMode === 'grid' 
+                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                  title="Grid view"
+                >
+                  <FiGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-lg transition-all duration-300 ${
+                    viewMode === 'list' 
+                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                  title="List view"
+                >
+                  <FiList className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
           
           {/* Mobile result count and view toggle */}
-          <div className="sm:hidden flex items-center justify-between p-4 pt-0 mt-4 border-t border-gray-100">
-            <div className="text-sm text-gray-600">
+          <div className="lg:hidden flex items-center justify-between p-6 pt-0 mt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
               {filteredPrescriptions.length} {filteredPrescriptions.length === 1 ? 'prescription' : 'prescriptions'}
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-3">
               {/* Reset filters button */}
               {(searchTerm || selectedFilter !== 'all' || sortBy !== 'newest') && (
                 <button
                   onClick={resetFilters}
-                  className="flex items-center text-xs text-blue-600 hover:text-blue-800"
+                  className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
                 >
-                  <FiX className="mr-1" /> Reset
+                  <FiX className="mr-1 w-3 h-3" /> 
+                  Reset
                 </button>
               )}
               
+              <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
                 <button
-                  onClick={toggleViewMode}
-                  className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-                  title={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded transition-all duration-300 ${
+                    viewMode === 'grid' 
+                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                      : 'text-gray-600 dark:text-gray-400'
+                  }`}
+                  title="Grid view"
                 >
-                  {viewMode === 'grid' ? (
-                    <FiList className="text-gray-600" />
-                  ) : (
-                    <FiGrid className="text-gray-600" />
-                  )}
+                  <FiGrid className="w-4 h-4" />
                 </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded transition-all duration-300 ${
+                    viewMode === 'list' 
+                      ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                      : 'text-gray-600 dark:text-gray-400'
+                  }`}
+                  title="List view"
+                >
+                  <FiList className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
         
         {/* No results state */}
         {filteredPrescriptions.length === 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 text-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 sm:p-12 text-center"
+          >
             <div className="flex flex-col items-center">
-              <div className="rounded-full bg-gray-100 h-16 w-16 flex items-center justify-center mb-4">
-                <FiFileText className="text-gray-400 text-2xl" />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center mb-6">
+                <FiFileText className="text-gray-400 text-3xl" />
               </div>
-              <h2 className="text-xl font-medium text-gray-800 mb-2">No prescriptions found</h2>
-              <p className="text-gray-600 max-w-md mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
+                {searchTerm || selectedFilter !== 'all' ? 'No matches found' : 'No prescriptions yet'}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-md mb-8 text-lg">
                 {searchTerm || selectedFilter !== 'all' 
-                  ? "No prescriptions match your current filters. Try adjusting your search or filters."
+                  ? "No prescriptions match your current search and filters. Try adjusting your criteria."
                   : "You don't have any prescriptions yet. They will appear here once a healthcare provider issues them."}
               </p>
               
               {(searchTerm || selectedFilter !== 'all') && (
                 <button
                   onClick={resetFilters}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                 >
-                  Clear Filters
+                  Clear All Filters
                 </button>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
         
         {/* Prescription list/grid */}
         {filteredPrescriptions.length > 0 && (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" 
-            : "space-y-4"
-          }>
-            {filteredPrescriptions.map(prescription => (
-              viewMode === 'grid' ? (
-                <PrescriptionCard 
-                  key={prescription._id} 
-                  prescription={prescription} 
-                />
-              ) : (
-                <PrescriptionListItem 
-                  key={prescription._id} 
-                  prescription={prescription} 
-                />
-              )
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className={viewMode === 'grid' 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" 
+              : "space-y-4 sm:space-y-6"
+            }
+          >
+            {filteredPrescriptions.map((prescription, index) => (
+              <motion.div
+                key={prescription._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * index }}
+              >
+                {viewMode === 'grid' ? (
+                  <PrescriptionCard 
+                    prescription={prescription} 
+                  />
+                ) : (
+                  <PrescriptionListItem 
+                    prescription={prescription} 
+                  />
+                )}
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

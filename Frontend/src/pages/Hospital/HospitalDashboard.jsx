@@ -93,7 +93,7 @@ const HospitalDashboard = () => {
           </div>
           <div className="flex gap-2">
             <Link 
-              to="/hospital/hospital-dashboard/find-patient" 
+              to="/hospital/find-patient" 
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <FiPlus className="mr-2" /> Find Patient
@@ -263,7 +263,7 @@ const HospitalDashboard = () => {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <Link 
-              to="/hospital/hospital-dashboard/find-patient" 
+              to="/hospital/find-patient" 
               className="flex flex-col items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
             >
               <FiSearch className="w-6 h-6 text-blue-600 mb-2" />

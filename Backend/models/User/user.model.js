@@ -44,6 +44,11 @@ const userSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
+  planType: {
+    type: String,
+    enum: ["free", "basic", "premium", "pro"],
+    default: "free",
+  },
   role: {
     type: String,
     enum: ["user", "hospital", "medical", "admin", "founder", "patient"],
@@ -61,6 +66,60 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  // Address fields
+  addressLine1: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  addressLine2: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  district: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  state: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  postalCode: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  addressValidated: {
+    type: Boolean,
+    default: false,
+  },
+  addressValidatedAt: {
+    type: Date,
+    default: null,
+  },
+  // Personal details
+  phone: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  dob: {
+    type: Date,
+    default: null,
+  },
+  gender: {
+    type: String,
+    enum: ["male", "female", "other", "Male", "Female", "Other", ""],
+    default: "",
+  },
+  bloodGroup: {
+    type: String,
+    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", ""],
+    default: "",
+  },
   reports: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Report"
@@ -77,5 +136,21 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcryptjs.compare(candidatePassword, this.password);
 };
+
+// Pre-save middleware to normalize gender to lowercase
+userSchema.pre('save', function(next) {
+  if (this.gender && this.gender !== "") {
+    this.gender = this.gender.toLowerCase();
+  }
+  next();
+});
+
+// Pre-update middleware to normalize gender to lowercase
+userSchema.pre('findOneAndUpdate', function(next) {
+  if (this._update.gender && this._update.gender !== "") {
+    this._update.gender = this._update.gender.toLowerCase();
+  }
+  next();
+});
 
 export const User = mongoose.model("User", userSchema); 

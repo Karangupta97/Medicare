@@ -226,6 +226,16 @@ Frontend/
 └── vite.config.js         # Vite build configuration
 ```
 
+/dashboard/*                    (Protected Route + DashboardLayout)
+├── index                      → Dashboard home
+├── reports                    → Reports page  
+├── upload                     → Upload page
+├── profile                    → Profile page
+├── notifications              → Notifications page
+├── digital-prescriptions      → Digital prescriptions page
+│   ├── reminders             → Prescription reminders
+│   └── :id                   → Prescription detail
+
 ## Digital Prescriptions Module
 
 The Digital Prescriptions module in Medicare provides a comprehensive electronic prescription management system for both healthcare providers and patients.

@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { FiUpload, FiX, FiCheck, FiAlertCircle, FiFile, FiInfo, FiCloud, FiFolder } from 'react-icons/fi';
+import { FiUpload, FiX, FiCheck, FiFile, FiInfo, FiCloud, FiFolder } from 'react-icons/fi';
 import { toast } from 'react-hot-toast';
-import DashboardLayout from '../../components/User/DashboardLayout';
 import { useAuthStore } from '../../store/Patient/authStore';
 import usePatientStore from '../../store/Patient/patientstore';
+import StorageLimitModal from '../../components/StorageLimitModal';
 
 const Upload = () => {
   const [files, setFiles] = useState([]);
@@ -14,6 +14,7 @@ const Upload = () => {
   const [category, setCategory] = useState('medical');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [storageModal, setStorageModal] = useState({ show: false, details: null });
   const { token, isAuthenticated, checkAuth } = useAuthStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -112,7 +113,16 @@ const Upload = () => {
       setTitle('');
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload report');
+      
+      // Check if it's a storage limit error
+      if (error.response?.status === 413 && error.response?.data?.error === 'STORAGE_LIMIT_EXCEEDED') {
+        setStorageModal({ 
+          show: true, 
+          details: error.response.data.details 
+        });
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to upload report');
+      }
     } finally {
       setUploading(false);
       setUploadProgress({});
@@ -129,16 +139,13 @@ const Upload = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
       <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8 animate-fadeIn">
         <div className="bg-white rounded-lg sm:rounded-xl shadow p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 transition-all duration-300 hover:shadow-md">
           <div className="mb-4 sm:mb-6 md:mb-8">
@@ -223,7 +230,7 @@ const Upload = () => {
                       <p className="text-gray-500 text-xs sm:text-sm mb-2 sm:mb-3">
                         or <span className="text-blue-500 font-medium">browse files</span> from your device
                       </p>
-                      <div className="flex items-center justify-center text-xs sm:text-sm text-gray-500 bg-gray-100 rounded-lg py-1 sm:py-2 px-2 sm:px-3 inline-block">
+                      <div className="flex items-center justify-center text-xs sm:text-sm text-gray-500 bg-gray-100 rounded-lg py-1 sm:py-2 px-2 sm:px-3">
                         <FiInfo className="mr-1 sm:mr-2 w-3 h-3 sm:w-4 sm:h-4" /> Supported formats: PDF, JPG, PNG, DICOM | Max size: 10MB
                       </div>
                     </div>
@@ -373,8 +380,15 @@ const Upload = () => {
             </li>
           </ul>
         </div>
+
+        {/* Storage Limit Modal */}
+        <StorageLimitModal
+          isOpen={storageModal.show}
+          onClose={() => setStorageModal({ show: false, details: null })}
+          storageDetails={storageModal.details}
+          planType={storageModal.details?.planType || 'free'}
+        />
       </div>
-    </DashboardLayout>
   );
 };
 

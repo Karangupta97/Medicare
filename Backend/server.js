@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import connectDB from "./DB/db.js";
 import authRoutes from "./routes/User/auth.routes.js";
 import reportsRoutes from "./routes/User/reports.routes.js";
+import storageRoutes from "./routes/User/storage.routes.js";
 import notificationsRoutes from "./routes/User/notifications.routes.js";
 import hospitalRoutes from "./routes/Hospital/hospital.routes.js";
 import userRoutes from "./routes/User/user.routes.js";
@@ -24,13 +25,14 @@ import os from "os";
 import { sendNotificationToUser } from "./utils/notifications.js";
 import cookieParser from "cookie-parser";
 import reviewRoutes from "./routes/review.routes.js";
+import pincodeRoutes from "./routes/User/pincode.routes.js";
 
 // Define a simple logger
 const logger = {
   info: (message) => console.log(`[INFO] ${message}`),
   error: (message) => console.error(`[ERROR] ${message}`),
   warn: (message) => console.warn(`[WARN] ${message}`),
-  debug: (message) => console.debug(`[DEBUG] ${message}`)
+  debug: (message) => console.debug(`[DEBUG] ${message}`),
 };
 
 // Global variables accessible across workers
@@ -83,20 +85,21 @@ else {
   app.use(status({ path: "/status" }));
   app.use(
     cors({
-      origin: function(origin, callback) {
+      origin: function (origin, callback) {
         const allowedOrigins = [
-          "https://medicares.in", 
+          "https://medicares.in",
           "https://www.medicares.in",
           "http://localhost:5173", // Vite's default port for development
-          "http://localhost:3000"  // Additional development port
+          "http://localhost:3000", // Additional development port
+          "http://192.168.0.101:3000", // For Mobile test
         ];
-          
+
         // Check if origin is allowed or if it's null (like for same-origin requests)
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
           console.log(`CORS: Origin '${origin}' not allowed`);
-          callback(new Error('Not allowed by CORS'));
+          callback(new Error("Not allowed by CORS"));
         }
       },
       credentials: true,
@@ -119,6 +122,7 @@ else {
   // Register API routes
   app.use("/api/auth", authRoutes);
   app.use("/api/reports", reportsRoutes);
+  app.use("/api/storage", storageRoutes);
   app.use("/api/notifications", notificationsRoutes);
   app.use("/api/hospital", hospitalRoutes);
   app.use("/api/user", userRoutes);
@@ -129,15 +133,16 @@ else {
   app.use("/api/doctor", doctorRoutes); // Add doctor routes
   app.use("/api/doctor-verification", doctorVerificationRoutes); // Move doctor verification to a separate path
   app.use("/api/reviews", reviewRoutes); // Add review routes
+  app.use("/api/pincode", pincodeRoutes);
 
   // Root route
   app.get("/", (req, res) => {
     res.json({
       message: `Hello from Medicare API Server! ${process.pid}`,
+      status: "Medicare API Server is ready"
     });
-    res.send("Medicare API Server is ready");
   });
-  
+
   // Health check route for WebSocket testing
   app.get("/socket-health", (req, res) => {
     const wsStatus = io
@@ -154,7 +159,6 @@ else {
       timestamp: new Date().toISOString(),
     });
   });
-  
 
   // Error handling middleware
   app.use((err, req, res, next) => {
@@ -172,19 +176,20 @@ else {
   // Initialize WebSocket server
   io = new Server(httpServer, {
     cors: {
-      origin: function(origin, callback) {
+      origin: function (origin, callback) {
         const allowedOrigins = [
-          "https://medicares.in", 
+          "https://medicares.in",
           "https://www.medicares.in",
           "http://localhost:5173", // Vite's default port for development
-          "http://localhost:3000"  // Additional development port
+          "http://localhost:3000", // Additional development port
+          "http://192.168.0.101:3000", // For Mobile tets
         ];
-          
+
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
           console.log(`CORS: Origin '${origin}' not allowed`);
-          callback(new Error('Not allowed by CORS'));
+          callback(new Error("Not allowed by CORS"));
         }
       },
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -233,10 +238,11 @@ else {
   // Connect to MongoDB and start server
   connectDB()
     .then(() => {
-      httpServer.listen(port, () => {
+      httpServer.listen(port, "0.0.0.0", () => {
         console.log(
           `🚀 Server worker ${process.pid} started at http://localhost:${port}`
         );
+        console.log(`→ Mobile: http://192.168.0.101:${port}`);
       });
     })
     .catch((error) => {

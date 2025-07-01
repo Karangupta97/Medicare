@@ -4,7 +4,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
-import DashboardLayout from "../../components/User/DashboardLayout";
 import {
   FiFileText,
   FiSearch,
@@ -339,7 +338,7 @@ const PrescriptionReminders = () => {
       }));
 
       // Clean up the URL by removing the query parameter
-      navigate("/digital-prescriptions/reminders", { replace: true });
+      navigate("/dashboard/digital-prescriptions/reminders", { replace: true });
     }
   }, [location.search, navigate]);
 
@@ -881,7 +880,6 @@ const PrescriptionReminders = () => {
   };
 
   return (
-    <DashboardLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -1365,7 +1363,6 @@ const PrescriptionReminders = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 };
 

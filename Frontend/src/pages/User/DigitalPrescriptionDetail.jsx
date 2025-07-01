@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
-import DashboardLayout from "../../components/User/DashboardLayout";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import {
@@ -130,7 +129,6 @@ const PrescriptionDetail = () => {
   // Loading state
   if (isLoading) {
     return (
-      <DashboardLayout>
         <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-4">
           <div className="animate-pulse">
             <div className="h-7 bg-gray-200 rounded w-1/3 mb-4"></div>
@@ -149,14 +147,12 @@ const PrescriptionDetail = () => {
             </div>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <DashboardLayout>
         <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-4">
           <div className="bg-white rounded-xl shadow-sm p-2 sm:p-4">
             <div className="flex flex-col items-center justify-center text-center">
@@ -184,13 +180,11 @@ const PrescriptionDetail = () => {
             </div>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 
   if (!prescription) {
     return (
-      <DashboardLayout>
         <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-4">
           <div className="bg-white rounded-xl shadow-sm p-2 sm:p-4 text-center">
             <div className="rounded-full bg-yellow-100 h-10 w-10 sm:h-12 sm:w-12 mx-auto flex items-center justify-center mb-3 sm:mb-4">
@@ -208,12 +202,10 @@ const PrescriptionDetail = () => {
             </Link>
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
       <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-6 py-4">
         {/* Header/Navigation */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2 sm:gap-4">
@@ -478,7 +470,6 @@ const PrescriptionDetail = () => {
           </button>
         </div>
       </div>
-    </DashboardLayout>
   );
 };
 

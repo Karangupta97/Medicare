@@ -3,9 +3,9 @@ import { Report } from "../../models/User/report.model.js";
 
 // Validate UMID format
 const isValidUMID = (umid) => {
-  // Format should be "MED-XXXXX XXXXX XXXXX XXXXX" where X is a digit
-  // Exactly 4 groups of exactly 5 digits, no more, no less
-  const umidRegex = /^MED-\d{5}\s\d{5}\s\d{5}\s\d{5}$/;
+  // Format should be "AB12345XY" where A,B,X,Y are letters and 1,2,3,4,5 are digits
+  // Exactly 2 letters + 5 digits + 2 letters = 9 characters total
+  const umidRegex = /^[A-Z]{2}\d{5}[A-Z]{2}$/;
   return umidRegex.test(umid);
 };
 
@@ -15,13 +15,12 @@ export const getPatientByUMID = async (req, res) => {
     const { umid } = req.params;
     
     console.log(`Searching for patient with UMID: ${umid}`);
-    
-    // Validate UMID format
+      // Validate UMID format
     if (!isValidUMID(umid)) {
       console.log(`Invalid UMID format: ${umid}`);
       return res.status(400).json({
         success: false,
-        message: 'Invalid UMID format. Format should be MED-XXXXX XXXXX XXXXX XXXXX',
+        message: 'Invalid UMID format. Format should be AB12345XY (2 letters + 5 digits + 2 letters)',
       });
     }
     

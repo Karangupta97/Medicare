@@ -2,8 +2,6 @@ import axios from "axios";
 import { create } from "zustand";
 import { safeStorageAccess } from "../../utils/errorHandling";
 
-// const API_URL = "https://medicare-backend-pdci8.ondigitalocean.app";
-// const API_URL = "http://localhost:4000";
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Global request timestamps to prevent duplicate requests
@@ -394,8 +392,8 @@ const useAuthStore = create((set, get) => ({
       set({
         user: userData,
         token: token,
-        userId: userData._id,
-        isAuthenticated: true,
+        userId: userData && userData._id,
+        isAuthenticated: !!userData,
         isCheckingAuth: false,
       });
       

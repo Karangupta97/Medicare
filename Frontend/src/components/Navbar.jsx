@@ -15,7 +15,7 @@ const Navbar = ({ user, onLogout }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout, refreshUserData, token } = useAuthStore();
+  const { logout, refreshUserData, token, isAuthenticated } = useAuthStore();
   const { unreadNotificationsCount, fetchAllMedicalData } = usePatientStore();
   const authUser = useAuthStore((state) => state.user) || user;
   
@@ -170,7 +170,7 @@ const Navbar = ({ user, onLogout }) => {
                     >
                       <div className="px-4 py-2 border-b border-gray-100">
                         <p className="text-sm font-medium text-gray-900">{authUser?.name || 'User'}</p>
-                        <p className="text-xs text-gray-500">{authUser?.email || 'user@example.com'}</p>
+                        <p className="text-xs text-gray-500">{authUser?.email || ''}</p>
                       </div>
                       <Link
                         to="/profile"
@@ -278,7 +278,7 @@ const Navbar = ({ user, onLogout }) => {
                     >
                       <div className="px-4 py-2 border-b border-gray-100">
                         <p className="text-sm font-medium text-gray-900">{authUser?.name || 'User'}</p>
-                        <p className="text-xs text-gray-500">{authUser?.email || 'user@example.com'}</p>
+                        <p className="text-xs text-gray-500">{authUser?.email || ''}</p>
                       </div>
                       <Link
                         to="/profile"

@@ -18,11 +18,85 @@ const usePatientStore = create((set, get) => ({
   error: null,
   prescriptionCount: 0,
   userProfile: null,
+  searchResults: [],
+  isSearching: false,
 
   // Actions
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
+
+  // Search function for reports and prescriptions
+  searchMedicalData: async (query, categories = { reports: true, prescriptions: true }) => {
+    try {
+      set({ isSearching: true });
+      
+      const results = [];
+      const lowerQuery = query.toLowerCase();
+      const { reports, prescriptions } = get();
+
+      // Search reports
+      if (categories.reports && reports) {
+        const reportResults = reports
+          .filter(report => 
+            report.originalFilename?.toLowerCase().includes(lowerQuery) ||
+            report.description?.toLowerCase().includes(lowerQuery) ||
+            report.category?.toLowerCase().includes(lowerQuery) ||
+            report.doctor?.toLowerCase().includes(lowerQuery)
+          )
+          .slice(0, 5)
+          .map(report => ({
+            id: report._id,
+            type: 'report',
+            title: report.originalFilename || 'Medical Report',
+            description: report.description || `${report.category} report`,
+            date: report.createdAt,
+            icon: 'FiFileText',
+            path: `/dashboard/reports/${report._id}`,
+            category: report.category,
+            metadata: `${report.category} • ${new Date(report.createdAt).toLocaleDateString()}`,
+            reportData: report // Store the full report data for navigation
+          }));
+        results.push(...reportResults);
+      }
+
+      // Search prescriptions
+      if (categories.prescriptions && prescriptions) {
+        const prescriptionResults = prescriptions
+          .filter(prescription => 
+            prescription.doctor?.toLowerCase().includes(lowerQuery) ||
+            prescription.diagnosis?.toLowerCase().includes(lowerQuery) ||
+            prescription.medications?.some(med => 
+              med.name?.toLowerCase().includes(lowerQuery)
+            ) ||
+            prescription.hospitalName?.toLowerCase().includes(lowerQuery)
+          )
+          .slice(0, 5)
+          .map(prescription => ({
+            id: prescription._id,
+            type: 'prescription',
+            title: `Prescription by Dr. ${prescription.doctor || 'Unknown'}`,
+            description: prescription.diagnosis || 'Digital Prescription',
+            date: prescription.createdAt,
+            icon: 'FiClipboard',
+            path: `/dashboard/digital-prescriptions/${prescription._id}`,
+            category: 'prescription',
+            metadata: `${prescription.medications?.length || 0} medications • ${new Date(prescription.createdAt).toLocaleDateString()}`
+          }));
+        results.push(...prescriptionResults);
+      }
+
+      // Sort results by date (newest first)
+      results.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      set({ searchResults: results, isSearching: false });
+      return results;
+    } catch (error) {
+      console.error('Search error:', error);
+      set({ searchResults: [], isSearching: false });
+      return [];
+    }
+  },
 
   // Fetch all medical data
   fetchAllMedicalData: async (token) => {
@@ -159,7 +233,11 @@ const usePatientStore = create((set, get) => ({
       set(state => ({
         reports: state.reports.map(report =>
           report._id === reportId
-            ? { ...report, ...updates }
+            ? { 
+                ...report, 
+                originalFilename: updates.title || report.originalFilename,
+                description: updates.description !== undefined ? updates.description : report.description
+              }
             : report
         ),
         isLoading: false
@@ -223,6 +301,55 @@ const usePatientStore = create((set, get) => ({
     } catch (error) {
       set({ 
         error: error.response?.data?.message || 'Failed to fetch prescription',
+        isLoading: false 
+      });
+      throw error;
+    }
+  },
+
+  // Create a new prescription (for doctors/hospitals)
+  createPrescription: async (prescriptionData, token) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      // Create a dedicated axios instance for prescription creation to avoid cancellation
+      const prescriptionAxios = axios.create({
+        baseURL: API_URL,
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : undefined
+        }
+      });
+      
+      const response = await prescriptionAxios.post('/api/hospital/digital-prescriptions', prescriptionData);
+      
+      if (response.data.success) {
+        // Update prescriptions list with new prescription
+        set(state => ({
+          prescriptions: [response.data.prescription, ...state.prescriptions],
+          prescriptionCount: state.prescriptionCount + 1,
+          isLoading: false
+        }));
+        
+        return response.data.prescription;
+      } else {
+        throw new Error(response.data.message || 'Failed to create prescription');
+      }
+    } catch (error) {
+      // Check if this is a cancellation error
+      if (axios.isCancel(error)) {
+        console.log('Prescription creation was cancelled:', error.message);
+        set({ 
+          error: 'Request was cancelled',
+          isLoading: false 
+        });
+        throw new Error('Request was cancelled');
+      }
+      
+      console.error('Error creating prescription:', error);
+      set({ 
+        error: error.response?.data?.message || 'Failed to create prescription',
         isLoading: false 
       });
       throw error;
@@ -426,6 +553,24 @@ const usePatientStore = create((set, get) => ({
     } catch (error) {
       set({ 
         error: error.response?.data?.message || 'Failed to fetch user profile',
+        isLoading: false 
+      });
+      throw error;
+    }
+  },
+
+  // Get user's storage information
+  getStorageInfo: async (token) => {
+    try {
+      set({ isLoading: true, error: null });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      const response = await axios.get('/api/storage/storage-info');
+      set({ isLoading: false });
+      return response.data.storageInfo;
+    } catch (error) {
+      set({ 
+        error: error.response?.data?.message || 'Failed to fetch storage information',
         isLoading: false 
       });
       throw error;

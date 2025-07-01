@@ -61,7 +61,7 @@ const UserSearchForm = ({ onSearch }) => {
             id="umid"
             value={searchUmid}
             onChange={(e) => setSearchUmid(e.target.value)}
-            placeholder="Example: MED-12345 67890 12345 67890"
+            placeholder="Example: AB12345XY"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-500 outline-none transition-colors"
             required
           />
