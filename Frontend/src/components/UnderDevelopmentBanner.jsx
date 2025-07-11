@@ -30,7 +30,7 @@ const UnderDevelopmentBanner = () => {
             </h2>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
               <FaRocket className="h-3 w-3 mr-1" />
-              Expected Launch: End of August 2025
+              Expected Launch: September 2025
             </span>
           </div>
 
