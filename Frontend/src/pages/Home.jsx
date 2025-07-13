@@ -299,15 +299,16 @@ const Home = () => {
         </script>
       </Helmet>
 
-      <UnderDevelopmentBanner />
+      {/* <UnderDevelopmentBanner /> */}
 
       {/* Main content container with improved spacing */}
       <div className="relative flex flex-col items-center w-full max-w-full overflow-x-hidden">
-        
         <div className="w-full pt-0 pb-8 max-w-full mx-auto">
           <div className="flex justify-center w-full bg-white dark:bg-gray-900 pb-3">
             <Navbar user={user} onLogout={handleLogout} />
           </div>
+      <UnderDevelopmentBanner />
+
           {/* Hero Section */}
           <motion.div
             style={{ scale }}
@@ -466,7 +467,7 @@ const Home = () => {
                       />
 
                       {/* Enhanced floating stat boxes */}
-                      <motion.div
+                      {/* <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 1.2, duration: 0.8 }}
@@ -498,9 +499,9 @@ const Home = () => {
                             </p>
                           </div>
                         </div>
-                      </motion.div>
+                      </motion.div> */}
 
-                      <motion.div
+                      {/* <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 1.5, duration: 0.8 }}
@@ -532,7 +533,7 @@ const Home = () => {
                             </p>
                           </div>
                         </div>
-                      </motion.div>
+                      </motion.div> */}
                     </motion.div>
                   </div>
                 </div>
