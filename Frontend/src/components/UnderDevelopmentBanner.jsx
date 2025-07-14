@@ -28,10 +28,10 @@ const UnderDevelopmentBanner = () => {
             <h2 className="text-lg sm:text-xl font-bold">
               Website Under Development
             </h2>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+            {/* <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
               <FaRocket className="h-3 w-3 mr-1" />
               Expected Launch: September 2025
-            </span>
+            </span> */}
           </div>
 
           <p className="text-sm text-white/90">
