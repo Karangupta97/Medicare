@@ -8,16 +8,32 @@ import {
   FaExclamationTriangle,
   FaInfoCircle,
   FaChevronDown,
+  FaTimes,
 } from "react-icons/fa";
 
 const UnderDevelopmentBanner = () => {
   const [showNotice, setShowNotice] = useState(true);
+  const [showBanner, setShowBanner] = useState(true);
+
+  if (!showBanner) {
+    return null;
+  }
 
   return (
     <section
       aria-label="Under Development Notice"
       className="relative bg-gradient-to-tr from-blue-700 via-indigo-700 to-purple-700 text-white rounded-2xl shadow-xl mx-2 sm:mx-8 my-4 sm:my-6 px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row gap-3 sm:gap-4 border border-white/10 backdrop-blur-md"
     >
+      {/* Close Button */}
+      <button
+        onClick={() => setShowBanner(false)}
+        className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+        aria-label="Close banner"
+        type="button"
+      >
+        <FaTimes className="h-4 w-4 text-white hover:scale-110 transition-transform" />
+      </button>
+
       {/* Left Section */}
       <div className="flex-1 w-full flex gap-3 sm:gap-4">
         <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-yellow-400/20">
