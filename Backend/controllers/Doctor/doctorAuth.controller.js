@@ -47,7 +47,8 @@ export const doctorSignup = async (req, res) => {
     }
 
     // Check if doctor already exists with this email or medical registration number
-    const existingDoctor = await Doctor.findOne({
+    const DoctorModel = Doctor();
+    const existingDoctor = await DoctorModel.findOne({
       $or: [
         { email },
         { medicalRegistrationNumber }
@@ -79,10 +80,10 @@ export const doctorSignup = async (req, res) => {
     );
 
     // Generate unique doctor ID
-    const doctorId = await Doctor.generateDoctorId();
+    const doctorId = await DoctorModel.generateDoctorId();
 
     // Create new doctor
-    const newDoctor = new Doctor({
+    const newDoctor = new DoctorModel({
       fullName,
       email,
       password, // Will be hashed by pre-save hook
@@ -129,7 +130,8 @@ export const doctorLogin = async (req, res) => {
     }
     
     // Find the doctor by email
-    const doctor = await Doctor.findOne({ email });
+    const DoctorModel = Doctor();
+    const doctor = await DoctorModel.findOne({ email });
     
     if (!doctor) {
       return res.status(401).json({
@@ -215,7 +217,8 @@ export const getDoctorProfile = async (req, res) => {
   try {
     const doctorId = req.doctor.id; // From auth middleware
     
-    const doctor = await Doctor.findById(doctorId).select('-password');
+    const DoctorModel = Doctor();
+    const doctor = await DoctorModel.findById(doctorId).select('-password');
     
     if (!doctor) {
       return res.status(404).json({
@@ -251,7 +254,8 @@ export const requestPasswordReset = async (req, res) => {
     }
     
     // Find doctor by email
-    const doctor = await Doctor.findOne({ email });
+    const DoctorModel = Doctor();
+    const doctor = await DoctorModel.findOne({ email });
     
     if (!doctor) {
       // For security, don't reveal if email exists
@@ -299,7 +303,8 @@ export const checkDoctorAuth = async (req, res) => {
   try {
     const doctorId = req.doctor.id; // From auth middleware
     
-    const doctor = await Doctor.findById(doctorId).select('-password');
+    const DoctorModel = Doctor();
+    const doctor = await DoctorModel.findById(doctorId).select('-password');
     
     if (!doctor) {
       return res.status(401).json({

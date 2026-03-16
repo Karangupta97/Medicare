@@ -3,7 +3,8 @@ import { User } from "../models/User/user.model.js";
 
 export const generateTokenAndsendcookie = async (res, userid) => {
   // Get the full user object
-  const user = await User.findById(userid).select('-password');
+  const UserModel = User();
+  const user = await UserModel.findById(userid).select('-password');
   if (!user) {
     throw new Error('User not found');
   }

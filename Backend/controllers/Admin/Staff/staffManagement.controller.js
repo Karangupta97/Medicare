@@ -17,7 +17,8 @@ export const addStaff = async (req, res) => {
     }
 
     // Check if staff with email already exists
-    const existingStaff = await Staff.findOne({ email });
+    const StaffModel = Staff();
+    const existingStaff = await StaffModel.findOne({ email });
     if (existingStaff) {
       return res.status(400).json({
         success: false,
@@ -27,7 +28,7 @@ export const addStaff = async (req, res) => {
 
     // Generate a temporary password and staff ID
     const temporaryPassword = generatePassword();
-    const staffId = await Staff.generateStaffId();
+    const staffId = await StaffModel.generateStaffId();
 
     // Create the new staff member
     const newStaff = await Staff.create({

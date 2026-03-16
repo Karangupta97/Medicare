@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcryptjs from "bcryptjs";
+import { getManagementDB } from "../../DB/connections.js";
 
 const founderSchema = new mongoose.Schema({
   email: {
@@ -94,4 +95,4 @@ founderSchema.methods.verifyOTP = function (otp) {
   return this.otpToken === otp && this.otpTokenExpiresAt > Date.now();
 };
 
-export const Founder = mongoose.model("Founder", founderSchema); 
+export const Founder = () => getManagementDB().model("Founder", founderSchema); 

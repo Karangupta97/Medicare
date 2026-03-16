@@ -28,7 +28,8 @@ export const getPendingDoctors = async (req, res) => {
       return;
     }
     
-    const pendingDoctors = await Doctor.find({ isVerified: "pending" })
+    const DoctorModel = Doctor();
+    const pendingDoctors = await DoctorModel.find({ isVerified: "pending" })
       .select('-password')
       .sort({ createdAt: -1 });
     
@@ -55,7 +56,8 @@ export const getVerifiedDoctors = async (req, res) => {
       return;
     }
     
-    const verifiedDoctors = await Doctor.find({ 
+    const DoctorModel = Doctor();
+    const verifiedDoctors = await DoctorModel.find({ 
       isVerified: { $in: ["approved", "rejected"] } 
     })
       .select('-password')
@@ -86,7 +88,8 @@ export const getDoctorDetails = async (req, res) => {
     
     const { doctorId } = req.params;
     
-    const doctor = await Doctor.findById(doctorId)
+    const DoctorModel = Doctor();
+    const doctor = await DoctorModel.findById(doctorId)
       .select('-password')
       .populate('verifiedBy', 'name email staffId');
     
@@ -121,7 +124,8 @@ export const approveDoctor = async (req, res) => {
     
     const { doctorId } = req.params;
     
-    const doctor = await Doctor.findById(doctorId);
+    const DoctorModel = Doctor();
+    const doctor = await DoctorModel.findById(doctorId);
     
     if (!doctor) {
       return res.status(404).json({
@@ -154,7 +158,8 @@ export const approveDoctor = async (req, res) => {
     }
     
     // Return updated doctor data in response
-    const updatedDoctor = await Doctor.findById(doctorId)
+    const DoctorModel2 = Doctor();
+    const updatedDoctor = await DoctorModel2.findById(doctorId)
       .select('-password')
       .populate('verifiedBy', 'name email staffId');
       
@@ -191,7 +196,8 @@ export const rejectDoctor = async (req, res) => {
       });
     }
     
-    const doctor = await Doctor.findById(doctorId);
+    const DoctorModel3 = Doctor();
+    const doctor = await DoctorModel3.findById(doctorId);
     
     if (!doctor) {
       return res.status(404).json({
@@ -225,7 +231,8 @@ export const rejectDoctor = async (req, res) => {
     }
     
     // Return updated doctor data in response
-    const updatedDoctor = await Doctor.findById(doctorId)
+    const DoctorModel4 = Doctor();
+    const updatedDoctor = await DoctorModel4.findById(doctorId)
       .select('-password')
       .populate('verifiedBy', 'name email staffId');
     

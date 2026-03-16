@@ -99,7 +99,8 @@ export async function validateAndSaveAddress(req, res) {  try {
       addressValidatedAt: new Date()
     };
 
-    const updatedUser = await User.findByIdAndUpdate(
+    const UserModel = User();
+    const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       updateData,
       { new: true, select: '-password -verificationToken -resetPasswordToken' }

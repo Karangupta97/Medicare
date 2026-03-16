@@ -23,7 +23,8 @@ export const signup = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Please fill all fields" });
     }
-    const userAlreadyExists = await User.findOne({ email });
+    const UserModel = User();
+    const userAlreadyExists = await UserModel.findOne({ email });
     console.log("userAlreadyExists", userAlreadyExists);
     if (userAlreadyExists) {
       return res.status(400).json({ message: "User already exists" });
@@ -37,7 +38,7 @@ export const signup = async (req, res) => {
     const userUMID = generatePatientUMID();
 
     // Create a new user
-    const user = new User({
+    const user = new UserModel({
       email,
       password: hashedPassword,
       name,
@@ -72,7 +73,8 @@ export const verifyEmail = async (req, res) => {
   // 123456 ---- code
   const { code } = req.body;
   try {
-    const user = await User.findOne({
+    const UserModel = User();
+    const user = await UserModel.findOne({
       verificationToken: code,
       verificationTokenExpiresAt: { $gt: Date.now() },
     });
@@ -107,7 +109,8 @@ export const verifyEmail = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const UserModel = User();
+    const user = await UserModel.findOne({ email });
     if (!user) {
       return res
         .status(400)
@@ -154,7 +157,8 @@ export const logout = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const UserModel = User();
+    const user = await UserModel.findOne({ email });
     if (!user) {
       return res
         .status(400)
@@ -190,7 +194,8 @@ export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
-    const user = await User.findOne({
+    const UserModel = User();
+    const user = await UserModel.findOne({
       resetPasswordToken: token,
       resetPasswordExpiresAt: { $gt: Date.now() },
     });
@@ -227,7 +232,8 @@ export const resetPassword = async (req, res) => {
 
 export const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const UserModel = User();
+    const user = await UserModel.findById(req.user.id).select("-password");
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -251,7 +257,8 @@ export const checkAuth = async (req, res) => {
 export const resendOtp = async (req, res) => {
   try {
     const userId = req.user.id; // Changed from req.userId to req.user.id to match the standard format
-    const user = await User.findById(userId);
+    const UserModel = User();
+    const user = await UserModel.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -288,11 +295,12 @@ export const updateProfile = async (req, res) => {
     const userId = req.user.id;
     
     const updateFields = {};
-    if (phone) updateFields.phone = phone;
-    if (dob) updateFields.dob = dob;
-    if (gender) updateFields.gender = gender;
-    if (bloodGroup) updateFields.bloodGroup = bloodGroup;
+    if (phone !== undefined) updateFields.phone = phone;
+    if (dob !== undefined) updateFields.dob = dob;
+    if (gender !== undefined) updateFields.gender = gender;
+    if (bloodGroup !== undefined) updateFields.bloodGroup = bloodGroup;
 
+    // Note: Medical information is now handled by /api/medical-info/update endpoint
     // Note: Address updates are handled by a separate endpoint for proper validation
 
     // Handle profile photo upload
@@ -363,7 +371,8 @@ export const updateProfile = async (req, res) => {
     }
 
     // Update user in database
-    const user = await User.findByIdAndUpdate(
+    const UserModel = User();
+    const user = await UserModel.findByIdAndUpdate(
       userId,
       { $set: updateFields },
       { new: true }
@@ -397,7 +406,8 @@ export const updateProfile = async (req, res) => {
 
 export const getUserData = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const UserModel = User();
+    const user = await UserModel.findById(req.user.id).select("-password");
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -419,7 +429,8 @@ export const getUserData = async (req, res) => {
           const { fileUrl, expiresAt } = await refreshProfilePictureUrl(user.photoS3Key);
           
           // Update user with new URL and expiration
-          await User.findByIdAndUpdate(req.user.id, {
+          const UserModel = User();
+          await UserModel.findByIdAndUpdate(req.user.id, {
             photoURL: fileUrl,
             photoURLExpiresAt: expiresAt
           });
@@ -441,6 +452,75 @@ export const getUserData = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in getUserData", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required",
+      });
+    }
+
+    // Validate new password strength
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long",
+      });
+    }
+
+    const UserModel = User();
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcryptjs.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // Check if new password is different from current password
+    const isSamePassword = await bcryptjs.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be different from current password",
+      });
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcryptjs.hash(newPassword, 10);
+
+    // Update password in database
+    await UserModel.findByIdAndUpdate(userId, {
+      password: hashedNewPassword,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    console.log("Error in changePassword", error);
     res.status(500).json({
       success: false,
       message: "Server error",

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcryptjs from "bcryptjs";
+import { getManagementDB } from "../../../DB/connections.js";
 
 const staffSchema = new mongoose.Schema({
   name: {
@@ -84,4 +85,4 @@ staffSchema.statics.generateStaffId = async function() {
   return `${prefix}${(count + 1).toString().padStart(3, '0')}${randomPart}`;
 };
 
-export const Staff = mongoose.model("Staff", staffSchema); 
+export const Staff = () => getManagementDB().model("Staff", staffSchema); 

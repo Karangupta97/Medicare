@@ -22,18 +22,18 @@ import MedicareLogo from "../assets/Logo/Medicare logo.png";
 import NurseImage from "../assets/nurse.png";
 
 // Stats data
-const stats = [
-  { number: "500K+", label: "Active Users" },
-  { number: "1,200+", label: "Healthcare Partners" },
-  { number: "99.9%", label: "Uptime" },
-  { number: "24/7", label: "Support" },
-];
+// const stats = [
+//   { number: "500K+", label: "Active Users" },
+//   { number: "1,200+", label: "Healthcare Partners" },
+//   { number: "99.9%", label: "Uptime" },
+//   { number: "24/7", label: "Support" },
+// ];
 
 // FAQ data
 const faqs = [
   {
     question: "How secure is my medical data on Medicare?",
-    answer:
+    answer: 
       "Medicare employs bank-level encryption to ensure your medical data is completely secure. We implement advanced security measures including end-to-end encryption, regular security audits, and strict access controls.",
   },
   {
@@ -158,7 +158,7 @@ const About = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-white dark:bg-gray-800 py-16">
+      {/* <section className="bg-white dark:bg-gray-800 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             variants={containerVariants}
@@ -181,7 +181,7 @@ const About = () => {
             ))}
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Mission & Vision */}
       <section className="py-20 bg-gray-50 dark:bg-gray-900">

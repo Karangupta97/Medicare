@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { getManagementDB } from "../../../DB/connections.js";
 
 // Sub-schema for audit log entries
 const auditLogEntrySchema = new mongoose.Schema({
@@ -96,4 +97,4 @@ teamSchema.path('email').validate(function(value) {
   return emailRegex.test(value);
 }, 'Please enter a valid email address');
 
-export const Team = mongoose.model('Team', teamSchema); 
+export const Team = () => getManagementDB().model('Team', teamSchema); 

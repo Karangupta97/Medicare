@@ -1,4 +1,4 @@
-import Prescription from "../../models/Hospital/prescription.model.js";
+import { Prescription } from "../../models/Hospital/prescription.model.js";
 import { User } from "../../models/User/user.model.js";
 import { createNotification } from "../User/notifications.controller.js";
 
@@ -25,10 +25,12 @@ export const createPrescription = async (req, res) => {
     }
 
     // Add doctor information from the logged-in user
-    const doctorUser = await User.findById(req.user.id).select("name");
+    const UserModel = User();
+    const doctorUser = await UserModel.findById(req.user.id).select("name");
     
     // Create new prescription
-    const prescription = new Prescription({
+    const PrescriptionModel = Prescription();
+    const prescription = new PrescriptionModel({
       patientId,
       patientName,
       patientUMID,
@@ -73,7 +75,8 @@ export const getPrescriptionById = async (req, res) => {
   try {
     const { prescriptionId } = req.params;
     
-    const prescription = await Prescription.findById(prescriptionId);
+    const PrescriptionModel = Prescription();
+    const prescription = await PrescriptionModel.findById(prescriptionId);
     
     if (!prescription) {
       return res.status(404).json({
@@ -114,7 +117,8 @@ export const getPatientPrescriptions = async (req, res) => {
     }
 
     // Query for all prescriptions regardless of which doctor created them
-    const prescriptions = await Prescription.find({ patientId })
+    const PrescriptionModel = Prescription();
+    const prescriptions = await PrescriptionModel.find({ patientId })
       .sort({ createdAt: -1 });
     
     console.log("Found prescriptions:", prescriptions.length);
@@ -155,7 +159,8 @@ export const getDoctorPrescriptions = async (req, res) => {
     // Get prescriptions created by the logged-in doctor
     console.log("Fetching prescriptions for doctor:", req.user.id);
     
-    const prescriptions = await Prescription.find({ doctorId: req.user.id })
+    const PrescriptionModel = Prescription();
+    const prescriptions = await PrescriptionModel.find({ doctorId: req.user.id })
       .sort({ createdAt: -1 });
     
     console.log("Found doctor prescriptions:", prescriptions.length);
@@ -184,7 +189,8 @@ export const getOtherDoctorPrescriptions = async (req, res) => {
     // 1. The patient matches patientId
     // 2. The doctor is NOT the current doctor (other doctors only)
     // 3. Sort by newest first
-    const prescriptions = await Prescription.find({ 
+    const PrescriptionModel = Prescription();
+    const prescriptions = await PrescriptionModel.find({ 
       patientId: patientId, // Use patientId field instead of patient
       doctorId: { $ne: currentDoctorId } // Use doctorId field instead of doctor
     })
@@ -215,37 +221,6 @@ export const getOtherDoctorPrescriptions = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Error fetching prescriptions from other doctors",
-      error: error.message
-    });
-  }
-};
-
-// Generate a PDF view of the prescription
-export const generatePrescriptionPDF = async (req, res) => {
-  try {
-    const { prescriptionId } = req.params;
-    
-    const prescription = await Prescription.findById(prescriptionId);
-    
-    if (!prescription) {
-      return res.status(404).json({
-        success: false,
-        message: "Prescription not found"
-      });
-    }
-    
-    // Here you would implement PDF generation logic
-    // For now,just return the prescription data
-    return res.status(200).json({
-      success: true,
-      message: "PDF generation endpoint (to be implemented)",
-      prescription
-    });
-  } catch (error) {
-    console.error("Error generating prescription PDF:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to generate prescription PDF",
       error: error.message
     });
   }

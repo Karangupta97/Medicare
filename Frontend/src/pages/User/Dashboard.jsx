@@ -49,8 +49,7 @@ const Dashboard = () => {
     fetchNotifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
-    handleViewReport,
-    handleDownloadReport,
+    handleViewReport
   } = usePatientStore();
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -1209,7 +1208,7 @@ const Dashboard = () => {
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              onClick={() => handleDownloadReport(report)}
+                              onClick={() => toast.info("Download feature is currently unavailable")}
                               className="flex-1 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors text-xs font-medium flex items-center justify-center gap-1.5"
                             >
                               <Download className="w-3 h-3" />
@@ -1304,7 +1303,7 @@ const Dashboard = () => {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDownloadReport(report)}
+                          onClick={() => toast.info("Download feature is currently unavailable")}
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                           title="Download Report"
                         >

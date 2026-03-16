@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
+import { getDeviceSessionModel } from "../../models/User/deviceSession.model.js";
+import { getDBConnection } from "../../DB/db.js";
 
-export const verifyToken = (req, res, next) => {
+export const verifyToken = async (req, res, next) => {
   // Check for token in Authorization header
   const authHeader = req.headers.authorization;
   let token = null;
@@ -28,10 +30,24 @@ export const verifyToken = (req, res, next) => {
   console.log('Raw token before verification:', token);
 
   try {
+    // Check if token is blacklisted first
+    const dbConnection = getDBConnection(req.get('origin'));
+    const DeviceSession = getDeviceSessionModel(dbConnection);
+    
+    const isBlacklisted = await DeviceSession.isTokenBlacklisted(token);
+    if (isBlacklisted) {
+      console.log('Token is blacklisted');
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - Token has been revoked",
+      });
+    }
+
     console.log('Verifying token with JWT_SECRET');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Token verified successfully for user ID:', decoded.id);
     req.user = decoded; // Attach entire user object to request
+    req.token = token; // Attach token to request for potential blacklisting
     next(); // Move to next middleware/controller
   } catch (error) {
     console.error("Error in verifyToken:", error);

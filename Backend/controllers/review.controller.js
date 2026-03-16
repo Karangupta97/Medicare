@@ -128,7 +128,8 @@ export const submitReview = async (req, res) => {
     }
 
     // Create new review
-    const newReview = new Review({
+    const ReviewModel = Review();
+    const newReview = new ReviewModel({
       name: isAnonymous ? 'Anonymous' : name,
       role,
       review,
@@ -169,7 +170,8 @@ export const submitReview = async (req, res) => {
 // Get all approved reviews
 export const getApprovedReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ status: 'approved' })
+    const ReviewModel = Review();
+    const reviews = await ReviewModel.find({ status: 'approved' })
       .sort({ createdAt: -1 })
       .limit(10);
 
@@ -190,7 +192,8 @@ export const getApprovedReviews = async (req, res) => {
 // Get detailed reviews for healthcare providers
 export const getDetailedReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ 
+    const ReviewModel = Review();
+    const reviews = await ReviewModel.find({ 
       status: 'approved',
       reviewType: 'detailed'
     })

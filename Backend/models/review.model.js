@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { getFeedbackDB } from "../DB/connections.js";
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -142,6 +143,6 @@ reviewSchema.virtual('ratingDisplay').get(function() {
   return `${this.rating} ${this.rating === 1 ? 'star' : 'stars'}`;
 });
 
-const Review = mongoose.model("Review", reviewSchema);
+const Review = () => getFeedbackDB().model("Review", reviewSchema);
 
 export default Review; 

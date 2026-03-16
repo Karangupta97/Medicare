@@ -21,7 +21,8 @@ export const getReports = async (req, res) => {
       });
     }
     
-    const reports = await Report.find({ userId: req.user.id })
+    const ReportModel = Report();
+    const reports = await ReportModel.find({ userId: req.user.id })
       .sort({ createdAt: -1 });
     
     console.log(`Found ${reports.length} reports for user ID: ${req.user.id}`);
@@ -163,7 +164,8 @@ export const uploadReport = async (req, res) => {
       const { s3Key, fileUrl, formattedFilename } = await uploadFile(file, req.user.id, req.user.name);
 
       // Create report in database
-      const report = new Report({
+      const ReportModel = Report();
+      const report = new ReportModel({
         userId: req.user.id,
         filename: formattedFilename,
         originalFilename: title || file.originalname,
@@ -240,7 +242,8 @@ export const uploadReport = async (req, res) => {
 // Get a specific report by ID
 export const getReportById = async (req, res) => {
   try {
-    const report = await Report.findOne({
+    const ReportModel = Report();
+    const report = await ReportModel.findOne({
       _id: req.params.id,
       userId: req.user.id,
     });
@@ -277,7 +280,8 @@ export const deleteReport = async (req, res) => {
   try {
     console.log(`Attempting to delete report with ID: ${req.params.id} for user: ${req.user.id}`);
     
-    const report = await Report.findOne({
+    const ReportModel = Report();
+    const report = await ReportModel.findOne({
       _id: req.params.id,
       userId: req.user.id,
     });
@@ -370,7 +374,8 @@ export const moveReport = async (req, res) => {
     }
     
     // Find the report
-    const report = await Report.findOne({
+    const ReportModel = Report();
+    const report = await ReportModel.findOne({
       _id: id,
       userId: req.user.id,
     });
@@ -423,7 +428,8 @@ export const updateReport = async (req, res) => {
     }
     
     // Find the report
-    const report = await Report.findOne({
+    const ReportModel = Report();
+    const report = await ReportModel.findOne({
       _id: id,
       userId: req.user.id,
     });
@@ -492,7 +498,8 @@ export const refreshReportUrl = async (req, res) => {
     console.log(`Attempting to refresh URL for report ID: ${id}`);
     
     // Find the report
-    const report = await Report.findById(id);
+    const ReportModel = Report();
+    const report = await ReportModel.findById(id);
     
     if (!report) {
       console.log(`Report not found with ID: ${id}`);

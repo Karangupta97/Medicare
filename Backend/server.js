@@ -3,11 +3,13 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import connectDB from "./DB/db.js";
+import connectDB, { connectAllDatabases } from "./DB/db.js";
 import authRoutes from "./routes/User/auth.routes.js";
 import reportsRoutes from "./routes/User/reports.routes.js";
 import storageRoutes from "./routes/User/storage.routes.js";
 import notificationsRoutes from "./routes/User/notifications.routes.js";
+import medicalInfoRoutes from "./routes/User/medicalInfo.routes.js";
+import connectedDeviceRoutes from "./routes/User/connectedDevice.routes.js";
 import hospitalRoutes from "./routes/Hospital/hospital.routes.js";
 import userRoutes from "./routes/User/user.routes.js";
 import founderRoutes from "./routes/Founder/founder.routes.js";
@@ -45,8 +47,11 @@ const totalCPUs = os.cpus().length;
 // Limit to max 4 workers to avoid excessive resource usage or you can use all cores
 const workerCount = Math.min(totalCPUs, 8);
 
+// Disable cluster mode in development to avoid port conflicts
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 // Primary process responsible for creating worker processes
-if (cluster.isPrimary) {
+if (cluster.isPrimary && !isDevelopment) {
   console.log(`Medicare API Server - Cluster Mode Enabled`);
   console.log(`Primary process ${process.pid} is running`);
   console.log(
@@ -68,8 +73,14 @@ if (cluster.isPrimary) {
   });
 }
 // Worker process - runs the actual Express application
+// OR single process in development mode
 else {
-  console.log(`Worker ${process.pid} started`);
+  if (isDevelopment) {
+    console.log(`Medicare API Server - Development Mode (Single Process)`);
+    console.log(`Process ${process.pid} started`);
+  } else {
+    console.log(`Worker ${process.pid} started`);
+  }
 
   // Get directory path for ES modules
   const __filename = fileURLToPath(import.meta.url);
@@ -124,6 +135,8 @@ else {
   app.use("/api/reports", reportsRoutes);
   app.use("/api/storage", storageRoutes);
   app.use("/api/notifications", notificationsRoutes);
+  app.use("/api/medical-info", medicalInfoRoutes);
+  app.use("/api/connected-devices", connectedDeviceRoutes);
   app.use("/api/hospital", hospitalRoutes);
   app.use("/api/user", userRoutes);
   app.use("/api/founder", founderRoutes); // Add founder routes
@@ -204,39 +217,11 @@ else {
     cookie: false,
   });
 
-  // Handle WebSocket connections
-  io.on("connection", (socket) => {
-    console.log(`WebSocket connection established: ${socket.id}`);
-
-    // User authentication and association with socket
-    socket.on("authenticate", (userId) => {
-      if (userId) {
-        console.log(`User ${userId} authenticated on socket ${socket.id}`);
-        connectedUsers.set(userId, socket.id);
-      }
-    });
-
-    socket.on("disconnect", (reason) => {
-      // Remove user from connected users
-      for (const [userId, socketId] of connectedUsers.entries()) {
-        if (socketId === socket.id) {
-          connectedUsers.delete(userId);
-          console.log(`User ${userId} disconnected from socket ${socket.id}`);
-          break;
-        }
-      }
-    });
-
-    socket.on("error", (error) => {
-      console.error("WebSocket error:", error);
-    });
-  });
-
   // Initialize Socket.IO
-  initSocket(httpServer);
+  initSocket(io);
 
   // Connect to MongoDB and start server
-  connectDB()
+  connectAllDatabases()
     .then(() => {
       httpServer.listen(port, "0.0.0.0", () => {
         console.log(

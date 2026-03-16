@@ -84,7 +84,8 @@ export const checkTeamExists = async (req, res, next) => {
   try {
     const teamId = req.params.id;
     
-    const team = await Team.findById(teamId);
+    const TeamModel = Team();
+    const team = await TeamModel.findById(teamId);
     if (!team) {
       return res.status(404).json({
         success: false,

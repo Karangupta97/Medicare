@@ -24,17 +24,18 @@ const getNotifications = asyncHandler(async (req, res) => {
   }
 
   // Get notifications with filters and pagination
-  const notifications = await Notification.find(filter)
+  const NotificationModel = Notification();
+  const notifications = await NotificationModel.find(filter)
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(parseInt(limit));
 
   // Get total count for pagination
-  const totalItems = await Notification.countDocuments(filter);
+  const totalItems = await NotificationModel.countDocuments(filter);
   const totalPages = Math.ceil(totalItems / parseInt(limit));
   
   // Get unread count
-  const unreadCount = await Notification.countDocuments({ 
+  const unreadCount = await NotificationModel.countDocuments({ 
     userId: req.user.id, // Changed from req.user._id to req.user.id
     read: false 
   });
@@ -58,7 +59,8 @@ const getUnreadNotificationsCount = asyncHandler(async (req, res) => {
     const { userId } = req;
     
     // Count unread notifications for this user
-    const count = await Notification.countDocuments({ 
+    const NotificationModel = Notification();
+    const count = await NotificationModel.countDocuments({ 
       userId, 
       read: false 
     });
@@ -79,7 +81,8 @@ const getUnreadNotificationsCount = asyncHandler(async (req, res) => {
 
 // Mark a notification as read
 const markNotificationRead = asyncHandler(async (req, res) => {
-  const notification = await Notification.findOne({
+  const NotificationModel = Notification();
+  const notification = await NotificationModel.findOne({
     _id: req.params.id,
     userId: req.user.id // Changed from req.user._id to req.user.id
   });
@@ -100,7 +103,8 @@ const markNotificationRead = asyncHandler(async (req, res) => {
 
 // Mark all notifications as read
 const markAllNotificationsRead = asyncHandler(async (req, res) => {
-  await Notification.updateMany(
+  const NotificationModel = Notification();
+  await NotificationModel.updateMany(
     { userId: req.user.id, read: false }, // Changed from req.user._id to req.user.id
     { read: true }
   );
@@ -114,7 +118,8 @@ const markAllNotificationsRead = asyncHandler(async (req, res) => {
 // Create a new notification (internal use)
 const createNotification = async (userId, title, message, type = 'info', link = null) => {
   try {
-    const notification = await Notification.create({
+    const NotificationModel = Notification();
+    const notification = await NotificationModel.create({
       userId,
       title,
       message,
@@ -157,7 +162,8 @@ const createNotificationEndpoint = asyncHandler(async (req, res) => {
 
 // Delete a notification
 const deleteNotification = asyncHandler(async (req, res) => {
-  const notification = await Notification.findOne({
+  const NotificationModel = Notification();
+  const notification = await NotificationModel.findOne({
     _id: req.params.id,
     userId: req.user.id // Changed from req.user._id to req.user.id
   });

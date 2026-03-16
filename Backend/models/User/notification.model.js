@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { getPatientDB } from "../../DB/connections.js";
 
 const notificationSchema = new mongoose.Schema({
   userId: {
@@ -34,5 +35,5 @@ const notificationSchema = new mongoose.Schema({
 notificationSchema.index({ userId: 1, createdAt: -1 });
 notificationSchema.index({ userId: 1, read: 1 });
 
-const Notification = mongoose.model('Notification', notificationSchema);
+const Notification = () => getPatientDB().model('Notification', notificationSchema);
 export default Notification;

@@ -396,6 +396,16 @@ const useAuthStore = create((set, get) => ({
         isAuthenticated: !!userData,
         isCheckingAuth: false,
       });
+
+      // Register the current device if user is authenticated (don't wait for it to complete)
+      if (userData) {
+        try {
+          await axios.post('/api/connected-devices/register');
+        } catch (deviceError) {
+          console.log('Device registration failed during auth check:', deviceError);
+          // Don't fail auth check if device registration fails
+        }
+      }
       
       return response.data;
     } catch (error) {
@@ -468,6 +478,14 @@ const useAuthStore = create((set, get) => ({
         isLoading: false,
         refreshInterval: interval
       });
+
+      // Register the current device (don't wait for it to complete)
+      try {
+        await axios.post('/api/connected-devices/register');
+      } catch (deviceError) {
+        console.log('Device registration failed:', deviceError);
+        // Don't fail login if device registration fails
+      }
     } catch (error) {
       set({
         error: error.response?.data?.message || "Error logging in",
@@ -537,6 +555,29 @@ const useAuthStore = create((set, get) => ({
       set({
         isLoading: false,
         error: error.response.data.message || "Error resetting password",
+      });
+      throw error;
+    }
+  },
+
+  changePassword: async (currentPassword, newPassword) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.put(`${API_URL}/api/auth/change-password`, {
+        currentPassword,
+        newPassword,
+      });
+      set({ 
+        message: response.data.message, 
+        isLoading: false,
+        error: null 
+      });
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Error changing password";
+      set({
+        isLoading: false,
+        error: errorMessage,
       });
       throw error;
     }

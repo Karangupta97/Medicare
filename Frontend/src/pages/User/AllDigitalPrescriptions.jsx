@@ -138,7 +138,7 @@ const AllDigitalPrescriptions = () => {
         transition={{ duration: 0.3 }}
         className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 group"
       >
-        <Link to={`/digital-prescriptions/${prescription._id}`} className="block">
+        <Link to={`/dashboard/digital-prescriptions/${prescription._id}`} className="block">
           <div className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
@@ -323,13 +323,17 @@ const AllDigitalPrescriptions = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent mb-2">
-              Digital Prescriptions
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-lg sm:text-xl">
-              Manage and track all your medical prescriptions in one place
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent mb-2">
+                Digital Prescriptions
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg sm:text-xl">
+                Manage and track all your medical prescriptions in one place
+              </p>
+            </div>
+            
+
           </div>
         </motion.div>        
         {/* Filters and search */}

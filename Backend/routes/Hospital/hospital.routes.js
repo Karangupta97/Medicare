@@ -10,8 +10,7 @@ import {
   getPrescriptionById,
   getPatientPrescriptions,
   getDoctorPrescriptions,
-  getOtherDoctorPrescriptions,
-  generatePrescriptionPDF
+  getOtherDoctorPrescriptions
 } from "../../controllers/Hospital/prescription.controller.js";
 import { refreshReportUrl } from "../../controllers/User/reports.controller.js";
 
@@ -44,6 +43,5 @@ router.get("/digital-prescriptions/patient/:patientId", getPatientPrescriptions)
 router.get("/digital-prescriptions/doctor", getDoctorPrescriptions);
 // This must come after more specific routes
 router.get("/digital-prescriptions/:prescriptionId", getPrescriptionById);
-router.get("/digital-prescriptions/:prescriptionId/view", generatePrescriptionPDF);
 
 export default router;

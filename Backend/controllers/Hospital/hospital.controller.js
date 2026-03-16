@@ -25,7 +25,8 @@ export const getPatientByUMID = async (req, res) => {
     }
     
     // Find user by UMID
-    const patient = await User.findOne({ umid }).select('-password');
+    const UserModel = User();
+    const patient = await UserModel.findOne({ umid }).select('-password');
     
     if (!patient) {
       console.log(`No patient found with UMID: ${umid}`);
@@ -68,7 +69,8 @@ export const getPatientReports = async (req, res) => {
     console.log(`Fetching reports for patient ID: ${patientId}`);
     
     // Find all reports for the patient
-    const reports = await Report.find({ userId: patientId })
+    const ReportModel = Report();
+    const reports = await ReportModel.find({ userId: patientId })
       .sort({ createdAt: -1 });
     
     console.log(`Found ${reports.length} reports for patient ID: ${patientId}`);
@@ -108,7 +110,8 @@ export const getRecentPatients = async (req, res) => {
     // Find the 5 most recently created/updated users
     // In a real application, this would filter for only patients
     // and might use a "lastVisit" or similar field instead of updatedAt
-    const recentPatients = await User.find({})
+    const UserModel = User();
+    const recentPatients = await UserModel.find({})
       .sort({ updatedAt: -1 })
       .limit(5)
       .select('name lastname umid updatedAt photoURL');

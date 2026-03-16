@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FiSearch, FiClipboard, FiFileText, FiFile, FiDownload, FiEye, FiUser, FiAlertCircle, FiCalendar, FiPhone, FiMail, FiMapPin, FiFilter, FiPlus, FiX, FiInfo, FiTrash2, FiChevronRight, FiChevronUp, FiChevronDown, FiClock } from "react-icons/fi";
+import { FiSearch, FiClipboard, FiFileText, FiFile, FiEye, FiUser, FiAlertCircle, FiCalendar, FiPhone, FiMail, FiMapPin, FiFilter, FiPlus, FiX, FiInfo, FiTrash2, FiChevronRight, FiChevronUp, FiChevronDown, FiClock } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import handlogo from "../../assets/Logo/logo.png";
 import axios from "axios";
 import HospitalDashboardLayout from "../../components/Hospital/HospitalDashboardLayout";
 import { motion, AnimatePresence } from "framer-motion";
 import DigitalPrescription from "../../components/Hospital/DigitalPrescription";
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { useAuthStore } from "../../store/Patient/authStore";
 /*==========================================
  * PATIENT INFO COMPONENT
@@ -679,66 +677,6 @@ const PrescriptionCard = ({ prescription }) => {
       day: 'numeric' 
     }).format(date);
   };
-
-  // Handle generating and downloading PDF
-  const handleGeneratePDF = async () => {
-    if (!prescriptionCardRef.current) {
-      toast.error("Cannot generate PDF. Please try again later.");
-      return;
-    }
-
-    const toastId = toast.loading("Generating PDF...");
-    
-    try {
-      // Navigate to the full prescription view to generate a better PDF
-      const prescriptionUrl = `/digital-prescriptions/${prescription._id}`;
-      
-      // Open in new tab and wait for it to load
-      const newWindow = window.open(prescriptionUrl, '_blank');
-      
-      // Inform user about next steps
-      toast.success("Prescription opened in new tab. Use download button there for best quality PDF.", { id: toastId });
-    } catch (err) {
-      console.error("Error opening prescription:", err);
-      
-      // Fallback to generating PDF from the card if navigation fails
-      try {
-        toast.loading("Attempting local PDF generation...", { id: toastId });
-        
-        // Capture the prescription card as an image
-        const canvas = await html2canvas(prescriptionCardRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff'
-        });
-        
-        // Create PDF
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4'
-        });
-        
-        // Calculate dimensions to fit the page
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 297; // A4 height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        // Add the image to the PDF
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        
-        // Save the PDF
-        pdf.save(`Prescription-${prescription._id}.pdf`);
-        
-        toast.success("PDF generated successfully!", { id: toastId });
-      } catch (pdfErr) {
-        console.error("Error generating fallback PDF:", pdfErr);
-        toast.error(`PDF generation failed: ${pdfErr.message}`, { id: toastId });
-      }
-    }
-  };
   
   return (
     <motion.div 
@@ -829,14 +767,6 @@ const PrescriptionCard = ({ prescription }) => {
           >
             <FiEye className="w-4 h-4" /> 
             View
-          </button>
-          
-          <button
-            onClick={handleGeneratePDF}
-            className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium text-blue-800 hover:bg-white transition-colors"
-          >
-            <FiDownload className="w-4 h-4" /> 
-            Download PDF
           </button>
         </div>
       </div>

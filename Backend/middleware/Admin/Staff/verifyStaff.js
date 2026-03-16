@@ -23,7 +23,8 @@ export const verifyStaff = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Find staff by ID
-    const staff = await Staff.findById(decoded.id).select('-password');
+    const StaffModel = Staff();
+    const staff = await StaffModel.findById(decoded.id).select('-password');
     
     if (!staff) {
       return res.status(401).json({

@@ -8,7 +8,8 @@ import { User } from "../models/User/user.model.js";
  */
 export const calculateUserStorageUsage = async (userId) => {
   try {
-    const reports = await Report.find({ userId }).select('fileSize');
+    const ReportModel = Report();
+    const reports = await ReportModel.find({ userId }).select('fileSize');
     const totalUsage = reports.reduce((acc, report) => acc + (report.fileSize || 0), 0);
     return totalUsage;
   } catch (error) {
@@ -45,7 +46,8 @@ export const getUserStorageLimit = (user) => {
 export const checkStorageLimitBeforeUpload = async (userId, newFileSize) => {
   try {
     // Get user details
-    const user = await User.findById(userId);
+    const UserModel = User();
+    const user = await UserModel.findById(userId);
     if (!user) {
       throw new Error('User not found');
     }
@@ -140,7 +142,8 @@ export const checkStorageLimitMiddleware = async (req, res, next) => {
  */
 export const getUserStorageInfo = async (userId) => {
   try {
-    const user = await User.findById(userId);
+    const UserModel = User();
+    const user = await UserModel.findById(userId);
     if (!user) {
       throw new Error('User not found');
     }

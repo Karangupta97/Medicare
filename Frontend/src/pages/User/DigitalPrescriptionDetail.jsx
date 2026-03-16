@@ -3,14 +3,11 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import {
   FiFileText,
   FiUser,
   FiCalendar,
   FiArrowLeft,
-  FiDownload,
   FiPrinter,
   FiShare2,
   FiAlertTriangle,
@@ -67,55 +64,6 @@ const PrescriptionDetail = () => {
     });
   };
 
-  // Handle download prescription - Client-side PDF generation
-  const handleDownload = async () => {
-    if (!prescriptionRef.current) {
-      toast.error("Cannot generate PDF. Please try again later.");
-      return;
-    }
-
-    const toastId = toast.loading("Generating PDF...");
-    
-    try {
-      // Optional: Add a class to style the content for PDF generation
-      prescriptionRef.current.classList.add('generating-pdf');
-      
-      // Capture the prescription as an image
-      const canvas = await html2canvas(prescriptionRef.current, {
-        scale: 2, // Higher scale for better quality
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-      
-      // Remove temporary class
-      prescriptionRef.current.classList.remove('generating-pdf');
-      
-      // Create PDF
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // Calculate dimensions to fit the page
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Add the image to the PDF
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      
-      // Save the PDF
-      pdf.save(`Prescription-${id}.pdf`);
-      
-      toast.success("PDF generated successfully!", { id: toastId });
-    } catch (err) {
-      console.error("Error generating PDF:", err);
-      toast.error(`PDF generation failed: ${err.message}`, { id: toastId });
-    }
-  };
-
   // Handle print prescription
   const handlePrint = () => {
     window.print();
@@ -165,7 +113,7 @@ const PrescriptionDetail = () => {
               </p>
               <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
                 <Link
-                  to="/digital-prescriptions"
+                  to="/dashboard/digital-prescriptions"
                   className="px-2 sm:px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors text-xs sm:text-sm"
                 >
                   <FiArrowLeft className="inline mr-1" /> Back to All Prescriptions
@@ -195,7 +143,7 @@ const PrescriptionDetail = () => {
               The prescription you're looking for could not be found.
             </p>
             <Link
-              to="/digital-prescriptions"
+              to="/dashboard/digital-prescriptions"
               className="px-2 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors inline-block text-xs sm:text-sm"
             >
               <FiArrowLeft className="inline mr-1" /> Back to All Prescriptions
@@ -219,7 +167,7 @@ const PrescriptionDetail = () => {
           </div>
           <div className="flex gap-1 sm:gap-2">
             <Link
-              to="/digital-prescriptions"
+              to="/dashboard/digital-prescriptions"
               className="inline-flex items-center px-2 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700 text-xs sm:text-sm"
             >
               <FiArrowLeft className="mr-1" /> Back
@@ -245,13 +193,6 @@ const PrescriptionDetail = () => {
                 </div>
               </div>
               <div className="flex items-center gap-1 sm:gap-2">
-                <button
-                  onClick={handleDownload}
-                  className="p-1 sm:p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                  title="Download Prescription"
-                >
-                  <FiDownload className="w-4 h-4" />
-                </button>
                 <button
                   onClick={handlePrint}
                   className="p-1 sm:p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
@@ -450,12 +391,6 @@ const PrescriptionDetail = () => {
         </div>
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mt-2">
-          <button
-            onClick={handleDownload}
-            className="inline-flex items-center px-2 sm:px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs sm:text-sm"
-          >
-            <FiDownload className="mr-1" /> Download PDF
-          </button>
           <button
             onClick={handlePrint}
             className="inline-flex items-center px-2 sm:px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-xs sm:text-sm"

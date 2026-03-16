@@ -40,7 +40,8 @@ export const verifyFounder = async (req, res, next) => {
     }
 
     // Check if the founder still exists in the database
-    const founder = await Founder.findById(decoded.id);
+    const FounderModel = Founder();
+    const founder = await FounderModel.findById(decoded.id);
     if (!founder) {
       return res.status(401).json({
         success: false,

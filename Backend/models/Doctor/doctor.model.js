@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcryptjs from "bcryptjs";
+import { getDoctorDB } from "../../DB/connections.js";
 
 const doctorSchema = new mongoose.Schema({
   fullName: {
@@ -114,4 +115,4 @@ doctorSchema.statics.generateDoctorId = async function() {
   return `${prefix}${(count + 1).toString().padStart(3, '0')}${randomPart}`;
 };
 
-export const Doctor = mongoose.model("Doctor", doctorSchema); 
+export const Doctor = () => getDoctorDB().model("Doctor", doctorSchema); 

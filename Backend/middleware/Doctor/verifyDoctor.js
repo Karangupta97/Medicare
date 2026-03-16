@@ -23,7 +23,8 @@ export const verifyDoctor = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Find doctor by ID
-    const doctor = await Doctor.findById(decoded.id).select('-password');
+    const DoctorModel = Doctor();
+    const doctor = await DoctorModel.findById(decoded.id).select('-password');
     
     if (!doctor) {
       return res.status(401).json({

@@ -18,7 +18,7 @@ import { useDoctorStore } from "./store/doctorStore";
 import RestoreButton from "./components/RestoreButton";
 
 //Admin
-//User
+//Patient
 import Dashboard from "./pages/User/Dashboard";
 import Login from "./pages/User/Login";
 import Signup from "./pages/User/Signup";
@@ -59,6 +59,7 @@ import DoctorDashboard from "./pages/Doctor/Dashboard";
 //piblic
 import Home from "./pages/Home";
 import Services from "./pages/Services";
+import Service2 from "./pages/Service2";
 import NotFound from "./pages/NotFound";
 import WorkingOnIt from "./pages/WorkingOnIt";
 import UserDetails from "./pages/User/UserDetails";
@@ -674,6 +675,7 @@ const App = () => {
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/service2" element={<Service2 />} />
           <Route path="/aboutus" element={<About />} />
           <Route path="/aboutus2" element={<About2 />} />
           <Route path="/team" element={<Team />} />

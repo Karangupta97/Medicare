@@ -1,16 +1,17 @@
-import React, { useState } from "react";
-import { FiFileText, FiClock, FiCalendar, FiInfo, FiDownload, FiEye, FiUser, FiCheckCircle, FiClipboard, FiChevronRight, FiPlusCircle, FiMapPin, FiActivity, FiHeart, FiStar } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { FiFileText, FiClock, FiCalendar, FiInfo, FiEye, FiUser, FiCheckCircle, FiClipboard, FiChevronRight, FiPlusCircle, FiMapPin, FiActivity, FiHeart } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { safeExecute } from "../../utils/errorHandling";
 import { useAuthStore } from "../../store/Patient/authStore";
+import usePatientStore from "../../store/Patient/patientstore";
 
-const DigitalPrescriptionCard = ({ prescription, onView }) => {
+const DigitalPrescriptionCard = ({ prescription, onView, showFavoriteButton = true }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
   const { token } = useAuthStore();
-  
+
   // Format date to a readable string
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -66,27 +67,8 @@ const DigitalPrescriptionCard = ({ prescription, onView }) => {
       onView(prescription);
     } else {
       // Otherwise, navigate to the prescription detail page
-      navigate(`/digital-prescriptions/${prescription._id}`);
+      navigate(`/dashboard/digital-prescriptions/${prescription._id}`);
     }
-  };
-
-  // Handle download PDF - redirects to detail page for PDF generation
-  const handleDownloadPDF = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    safeExecute(() => {
-      try {
-        // Navigate to detail page where PDF generation is implemented
-        navigate(`/digital-prescriptions/${prescription._id}`);
-        
-        // Show a toast indicating how to download the PDF
-        toast.success("Opening prescription details. Click the Download PDF button to download.", { duration: 5000 });
-      } catch (error) {
-        console.error("Navigation error:", error);
-        toast.error("Failed to open prescription details");
-      }
-    });
   };
 
   // Determine the status of the prescription
@@ -267,33 +249,6 @@ const DigitalPrescriptionCard = ({ prescription, onView }) => {
               title="Set Reminder"
             >
               <FiClock className="w-4 h-4" />
-            </motion.button>
-            
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownloadPDF(e);
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg border border-gray-200/50 dark:border-gray-600/50"
-              title="Download PDF"
-            >
-              <FiDownload className="w-4 h-4" />
-            </motion.button>
-            
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation();
-                // Add to favorites functionality
-                toast.success("Added to favorites!");
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 p-2 rounded-lg border border-orange-200/50 dark:border-orange-700/50"
-              title="Add to Favorites"
-            >
-              <FiStar className="w-4 h-4" />
             </motion.button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcryptjs from "bcryptjs";
+import { getPatientDB } from "../../DB/connections.js";
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -120,6 +121,12 @@ const userSchema = new mongoose.Schema({
     enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", ""],
     default: "",
   },
+  // Medical Information Reference
+  medicalInfo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "MedicalInfo",
+    default: null,
+  },
   reports: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Report"
@@ -153,4 +160,4 @@ userSchema.pre('findOneAndUpdate', function(next) {
   next();
 });
 
-export const User = mongoose.model("User", userSchema); 
+export const User = () => getPatientDB().model("User", userSchema); 

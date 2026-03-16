@@ -1,11 +1,12 @@
 import { User } from "../../models/User/user.model.js";
-import Prescription from "../../models/Hospital/prescription.model.js";
+import { Prescription } from "../../models/Hospital/prescription.model.js";
 
 // Get all prescriptions for the logged-in user
 export const getUserPrescriptions = async (req, res) => {
   try {
     // Find prescriptions where the patient ID matches the logged-in user's ID
-    const prescriptions = await Prescription.find({ patientId: req.user.id })
+    const PrescriptionModel = Prescription();
+    const prescriptions = await PrescriptionModel.find({ patientId: req.user.id })
       .sort({ createdAt: -1 });
     
     return res.status(200).json({
@@ -28,7 +29,8 @@ export const getUserPrescriptionById = async (req, res) => {
     const { prescriptionId } = req.params;
     
     // Find the prescription by ID
-    const prescription = await Prescription.findById(prescriptionId);
+    const PrescriptionModel = Prescription();
+    const prescription = await PrescriptionModel.findById(prescriptionId);
     
     // If prescription not found, return 404
     if (!prescription) {
@@ -66,7 +68,8 @@ export const getPrescriptionCount = async (req, res) => {
     const userId = req.user._id;
     
     // Count prescriptions for this user
-    const count = await Prescription.countDocuments({ patient: userId });
+    const PrescriptionModel = Prescription();
+    const count = await PrescriptionModel.countDocuments({ patient: userId });
     
     return res.status(200).json({
       success: true,
@@ -95,7 +98,8 @@ export const getUserProfileByUmid = async (req, res) => {
     }
     
     // Find user by UMID
-    const user = await User.findOne({ umid }).select('-password -tokens');
+    const UserModel = User();
+    const user = await UserModel.findOne({ umid }).select('-password -tokens');
     
     if (!user) {
       return res.status(404).json({

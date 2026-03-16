@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { getDoctorDB } from "../../DB/connections.js";
 
 const medicationSchema = new mongoose.Schema({
   name: {
@@ -71,6 +72,6 @@ const prescriptionSchema = new mongoose.Schema({
   }
 });
 
-const Prescription = mongoose.model("Prescription", prescriptionSchema);
+const Prescription = () => getDoctorDB().model("Prescription", prescriptionSchema);
 
-export default Prescription;
+export { Prescription };

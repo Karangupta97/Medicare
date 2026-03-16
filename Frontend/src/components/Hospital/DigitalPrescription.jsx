@@ -6,7 +6,6 @@ import {
   FiFileText, 
   FiUser, 
   FiAlertCircle, 
-  FiDownload, 
   FiCheck,
   FiClock,
   FiCalendar,
@@ -430,13 +429,6 @@ const DigitalPrescription = ({ patient, onPrescriptionSaved }) => {
                           <span>Confirm & Save</span>
                         </>
                       )}
-                    </button>
-                    <button
-                      type="button"
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors flex items-center gap-2"
-                    >
-                      <FiDownload className="w-4 h-4" />
-                      <span>Download PDF</span>
                     </button>
                   </div>
                 </div>

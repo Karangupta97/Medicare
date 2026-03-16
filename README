@@ -17,14 +17,14 @@ The Digital Prescriptions module in Medicare provides a comprehensive electronic
 - **Create Digital Prescriptions**: Generate new electronic prescriptions with comprehensive medication details, dosage instructions, and patient information.
 - **Patient Search**: Easily find patients using their UMID to access their medical history and create prescriptions.
 - **Medication Management**: Add multiple medications with detailed information including name, dosage, frequency, duration, and special instructions.
-- **Preview & PDF Generation**: Preview prescription before finalizing and generate downloadable PDF versions.
+- **Prescription Preview**: Preview prescription before finalizing with comprehensive formatting.
 - **Cross-Provider Access**: View prescriptions issued by other doctors to the same patient, ensuring continuity of care.
 
 ### For Patients:
 - **Centralized Prescription Access**: View all prescriptions from various healthcare providers in one place.
 - **Detailed Prescription View**: Access comprehensive information about each prescription, including doctor details, diagnosis, medications, and instructions.
 - **Search & Filter**: Search prescriptions by doctor, hospital, or medication and filter by status (Active/Completed) or date.
-- **Download & Print**: Easily download or print prescriptions for offline access.
+- **Print Support**: Print prescriptions for offline access.
 - **Mobile-Friendly Design**: Responsive interface for accessing prescriptions on any device.
 
 ## Technical Implementation

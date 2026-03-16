@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { getPatientDB } from "../../DB/connections.js";
 
 const reportSchema = new mongoose.Schema(
   {
@@ -53,4 +54,4 @@ const reportSchema = new mongoose.Schema(
   }
 );
 
-export const Report = mongoose.model("Report", reportSchema);
+export const Report = () => getPatientDB().model("Report", reportSchema);

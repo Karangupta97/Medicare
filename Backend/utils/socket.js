@@ -2,15 +2,9 @@ import { Server } from 'socket.io';
 
 let io;
 
-// Initialize Socket.IO with the HTTP server
-export const initSocket = (server) => {
-  io = new Server(server, {
-    cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:4000',
-      methods: ['GET', 'POST'],
-      credentials: true
-    }
-  });
+// Configure Socket.IO handlers (receives already-created instance)
+export const initSocket = (ioInstance) => {
+  io = ioInstance;
 
   // Handle connection
   io.on('connection', (socket) => {

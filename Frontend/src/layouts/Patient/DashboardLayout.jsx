@@ -525,20 +525,20 @@ const DashboardLayout = () => {
     { 
       title: "Health Records",
       items: [
-        { 
-          icon: FileText, 
-          label: "Reports", 
-          path: "/dashboard/reports", 
-          description: "View your medical reports",
-          badge: null 
-        },
-        { 
+         { 
           icon: Upload, 
           label: "Upload", 
           path: "/dashboard/upload", 
           description: "Upload medical documents",
           badge: null 
         },
+        { 
+          icon: FileText, 
+          label: "Reports", 
+          path: "/dashboard/reports", 
+          description: "View your medical reports",
+          badge: null 
+        },      
         { 
           icon: Clipboard, 
           label: "Digital Prescriptions", 

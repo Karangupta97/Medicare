@@ -46,7 +46,8 @@ export const founderLogin = async (req, res) => {
     }
     
     // Find the founder by email
-    const founder = await Founder.findOne({ email });
+    const FounderModel = Founder();
+    const founder = await FounderModel.findOne({ email });
     
     if (!founder) {
       return res.status(401).json({
@@ -127,7 +128,8 @@ export const verifyFounderOTP = async (req, res) => {
     }
     
     // Find founder
-    const founder = await Founder.findById(decoded.id);
+    const FounderModel2 = Founder();
+    const founder = await FounderModel2.findById(decoded.id);
     
     if (!founder) {
       return res.status(401).json({
@@ -265,7 +267,8 @@ export const requestSensitiveActionOTP = async (req, res) => {
     const founderId = req.user.id;
     
     // Find founder
-    const founder = await Founder.findById(founderId);
+    const FounderModel3 = Founder();
+    const founder = await FounderModel3.findById(founderId);
     
     if (!founder) {
       return res.status(401).json({
@@ -309,7 +312,8 @@ export const verifySensitiveActionOTP = async (req, res) => {
     const founderId = req.user.id;
     
     // Find founder
-    const founder = await Founder.findById(founderId);
+    const FounderModel4 = Founder();
+    const founder = await FounderModel4.findById(founderId);
     
     if (!founder) {
       return res.status(401).json({

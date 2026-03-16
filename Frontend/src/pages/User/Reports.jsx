@@ -739,25 +739,9 @@ const Reports = () => {
   };
 
   const handleDownload = async (fileUrl, filename) => {
-    if (!fileUrl) {
-      toast.error("File URL not available");
-      return;
-    }
-
-    try {
-      const loadingToastId = toast.loading("Preparing download...");
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = filename || "report";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.dismiss(loadingToastId);
-      toast.success("Download started");
-    } catch (error) {
-      console.error("Download error:", error);
-      toast.error("Failed to download file");
-    }
+    // Download functionality has been disabled
+    toast.info("Download feature is currently unavailable");
+    return;
   };
 
   // Calculate statistics for the dashboard
@@ -1433,9 +1417,7 @@ const Reports = () => {
                   </button>
 
                   <button
-                    onClick={() =>
-                      handleDownload(report.fileUrl, report.originalFilename)
-                    }
+                    onClick={() => toast.info("Download feature is currently unavailable")}
                     className="flex items-center justify-center py-1.5 xs:py-2 sm:py-2.5 px-2 xs:px-3 
                                bg-gradient-to-r from-emerald-50 to-green-50 
                                hover:from-emerald-100 hover:to-green-100
@@ -1645,9 +1627,7 @@ const Reports = () => {
                     <span className="xs:hidden">👁</span>
                   </button>
                   <button
-                    onClick={() =>
-                      handleDownload(report.fileUrl, report.originalFilename)
-                    }
+                    onClick={() => toast.info("Download feature is currently unavailable")}
                     className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-2.5 
                                bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 
                                text-emerald-700 rounded-lg xs:rounded-xl sm:rounded-2xl transition-all duration-300 
@@ -2094,12 +2074,7 @@ const Reports = () => {
               </div>
               <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-2 flex-shrink-0">
                 <button
-                  onClick={() =>
-                    handleDownload(
-                      previewModal.report.fileUrl,
-                      previewModal.report.originalFilename
-                    )
-                  }
+                  onClick={() => toast.info("Download feature is currently unavailable")}
                   className="flex items-center justify-center p-1.5 xs:p-2 hover:bg-blue-50 rounded-lg xs:rounded-xl transition-colors"
                   title="Download"
                 >
@@ -2249,12 +2224,7 @@ const Reports = () => {
                       </p>
                       <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 justify-center">
                         <button
-                          onClick={() =>
-                            handleDownload(
-                              previewModal.report.fileUrl,
-                              previewModal.report.originalFilename
-                            )
-                          }
+                          onClick={() => toast.info("Download feature is currently unavailable")}
                           className="inline-flex items-center gap-2 px-4 xs:px-6 py-2 xs:py-3 bg-blue-600 text-white rounded-lg xs:rounded-xl hover:bg-blue-700 transition-all font-medium text-sm xs:text-base"
                         >
                           <FiDownload className="w-4 h-4 xs:w-5 xs:h-5" />

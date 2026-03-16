@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common["Content-Type"] = "application/json";
 
 const usePatientStore = create((set, get) => ({
   // State
@@ -21,16 +21,24 @@ const usePatientStore = create((set, get) => ({
   searchResults: [],
   isSearching: false,
 
+  // Connected devices state
+  connectedDevices: [],
+  connectedDevicesLoading: false,
+  connectedDevicesError: null,
+
   // Actions
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
 
   // Search function for reports and prescriptions
-  searchMedicalData: async (query, categories = { reports: true, prescriptions: true }) => {
+  searchMedicalData: async (
+    query,
+    categories = { reports: true, prescriptions: true }
+  ) => {
     try {
       set({ isSearching: true });
-      
+
       const results = [];
       const lowerQuery = query.toLowerCase();
       const { reports, prescriptions } = get();
@@ -38,24 +46,27 @@ const usePatientStore = create((set, get) => ({
       // Search reports
       if (categories.reports && reports) {
         const reportResults = reports
-          .filter(report => 
-            report.originalFilename?.toLowerCase().includes(lowerQuery) ||
-            report.description?.toLowerCase().includes(lowerQuery) ||
-            report.category?.toLowerCase().includes(lowerQuery) ||
-            report.doctor?.toLowerCase().includes(lowerQuery)
+          .filter(
+            (report) =>
+              report.originalFilename?.toLowerCase().includes(lowerQuery) ||
+              report.description?.toLowerCase().includes(lowerQuery) ||
+              report.category?.toLowerCase().includes(lowerQuery) ||
+              report.doctor?.toLowerCase().includes(lowerQuery)
           )
           .slice(0, 5)
-          .map(report => ({
+          .map((report) => ({
             id: report._id,
-            type: 'report',
-            title: report.originalFilename || 'Medical Report',
+            type: "report",
+            title: report.originalFilename || "Medical Report",
             description: report.description || `${report.category} report`,
             date: report.createdAt,
-            icon: 'FiFileText',
+            icon: "FiFileText",
             path: `/dashboard/reports/${report._id}`,
             category: report.category,
-            metadata: `${report.category} • ${new Date(report.createdAt).toLocaleDateString()}`,
-            reportData: report // Store the full report data for navigation
+            metadata: `${report.category} • ${new Date(
+              report.createdAt
+            ).toLocaleDateString()}`,
+            reportData: report, // Store the full report data for navigation
           }));
         results.push(...reportResults);
       }
@@ -63,25 +74,30 @@ const usePatientStore = create((set, get) => ({
       // Search prescriptions
       if (categories.prescriptions && prescriptions) {
         const prescriptionResults = prescriptions
-          .filter(prescription => 
-            prescription.doctor?.toLowerCase().includes(lowerQuery) ||
-            prescription.diagnosis?.toLowerCase().includes(lowerQuery) ||
-            prescription.medications?.some(med => 
-              med.name?.toLowerCase().includes(lowerQuery)
-            ) ||
-            prescription.hospitalName?.toLowerCase().includes(lowerQuery)
+          .filter(
+            (prescription) =>
+              prescription.doctor?.toLowerCase().includes(lowerQuery) ||
+              prescription.diagnosis?.toLowerCase().includes(lowerQuery) ||
+              prescription.medications?.some((med) =>
+                med.name?.toLowerCase().includes(lowerQuery)
+              ) ||
+              prescription.hospitalName?.toLowerCase().includes(lowerQuery)
           )
           .slice(0, 5)
-          .map(prescription => ({
+          .map((prescription) => ({
             id: prescription._id,
-            type: 'prescription',
-            title: `Prescription by Dr. ${prescription.doctor || 'Unknown'}`,
-            description: prescription.diagnosis || 'Digital Prescription',
+            type: "prescription",
+            title: `Prescription by Dr. ${prescription.doctor || "Unknown"}`,
+            description: prescription.diagnosis || "Digital Prescription",
             date: prescription.createdAt,
-            icon: 'FiClipboard',
+            icon: "FiClipboard",
             path: `/dashboard/digital-prescriptions/${prescription._id}`,
-            category: 'prescription',
-            metadata: `${prescription.medications?.length || 0} medications • ${new Date(prescription.createdAt).toLocaleDateString()}`
+            category: "prescription",
+            metadata: `${
+              prescription.medications?.length || 0
+            } medications • ${new Date(
+              prescription.createdAt
+            ).toLocaleDateString()}`,
           }));
         results.push(...prescriptionResults);
       }
@@ -92,7 +108,7 @@ const usePatientStore = create((set, get) => ({
       set({ searchResults: results, isSearching: false });
       return results;
     } catch (error) {
-      console.error('Search error:', error);
+      console.error("Search error:", error);
       set({ searchResults: [], isSearching: false });
       return [];
     }
@@ -102,16 +118,21 @@ const usePatientStore = create((set, get) => ({
   fetchAllMedicalData: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      
+
       // Set auth token
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       // Fetch all data in parallel
-      const [reportsRes, prescriptionsRes, notificationsRes, prescriptionCountRes] = await Promise.all([
-        axios.get('/api/reports'),
-        axios.get('/api/user/digital-prescriptions'),
-        axios.get('/api/notifications'),
-        axios.get('/api/user/digital-prescriptions/count')
+      const [
+        reportsRes,
+        prescriptionsRes,
+        notificationsRes,
+        prescriptionCountRes,
+      ] = await Promise.all([
+        axios.get("/api/reports"),
+        axios.get("/api/user/digital-prescriptions"),
+        axios.get("/api/notifications"),
+        axios.get("/api/user/digital-prescriptions/count"),
       ]);
 
       // Update state with fetched data
@@ -121,19 +142,19 @@ const usePatientStore = create((set, get) => ({
         notifications: notificationsRes.data.notifications || [],
         unreadNotificationsCount: notificationsRes.data.unreadCount || 0,
         prescriptionCount: prescriptionCountRes.data.count || 0,
-        isLoading: false
+        isLoading: false,
       });
 
       return {
         reports: reportsRes.data.reports,
         prescriptions: prescriptionsRes.data.prescriptions,
         notifications: notificationsRes.data.notifications,
-        prescriptionCount: prescriptionCountRes.data.count
+        prescriptionCount: prescriptionCountRes.data.count,
       };
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch medical data',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch medical data",
+        isLoading: false,
       });
       throw error;
     }
@@ -143,15 +164,15 @@ const usePatientStore = create((set, get) => ({
   fetchReports: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get('/api/reports');
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/reports");
       set({ reports: response.data.reports || [], isLoading: false });
       return response.data.reports;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch reports',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch reports",
+        isLoading: false,
       });
       throw error;
     }
@@ -161,15 +182,15 @@ const usePatientStore = create((set, get) => ({
   getReportById: async (token, reportId) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.get(`/api/reports/${reportId}`);
       set({ isLoading: false });
       return response.data.report;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch report',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch report",
+        isLoading: false,
       });
       throw error;
     }
@@ -179,15 +200,15 @@ const usePatientStore = create((set, get) => ({
   refreshReportUrl: async (token, reportId) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.get(`/api/reports/${reportId}/refresh-url`);
       set({ isLoading: false });
       return response.data.url;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to refresh report URL',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to refresh report URL",
+        isLoading: false,
       });
       throw error;
     }
@@ -197,25 +218,27 @@ const usePatientStore = create((set, get) => ({
   moveReport: async (token, reportId, newCategory) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.patch(`/api/reports/${reportId}/move`, { category: newCategory });
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.patch(`/api/reports/${reportId}/move`, {
+        category: newCategory,
+      });
+
       // Update report in state
-      set(state => ({
-        reports: state.reports.map(report =>
+      set((state) => ({
+        reports: state.reports.map((report) =>
           report._id === reportId
             ? { ...report, category: newCategory }
             : report
         ),
-        isLoading: false
+        isLoading: false,
       }));
-      
+
       return response.data.report;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to move report',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to move report",
+        isLoading: false,
       });
       throw error;
     }
@@ -225,29 +248,32 @@ const usePatientStore = create((set, get) => ({
   updateReport: async (token, reportId, updates) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.patch(`/api/reports/${reportId}`, updates);
-      
+
       // Update report in state
-      set(state => ({
-        reports: state.reports.map(report =>
+      set((state) => ({
+        reports: state.reports.map((report) =>
           report._id === reportId
-            ? { 
-                ...report, 
+            ? {
+                ...report,
                 originalFilename: updates.title || report.originalFilename,
-                description: updates.description !== undefined ? updates.description : report.description
+                description:
+                  updates.description !== undefined
+                    ? updates.description
+                    : report.description,
               }
             : report
         ),
-        isLoading: false
+        isLoading: false,
       }));
-      
+
       return response.data.report;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to update report',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to update report",
+        isLoading: false,
       });
       throw error;
     }
@@ -257,15 +283,18 @@ const usePatientStore = create((set, get) => ({
   fetchPrescriptions: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get('/api/user/digital-prescriptions');
-      set({ prescriptions: response.data.prescriptions || [], isLoading: false });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/user/digital-prescriptions");
+      set({
+        prescriptions: response.data.prescriptions || [],
+        isLoading: false,
+      });
       return response.data.prescriptions;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch prescriptions',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch prescriptions",
+        isLoading: false,
       });
       throw error;
     }
@@ -275,15 +304,16 @@ const usePatientStore = create((set, get) => ({
   getPrescriptionCount: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get('/api/user/digital-prescriptions/count');
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/user/digital-prescriptions/count");
       set({ prescriptionCount: response.data.count || 0, isLoading: false });
       return response.data.count;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch prescription count',
-        isLoading: false 
+      set({
+        error:
+          error.response?.data?.message || "Failed to fetch prescription count",
+        isLoading: false,
       });
       throw error;
     }
@@ -293,15 +323,17 @@ const usePatientStore = create((set, get) => ({
   getPrescriptionById: async (token, prescriptionId) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get(`/api/user/digital-prescriptions/${prescriptionId}`);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get(
+        `/api/user/digital-prescriptions/${prescriptionId}`
+      );
       set({ isLoading: false });
       return response.data.prescription;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch prescription',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch prescription",
+        isLoading: false,
       });
       throw error;
     }
@@ -311,46 +343,51 @@ const usePatientStore = create((set, get) => ({
   createPrescription: async (prescriptionData, token) => {
     try {
       set({ isLoading: true, error: null });
-      
+
       // Create a dedicated axios instance for prescription creation to avoid cancellation
       const prescriptionAxios = axios.create({
         baseURL: API_URL,
         withCredentials: true,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : undefined
-        }
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
       });
-      
-      const response = await prescriptionAxios.post('/api/hospital/digital-prescriptions', prescriptionData);
-      
+
+      const response = await prescriptionAxios.post(
+        "/api/hospital/digital-prescriptions",
+        prescriptionData
+      );
+
       if (response.data.success) {
         // Update prescriptions list with new prescription
-        set(state => ({
+        set((state) => ({
           prescriptions: [response.data.prescription, ...state.prescriptions],
           prescriptionCount: state.prescriptionCount + 1,
-          isLoading: false
+          isLoading: false,
         }));
-        
+
         return response.data.prescription;
       } else {
-        throw new Error(response.data.message || 'Failed to create prescription');
+        throw new Error(
+          response.data.message || "Failed to create prescription"
+        );
       }
     } catch (error) {
       // Check if this is a cancellation error
       if (axios.isCancel(error)) {
-        console.log('Prescription creation was cancelled:', error.message);
-        set({ 
-          error: 'Request was cancelled',
-          isLoading: false 
+        console.log("Prescription creation was cancelled:", error.message);
+        set({
+          error: "Request was cancelled",
+          isLoading: false,
         });
-        throw new Error('Request was cancelled');
+        throw new Error("Request was cancelled");
       }
-      
-      console.error('Error creating prescription:', error);
-      set({ 
-        error: error.response?.data?.message || 'Failed to create prescription',
-        isLoading: false 
+
+      console.error("Error creating prescription:", error);
+      set({
+        error: error.response?.data?.message || "Failed to create prescription",
+        isLoading: false,
       });
       throw error;
     }
@@ -360,19 +397,19 @@ const usePatientStore = create((set, get) => ({
   fetchNotifications: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get('/api/notifications');
-      set({ 
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/notifications");
+      set({
         notifications: response.data.notifications || [],
         unreadNotificationsCount: response.data.unreadCount || 0,
-        isLoading: false 
+        isLoading: false,
       });
       return response.data.notifications;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch notifications',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch notifications",
+        isLoading: false,
       });
       throw error;
     }
@@ -382,15 +419,18 @@ const usePatientStore = create((set, get) => ({
   getUnreadNotificationsCount: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get('/api/notifications/unread-count');
-      set({ unreadNotificationsCount: response.data.count || 0, isLoading: false });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/notifications/unread-count");
+      set({
+        unreadNotificationsCount: response.data.count || 0,
+        isLoading: false,
+      });
       return response.data.count;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch unread count',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch unread count",
+        isLoading: false,
       });
       throw error;
     }
@@ -400,46 +440,25 @@ const usePatientStore = create((set, get) => ({
   uploadReport: async (token, formData) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.post('/api/reports/upload', formData, {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.post("/api/reports/upload", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
-      
+
       // Update reports list with new report
-      set(state => ({
+      set((state) => ({
         reports: [response.data.report, ...state.reports],
-        isLoading: false
+        isLoading: false,
       }));
-      
+
       return response.data.report;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to upload report',
-        isLoading: false 
-      });
-      throw error;
-    }
-  },
-
-  // Download medical report
-  downloadReport: async (token, reportId) => {
-    try {
-      set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get(`/api/reports/${reportId}`, {
-        responseType: 'blob'
-      });
-      
-      set({ isLoading: false });
-      return response.data;
-    } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to download report',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to upload report",
+        isLoading: false,
       });
       throw error;
     }
@@ -449,19 +468,19 @@ const usePatientStore = create((set, get) => ({
   deleteReport: async (token, reportId) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       await axios.delete(`/api/reports/${reportId}`);
-      
+
       // Remove deleted report from state
-      set(state => ({
-        reports: state.reports.filter(report => report._id !== reportId),
-        isLoading: false
+      set((state) => ({
+        reports: state.reports.filter((report) => report._id !== reportId),
+        isLoading: false,
       }));
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to delete report',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to delete report",
+        isLoading: false,
       });
       throw error;
     }
@@ -471,19 +490,21 @@ const usePatientStore = create((set, get) => ({
   deleteNotification: async (token, notificationId) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       await axios.delete(`/api/notifications/${notificationId}`);
-      
+
       // Remove deleted notification from state
-      set(state => ({
-        notifications: state.notifications.filter(notification => notification.id !== notificationId),
-        isLoading: false
+      set((state) => ({
+        notifications: state.notifications.filter(
+          (notification) => notification.id !== notificationId
+        ),
+        isLoading: false,
       }));
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to delete notification',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to delete notification",
+        isLoading: false,
       });
       throw error;
     }
@@ -493,24 +514,29 @@ const usePatientStore = create((set, get) => ({
   markNotificationAsRead: async (token, notificationId) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       await axios.patch(`/api/notifications/${notificationId}/read`);
-      
+
       // Update notification status in state
-      set(state => ({
-        notifications: state.notifications.map(notification =>
+      set((state) => ({
+        notifications: state.notifications.map((notification) =>
           notification.id === notificationId
             ? { ...notification, read: true }
             : notification
         ),
-        unreadNotificationsCount: Math.max(0, state.unreadNotificationsCount - 1),
-        isLoading: false
+        unreadNotificationsCount: Math.max(
+          0,
+          state.unreadNotificationsCount - 1
+        ),
+        isLoading: false,
       }));
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to mark notification as read',
-        isLoading: false 
+      set({
+        error:
+          error.response?.data?.message ||
+          "Failed to mark notification as read",
+        isLoading: false,
       });
       throw error;
     }
@@ -520,23 +546,25 @@ const usePatientStore = create((set, get) => ({
   markAllNotificationsAsRead: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      await axios.patch('/api/notifications/mark-all-read');
-      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      await axios.patch("/api/notifications/mark-all-read");
+
       // Update all notifications status in state
-      set(state => ({
-        notifications: state.notifications.map(notification => ({
+      set((state) => ({
+        notifications: state.notifications.map((notification) => ({
           ...notification,
-          read: true
+          read: true,
         })),
         unreadNotificationsCount: 0,
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to mark all notifications as read',
-        isLoading: false 
+      set({
+        error:
+          error.response?.data?.message ||
+          "Failed to mark all notifications as read",
+        isLoading: false,
       });
       throw error;
     }
@@ -546,14 +574,14 @@ const usePatientStore = create((set, get) => ({
   getUserProfileByUmid: async (umid) => {
     try {
       set({ isLoading: true, error: null });
-      
+
       const response = await axios.get(`/api/user/profile/${umid}`);
       set({ userProfile: response.data.profile, isLoading: false });
       return response.data.profile;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch user profile',
-        isLoading: false 
+      set({
+        error: error.response?.data?.message || "Failed to fetch user profile",
+        isLoading: false,
       });
       throw error;
     }
@@ -563,17 +591,159 @@ const usePatientStore = create((set, get) => ({
   getStorageInfo: async (token) => {
     try {
       set({ isLoading: true, error: null });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      const response = await axios.get('/api/storage/storage-info');
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/storage/storage-info");
       set({ isLoading: false });
       return response.data.storageInfo;
     } catch (error) {
-      set({ 
-        error: error.response?.data?.message || 'Failed to fetch storage information',
-        isLoading: false 
+      set({
+        error:
+          error.response?.data?.message ||
+          "Failed to fetch storage information",
+        isLoading: false,
       });
       throw error;
+    }
+  },
+
+  // ===== CONNECTED DEVICES FUNCTIONALITY =====
+
+  // Set connected devices loading state
+  setConnectedDevicesLoading: (loading) => set({ connectedDevicesLoading: loading }),
+
+  // Set connected devices error
+  setConnectedDevicesError: (error) => set({ connectedDevicesError: error }),
+
+  // Get all connected devices
+  getConnectedDevices: async () => {
+    try {
+      set({ connectedDevicesLoading: true, connectedDevicesError: null });
+      
+      const response = await axios.get('/api/connected-devices');
+      
+      if (response.data.success) {
+        set({ 
+          connectedDevices: response.data.devices || [],
+          connectedDevicesLoading: false 
+        });
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch devices');
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to fetch connected devices';
+      set({ 
+        connectedDevicesError: errorMsg,
+        connectedDevicesLoading: false 
+      });
+      throw new Error(errorMsg);
+    }
+  },
+
+  // Register current device
+  registerDevice: async () => {
+    try {
+      const response = await axios.post('/api/connected-devices/register');
+      
+      if (response.data.success) {
+        // Refresh devices list
+        const { connectedDevices } = get();
+        if (connectedDevices.length > 0) {
+          get().getConnectedDevices();
+        }
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to register device');
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to register device';
+      console.error('Device registration failed:', errorMsg);
+      throw new Error(errorMsg);
+    }
+  },
+
+  // Remove a device
+  removeDevice: async (deviceId) => {
+    try {
+      set({ connectedDevicesLoading: true, connectedDevicesError: null });
+      
+      const response = await axios.delete(`/api/connected-devices/${deviceId}`);
+      
+      if (response.data.success) {
+        // Remove device from local state
+        set(state => ({
+          connectedDevices: state.connectedDevices.filter(device => device.id !== deviceId),
+          connectedDevicesLoading: false
+        }));
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to remove device');
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to remove device';
+      set({ 
+        connectedDevicesError: errorMsg,
+        connectedDevicesLoading: false 
+      });
+      throw new Error(errorMsg);
+    }
+  },
+
+  // Update device name
+  updateDeviceName: async (deviceId, deviceName) => {
+    try {
+      set({ connectedDevicesLoading: true, connectedDevicesError: null });
+      
+      const response = await axios.put(`/api/connected-devices/${deviceId}/name`, {
+        deviceName
+      });
+      
+      if (response.data.success) {
+        // Update device in local state
+        set(state => ({
+          connectedDevices: state.connectedDevices.map(device => 
+            device.id === deviceId 
+              ? { ...device, deviceName: deviceName }
+              : device
+          ),
+          connectedDevicesLoading: false
+        }));
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to update device name');
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to update device name';
+      set({ 
+        connectedDevicesError: errorMsg,
+        connectedDevicesLoading: false 
+      });
+      throw new Error(errorMsg);
+    }
+  },
+
+  // Remove all inactive devices
+  removeInactiveDevices: async () => {
+    try {
+      set({ connectedDevicesLoading: true, connectedDevicesError: null });
+      
+      const response = await axios.delete('/api/connected-devices/inactive/cleanup');
+      
+      if (response.data.success) {
+        // Refresh devices list after cleanup
+        await get().getConnectedDevices();
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to remove inactive devices');
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to remove inactive devices';
+      set({ 
+        connectedDevicesError: errorMsg,
+        connectedDevicesLoading: false 
+      });
+      throw new Error(errorMsg);
     }
   },
 
@@ -586,9 +756,12 @@ const usePatientStore = create((set, get) => ({
       unreadNotificationsCount: 0,
       prescriptionCount: 0,
       userProfile: null,
-      error: null
+      error: null,
+      connectedDevices: [],
+      connectedDevicesLoading: false,
+      connectedDevicesError: null,
     });
-  }
+  },
 }));
 
 export default usePatientStore;
