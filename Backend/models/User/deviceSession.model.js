@@ -110,7 +110,6 @@ const deviceSessionSchema = new mongoose.Schema({
 });
 
 // Indexes for efficient lookups
-deviceSessionSchema.index({ userId: 1 }, { unique: true });
 deviceSessionSchema.index({ 'devices.deviceFingerprint': 1 });
 deviceSessionSchema.index({ 'activeSessions.token': 1 });
 deviceSessionSchema.index({ 'blacklistedTokens.token': 1 });

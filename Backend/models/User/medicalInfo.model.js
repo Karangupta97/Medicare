@@ -195,9 +195,6 @@ const medicalInfoSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Index for efficient querying
-medicalInfoSchema.index({ userId: 1 });
-
 // Pre-save middleware to update lastUpdated
 medicalInfoSchema.pre('save', function(next) {
   this.lastUpdated = new Date();
