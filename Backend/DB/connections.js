@@ -31,20 +31,33 @@ const connectAllDatabases = async () => {
     managementDB = mongoose.createConnection(baseURI.replace(/\/[^\/]*(\?|$)/, '/Management$1'), options);
     feedbackDB = mongoose.createConnection(baseURI.replace(/\/[^\/]*(\?|$)/, '/Feedback$1'), options);
     
-    // Wait for all connections to be ready
+    // Create promises with timeout for each connection
+    const createConnectionPromise = (connection, name) => {
+      return Promise.race([
+        new Promise((resolve, reject) => {
+          connection.once('open', () => {
+            console.log(`✅ ${name} Database Connected`);
+            resolve();
+          });
+          connection.once('error', (err) => {
+            reject(new Error(`${name} connection failed: ${err.message}`));
+          });
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error(`${name} connection timeout (30s)`)), 30000)
+        )
+      ]);
+    };
+    
+    // Wait for all connections to be ready with timeout
     await Promise.all([
-      new Promise((resolve) => patientDB.once('open', resolve)),
-      new Promise((resolve) => doctorDB.once('open', resolve)),
-      new Promise((resolve) => managementDB.once('open', resolve)),
-      new Promise((resolve) => feedbackDB.once('open', resolve))
+      createConnectionPromise(patientDB, 'Patient'),
+      createConnectionPromise(doctorDB, 'Doctor'),
+      createConnectionPromise(managementDB, 'Management'),
+      createConnectionPromise(feedbackDB, 'Feedback')
     ]);
     
-    console.log('✅ Patient Database Connected:', patientDB.host);
-    console.log('✅ Doctor Database Connected:', doctorDB.host);
-    console.log('✅ Management Database Connected:', managementDB.host);
-    console.log('✅ Feedback Database Connected:', feedbackDB.host);
-    
-    // Handle connection errors
+    // Handle connection errors after initial connection
     patientDB.on('error', (err) => console.error('❌ Patient DB Error:', err));
     doctorDB.on('error', (err) => console.error('❌ Doctor DB Error:', err));
     managementDB.on('error', (err) => console.error('❌ Management DB Error:', err));
@@ -52,10 +65,15 @@ const connectAllDatabases = async () => {
     
     return { patientDB, doctorDB, managementDB, feedbackDB };
   } catch (error) {
-    console.error(`❌ Database Connection Error: ${error.name}`);
+    console.error(`❌ Database Connection Error: ${error.name || error.message}`);
     console.error('Error details:', error.message);
     
-    if (error.name === 'MongooseServerSelectionError') {
+    if (error.message.includes('timeout')) {
+      console.error('\nConnection timeout - possible causes:');
+      console.error('1. MongoDB Atlas is unreachable or slow');
+      console.error('2. Network connectivity issue');
+      console.error('3. Firewall or proxy blocking the connection');
+    } else if (error.name === 'MongooseServerSelectionError') {
       console.error('\nPossible causes:');
       console.error('1. Your IP address is not whitelisted on MongoDB Atlas');
       console.error('2. Incorrect connection string or credentials');
