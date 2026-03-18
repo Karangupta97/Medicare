@@ -22,7 +22,6 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { initSocket } from "./utils/socket.js";
 import status from "express-status-monitor";
-import cluster from "node:cluster";
 import os from "os";
 import { sendNotificationToUser } from "./utils/notifications.js";
 import cookieParser from "cookie-parser";
@@ -42,51 +41,47 @@ let io;
 let connectedUsers = new Map();
 let app;
 
-// Determine number of worker processes based on CPU cores
+// Cluster mode is risky on container platforms (multiple workers + DB connects can
+// slow readiness or crash-loop). Keep single-process by default and allow opt-in.
+const enableCluster = String(process.env.CLUSTER_MODE || "").toLowerCase() === "true";
 const totalCPUs = os.cpus().length;
-// Limit to max 4 workers to avoid excessive resource usage or you can use all cores
-const workerCount = Math.min(totalCPUs, 8);
+const desiredWorkers = Number.parseInt(process.env.WEB_CONCURRENCY || "", 10);
+const workerCount = Number.isFinite(desiredWorkers) && desiredWorkers > 0
+  ? desiredWorkers
+  : 1;
 
-// Disable cluster mode in development to avoid port conflicts
-const isDevelopment = process.env.NODE_ENV === 'development';
+if (enableCluster && workerCount > 1) {
+  const { default: cluster } = await import("node:cluster");
+  const isDevelopment = process.env.NODE_ENV === "development";
 
-// Primary process responsible for creating worker processes
-if (cluster.isPrimary && !isDevelopment) {
-  console.log(`Medicare API Server - Cluster Mode Enabled`);
-  console.log(`Primary process ${process.pid} is running`);
-  console.log(
-    `Using ${workerCount} workers out of ${totalCPUs} available CPU cores`
-  );
+  if (cluster.isPrimary && !isDevelopment) {
+    console.log(`Medicare API Server - Cluster Mode Enabled`);
+    console.log(`Primary process ${process.pid} is running`);
+    console.log(`Using ${Math.min(workerCount, totalCPUs)} workers out of ${totalCPUs} available CPU cores`);
 
-  // Create worker processes
-  for (let i = 0; i < workerCount; i++) {
-    cluster.fork();
-  }
+    for (let i = 0; i < Math.min(workerCount, totalCPUs); i++) cluster.fork();
 
-  // Handle worker crashes and restart them
-  cluster.on("exit", (worker, code, signal) => {
-    logger.error(
-      `Worker ${worker.process.pid} died (code: ${code}, signal: ${signal})`
-    );
-    logger.info("Starting a new worker...");
-    cluster.fork();
-  });
-}
-// Worker process - runs the actual Express application
-// OR single process in development mode
-else {
-  if (isDevelopment) {
-    console.log(`Medicare API Server - Development Mode (Single Process)`);
-    console.log(`Process ${process.pid} started`);
+    cluster.on("exit", (worker, code, signal) => {
+      logger.error(`Worker ${worker.process.pid} died (code: ${code}, signal: ${signal})`);
+      logger.info("Starting a new worker...");
+      cluster.fork();
+    });
   } else {
     console.log(`Worker ${process.pid} started`);
+    await startServer();
   }
+} else {
+  console.log(`Medicare API Server - Single Process Mode`);
+  console.log(`Process ${process.pid} started`);
+  await startServer();
+}
 
+async function startServer() {
   // Get directory path for ES modules
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
-  // Load environment variables with absolute path
+  // Load environment variables with absolute path (does not override injected vars)
   dotenv.config({ path: path.resolve(__dirname, ".env") });
 
   const port = process.env.PORT || 4000;
@@ -156,6 +151,14 @@ else {
     });
   });
 
+  // Lightweight health endpoints for platform checks
+  let dbReady = false;
+  app.get("/health", (req, res) => res.status(200).send("ok"));
+  app.get("/ready", (req, res) => {
+    if (dbReady) return res.status(200).json({ ok: true });
+    return res.status(503).json({ ok: false, reason: "db_not_ready" });
+  });
+
   // Health check route for WebSocket testing
   app.get("/socket-health", (req, res) => {
     const wsStatus = io
@@ -220,20 +223,35 @@ else {
   // Initialize Socket.IO
   initSocket(io);
 
-  // Connect to MongoDB and start server
-  connectAllDatabases()
-    .then(() => {
-      httpServer.listen(port, "0.0.0.0", () => {
-        console.log(
-          `🚀 Server worker ${process.pid} started at http://localhost:${port}`
-        );
-        console.log(`→ Mobile: http://192.168.0.101:${port}`);
-      });
-    })
-    .catch((error) => {
-      console.error("MongoDB connection error:", error);
-      process.exit(1);
-    });
+  // Start listening immediately so the platform can reach the container.
+  // DB connects in background; /ready reflects DB readiness.
+  httpServer.listen(port, "0.0.0.0", () => {
+    console.log(`🚀 Server ${process.pid} listening on 0.0.0.0:${port}`);
+  });
+
+  const connectWithRetry = async () => {
+    const baseDelayMs = 1000;
+    const maxDelayMs = 15000;
+    let attempt = 0;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      attempt += 1;
+      try {
+        await connectAllDatabases();
+        dbReady = true;
+        console.log("✅ Databases connected; readiness is OK");
+        return;
+      } catch (error) {
+        dbReady = false;
+        const delay = Math.min(maxDelayMs, baseDelayMs * Math.pow(2, Math.min(6, attempt - 1)));
+        console.error(`MongoDB connection error (attempt ${attempt}). Retrying in ${delay}ms.`);
+        console.error(error?.message || error);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+  };
+
+  void connectWithRetry();
 }
 
 // Helper function to send notification to a specific user

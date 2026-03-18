@@ -83,8 +83,11 @@ const connectAllDatabases = async () => {
       console.error('• Check your MONGODB_URI for typos');
       console.error('• Verify network connectivity to MongoDB Atlas');
     }
-    
-    process.exit(1);
+
+    // Do not terminate the process here.
+    // In container platforms, exiting prevents the HTTP server from becoming ready
+    // and causes crash loops. Let the caller decide whether to exit or retry.
+    throw error;
   }
 };
 
