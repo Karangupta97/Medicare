@@ -834,10 +834,11 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row relative">
-      <AnimatePresence mode="wait">
-        {/* Mobile Overlay */}
+      {/* Mobile Overlay */}
+      <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
+            key="mobile-sidebar-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -845,6 +846,7 @@ const DashboardLayout = () => {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
+      </AnimatePresence>
 
 
         {/* Sidebar */}
@@ -1447,6 +1449,7 @@ const DashboardLayout = () => {
          <main className="">
           <AnimatePresence mode="wait">
             <motion.div
+              key={location.pathname}
               initial="initial"
               animate="in"
               exit="out"
@@ -1464,7 +1467,6 @@ const DashboardLayout = () => {
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={logout}
       />  
-      </AnimatePresence>    
     </div>
   );
 };
