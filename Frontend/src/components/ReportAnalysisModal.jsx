@@ -237,8 +237,12 @@ const ReportAnalysisModal = ({ show, report, analysis, loading, onClose }) => {
     setProgressValue(12);
 
     const stepTimer = setInterval(() => {
-      localStep = (localStep + 1) % loadingSteps.length;
-      setActiveStep(localStep);
+      if (localStep < loadingSteps.length - 1) {
+        localStep += 1;
+        setActiveStep(localStep);
+      } else {
+        clearInterval(stepTimer);
+      }
     }, 2800);
 
     const progressTimer = setInterval(() => {
@@ -430,7 +434,7 @@ const ReportAnalysisModal = ({ show, report, analysis, loading, onClose }) => {
 
         {/* Content */}
         {!loading && data && (
-          <div className="overflow-y-auto max-h-[calc(90vh-200px)] px-4 sm:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6 custom-scrollbar">
+          <div className="overflow-y-auto max-h-[calc(90vh-200px)] px-4 sm:px-8 py-5 sm:py-6 pb-24 sm:pb-28 space-y-5 sm:space-y-6 custom-scrollbar">
             {/* Patient Snapshot */}
             <section className="rounded-2xl border border-blue-100 bg-white/85 backdrop-blur-md p-5 shadow-[0_8px_32px_rgba(37,99,235,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(30,64,175,0.12)]">
               <div className="mb-4 flex items-center gap-2">

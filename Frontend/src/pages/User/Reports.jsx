@@ -1045,12 +1045,9 @@ const Reports = () => {
     });
 
     try {
-      const loadingToast = toast.loading("Analyzing your medical report...");
-      
       console.log("Starting report analysis for:", report._id);
       const result = await analyzeReport(token, report._id);
-      
-      toast.dismiss(loadingToast);
+
       toast.success("Report analyzed successfully!");
 
       setAnalysisModal((prev) => ({
