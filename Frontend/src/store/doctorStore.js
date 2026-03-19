@@ -2,8 +2,12 @@ import { create } from 'zustand';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
-// Fallback prevents requests like ".../undefined/api/..." when env is not set in production.
-const API_URL = import.meta.env.VITE_API_URL || "https://api.medicares.in";
+// Fallback prevents requests like ".../undefined/api/..." when env is missing or mis-set.
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const API_URL =
+  rawApiUrl && rawApiUrl !== "undefined"
+    ? rawApiUrl
+    : "https://api.medicares.in";
 
 // Access the global request throttling mechanism or create it
 const requestTimestamps = window.requestTimestamps || {

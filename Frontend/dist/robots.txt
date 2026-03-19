@@ -1,0 +1,63 @@
+# Medicare Robots.txt
+# https://medicares.in
+
+User-agent: *
+Allow: /
+Allow: /home
+Allow: /aboutus
+Allow: /team
+Allow: /login
+Allow: /signup
+Allow: /forgot-password
+Allow: /dashboard
+Allow: /reports
+Allow: /prescriptions
+Allow: /prescription-reminders
+Allow: /find-hospital
+Allow: /hospital/*
+Allow: /doctor/login
+Allow: /doctor/signup
+Allow: /doctor/pending-verification
+Allow: /contact
+
+# Disallow admin, private, founder and staff pages
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /founder/
+Disallow: /founder/*
+Disallow: /staff/
+Disallow: /staff/*
+Disallow: /settings
+Disallow: /api/
+Disallow: /private/
+Disallow: /private/*
+Disallow: /verify-email/*
+Disallow: /reset-password/*
+
+# Backend paths
+Disallow: /Backend/admin/
+Disallow: /Backend/admin/*
+Disallow: /Backend/founder/
+Disallow: /Backend/founder/*
+Disallow: /Backend/staff/
+Disallow: /Backend/staff/*
+Disallow: /Backend/private/
+Disallow: /Backend/private/*
+
+# Files
+Disallow: /*.json$
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /*.scss$
+Disallow: /*.md$
+Disallow: /*.env$
+Disallow: /*.config.js$
+
+# Allow sitemap
+Allow: /sitemap.xml
+
+# Crawl delay for bots
+Crawl-delay: 10
+
+# Sitemap location
+Sitemap: https://medicares.in/sitemap.xml 

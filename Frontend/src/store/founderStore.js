@@ -3,8 +3,12 @@ import { create } from "zustand";
 import { safeStorageAccess } from "../utils/errorHandling";
 
 // API URL for backend communication
-// Fallback prevents requests like ".../undefined/api/..." when env is not set in production.
-const API_URL = import.meta.env.VITE_API_URL || "https://api.medicares.in";
+// Fallback prevents requests like ".../undefined/api/..." when env is missing or mis-set.
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const API_URL =
+  rawApiUrl && rawApiUrl !== "undefined"
+    ? rawApiUrl
+    : "https://api.medicares.in";
 
 // Import or recreate the throttling mechanism
 // Global request timestamps to prevent duplicate requests
