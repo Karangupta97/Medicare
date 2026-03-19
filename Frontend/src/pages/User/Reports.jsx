@@ -656,6 +656,11 @@ const Reports = () => {
   const location = useLocation();
   const { reportId } = useParams();
 
+  // Local overrides for report image URLs.
+  // Signed URLs can expire (or become invalid in prod), so we refresh them on-demand.
+  const [imageUrlOverrides, setImageUrlOverrides] = useState({});
+  const refreshAttemptsRef = useRef(new Map());
+
   // Get state and actions from patient store
   const {
     reports,
@@ -666,6 +671,7 @@ const Reports = () => {
     deleteReport,
     moveReport,
     updateReport,
+    refreshReportUrl,
     analyzeReport,
   } = usePatientStore();
 
@@ -817,6 +823,35 @@ const Reports = () => {
     // Reset zoom level and position when opening a new preview
     setZoomLevel(1);
     setDragPosition({ x: 0, y: 0 });
+  };
+
+  const getLatestFileUrl = (report) => {
+    if (!report) return "";
+    const id = report._id;
+    return (id && imageUrlOverrides[id]) || report.fileUrl || "";
+  };
+
+  const handleImageError = async (report) => {
+    if (!report?._id || !token) return;
+
+    const attempts = refreshAttemptsRef.current.get(report._id) || 0;
+    if (attempts >= 1) return; // try refresh at most once per report
+
+    refreshAttemptsRef.current.set(report._id, attempts + 1);
+
+    try {
+      const latestFileUrl = await refreshReportUrl(token, report._id);
+      if (latestFileUrl) {
+        setImageUrlOverrides((prev) => ({
+          ...prev,
+          [report._id]: latestFileUrl,
+        }));
+        toast.success("Image refreshed");
+      }
+    } catch (e) {
+      // Let the broken image placeholder remain if refresh also fails.
+      console.error("Failed to refresh image URL:", e);
+    }
   };
 
   // Close preview modal and reset zoom
@@ -1253,10 +1288,11 @@ const Reports = () => {
               >
                 {report.contentType?.startsWith("image/") ? (
                   <img
-                    src={report.fileUrl}
+                    src={getLatestFileUrl(report)}
                     alt={report.originalFilename}
                     className="w-full h-full object-cover transition-transform duration-700 
                                group-hover/preview:scale-110 group-hover/preview:rotate-1"
+                    onError={() => handleImageError(report)}
                   />
                 ) : report.contentType === "application/pdf" ? (
                   <div
@@ -1582,9 +1618,10 @@ const Reports = () => {
               >
                 {report.contentType?.startsWith("image/") ? (
                   <img
-                    src={report.fileUrl}
+                    src={getLatestFileUrl(report)}
                     alt={report.originalFilename}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={() => handleImageError(report)}
                   />
                 ) : report.contentType === "application/pdf" ? (
                   <div className="p-1.5 xs:p-2 sm:p-3 rounded-md xs:rounded-lg bg-gradient-to-br from-red-100 to-red-200 text-red-600 group-hover:from-red-200 group-hover:to-red-300 transition-all duration-300">
@@ -2180,7 +2217,7 @@ const Reports = () => {
                 </button>
                 <button
                   onClick={() =>
-                    window.open(previewModal.report.fileUrl, "_blank")
+                    window.open(getLatestFileUrl(previewModal.report), "_blank")
                   }
                   className="flex items-center justify-center p-1.5 xs:p-2 hover:bg-gray-100 rounded-lg xs:rounded-xl transition-colors"
                   title="Open in New Tab"
@@ -2207,7 +2244,7 @@ const Reports = () => {
                     ref={imageContainerRef}
                   >
                     <img
-                      src={previewModal.report.fileUrl}
+                      src={getLatestFileUrl(previewModal.report)}
                       alt={previewModal.report.originalFilename}
                       className="max-w-full max-h-[50vh] xs:max-h-[60vh] lg:max-h-[calc(90vh-8rem)] object-contain rounded-lg shadow-2xl transition-all duration-200 select-none"
                       style={{
@@ -2215,6 +2252,7 @@ const Reports = () => {
                         cursor: zoomLevel > 1 ? "grab" : "default",
                         touchAction: zoomLevel > 1 ? "none" : "auto",
                       }}
+                      onError={() => handleImageError(previewModal.report)}
                       onMouseDown={handleMouseDown}
                       onMouseMove={handleMouseMove}
                       onMouseUp={handleMouseUp}
@@ -2298,7 +2336,7 @@ const Reports = () => {
                       </p>
                       <button
                         onClick={() =>
-                          window.open(previewModal.report.fileUrl, "_blank")
+                          window.open(getLatestFileUrl(previewModal.report), "_blank")
                         }
                         className="inline-flex items-center gap-2 xs:gap-3 px-4 xs:px-6 py-2 xs:py-3 bg-red-600 text-white rounded-lg xs:rounded-xl hover:bg-red-700 transition-all font-medium text-sm xs:text-base"
                       >
@@ -2330,7 +2368,7 @@ const Reports = () => {
                         </button>
                         <button
                           onClick={() =>
-                            window.open(previewModal.report.fileUrl, "_blank")
+                            window.open(getLatestFileUrl(previewModal.report), "_blank")
                           }
                           className="inline-flex items-center gap-2 px-4 xs:px-6 py-2 xs:py-3 bg-gray-600 text-white rounded-lg xs:rounded-xl hover:bg-gray-700 transition-all font-medium text-sm xs:text-base"
                         >

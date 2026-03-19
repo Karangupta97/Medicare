@@ -209,7 +209,8 @@ const usePatientStore = create((set, get) => ({
 
       const response = await axios.get(`/api/reports/${reportId}/refresh-url`);
       set({ isLoading: false });
-      return response.data.url;
+      // Backend returns `fileUrl`, but some older client code expected `url`
+      return response.data.fileUrl || response.data.url;
     } catch (error) {
       set({
         error: error.response?.data?.message || "Failed to refresh report URL",
