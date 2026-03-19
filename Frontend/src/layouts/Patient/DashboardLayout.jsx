@@ -79,19 +79,19 @@ const DashboardLayout = () => {
   const searchInputRef = useRef(null);
   const mobileInlineSearchInputRef = useRef(null);
   const searchResultsRef = useRef(null);
-  
+
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, refreshUserData, isAuthenticated } = useAuthStore();
-  const { 
-    unreadNotificationsCount, 
+  const {
+    unreadNotificationsCount,
     fetchAllMedicalData,
     notifications,
     fetchNotifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
     searchMedicalData,
-    isLoading: patientStoreLoading 
+    isLoading: patientStoreLoading
   } = usePatientStore();
   // Handle keyboard navigation in search results
   const [activeResultIndex, setActiveResultIndex] = useState(-1);
@@ -106,7 +106,7 @@ const DashboardLayout = () => {
         }
       }
     };
-    
+
     if (isAuthenticated) {
       fetchData();
     }
@@ -121,17 +121,17 @@ const DashboardLayout = () => {
       } catch (error) {
         console.error("Error refreshing user data:", error);
         setRefreshError(true);
-        
+
         if (error?.response?.status === 404 && isAuthenticated) {
           const timer = setTimeout(() => {
             logout();
           }, 3000);
-          
+
           return () => clearTimeout(timer);
         }
       }
     };
-    
+
     if (isAuthenticated) {
       fetchUserData();
     }
@@ -166,7 +166,7 @@ const DashboardLayout = () => {
         setIsProfileOpen(false);
         setIsNotificationsOpen(false);
       }
-      
+
       // Quick search focus on Ctrl+K or Cmd+K
       if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
         event.preventDefault();
@@ -193,7 +193,7 @@ const DashboardLayout = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
@@ -226,9 +226,9 @@ const DashboardLayout = () => {
       setSearchResults([]);
       return;
     }
-    
+
     setIsSearching(true);
-    
+
     try {
       // Use the searchMedicalData function from the patient store
       const results = await searchMedicalData(query, searchCategories);
@@ -252,7 +252,7 @@ const DashboardLayout = () => {
   const handleSearchInputChange = useCallback((e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    
+
     if (value.trim()) {
       // Show results container immediately but debounce the actual search
       setShowSearchResults(true);
@@ -274,10 +274,10 @@ const DashboardLayout = () => {
   // Handle clicks outside search results
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchResultsRef.current && 
-          !searchResultsRef.current.contains(event.target) &&
-          !searchInputRef.current?.contains(event.target) &&
-          !mobileInlineSearchInputRef.current?.contains(event.target)) {
+      if (searchResultsRef.current &&
+        !searchResultsRef.current.contains(event.target) &&
+        !searchInputRef.current?.contains(event.target) &&
+        !mobileInlineSearchInputRef.current?.contains(event.target)) {
         setShowSearchResults(false);
       }
     };
@@ -290,16 +290,16 @@ const DashboardLayout = () => {
   const handleSearchResultClick = useCallback((result) => {
     setShowSearchResults(false);
     setSearchQuery('');
-    
+
     // Handle different result types with specific navigation
     if (result.type === 'report') {
       // Navigate to reports page and trigger specific report viewing
-      navigate(result.path, { 
-        state: { 
+      navigate(result.path, {
+        state: {
           selectedReportId: result.id,
           reportData: result.reportData,
-          fromSearch: true 
-        } 
+          fromSearch: true
+        }
       });
     } else if (result.type === 'prescription') {
       // Navigate directly to specific prescription
@@ -320,7 +320,7 @@ const DashboardLayout = () => {
         e.preventDefault();
         setActiveResultIndex(prev => {
           const newIndex = prev < searchResults.length - 1 ? prev + 1 : prev;
-          
+
           // Scroll the active item into view
           setTimeout(() => {
             const activeItem = document.querySelector(`[data-result-index="${newIndex}"]`);
@@ -328,17 +328,17 @@ const DashboardLayout = () => {
               activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
           }, 10);
-          
+
           return newIndex;
         });
       }
-      
+
       // Arrow up
       else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setActiveResultIndex(prev => {
           const newIndex = prev > 0 ? prev - 1 : 0;
-          
+
           // Scroll the active item into view
           setTimeout(() => {
             const activeItem = document.querySelector(`[data-result-index="${newIndex}"]`);
@@ -346,17 +346,17 @@ const DashboardLayout = () => {
               activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
           }, 10);
-          
+
           return newIndex;
         });
       }
-      
+
       // Enter key to select
       else if (e.key === 'Enter' && activeResultIndex >= 0) {
         e.preventDefault();
         handleSearchResultClick(searchResults[activeResultIndex]);
       }
-      
+
       // Escape key to close
       else if (e.key === 'Escape') {
         setShowSearchResults(false);
@@ -366,7 +366,7 @@ const DashboardLayout = () => {
     if (showSearchResults) {
       window.addEventListener('keydown', handleKeyDown);
     }
-    
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -404,21 +404,19 @@ const DashboardLayout = () => {
               {/* Category Filters */}
               <button
                 onClick={() => setSearchCategories(prev => ({ ...prev, reports: !prev.reports }))}
-                className={`px-2 py-1 text-xs rounded-lg transition-colors ${
-                  searchCategories.reports 
-                    ? 'bg-blue-100 text-blue-700' 
+                className={`px-2 py-1 text-xs rounded-lg transition-colors ${searchCategories.reports
+                    ? 'bg-blue-100 text-blue-700'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 Reports
               </button>
               <button
                 onClick={() => setSearchCategories(prev => ({ ...prev, prescriptions: !prev.prescriptions }))}
-                className={`px-2 py-1 text-xs rounded-lg transition-colors ${
-                  searchCategories.prescriptions 
-                    ? 'bg-green-100 text-green-700' 
+                className={`px-2 py-1 text-xs rounded-lg transition-colors ${searchCategories.prescriptions
+                    ? 'bg-green-100 text-green-700'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 Prescriptions
               </button>
@@ -449,18 +447,16 @@ const DashboardLayout = () => {
                   key={`${result.type}-${result.id}`}
                   onClick={() => handleSearchResultClick(result)}
                   onMouseEnter={() => setActiveResultIndex(index)}
-                  className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-b-0 ${
-                    activeResultIndex === index ? 'bg-blue-50' : ''
-                  }`}
+                  className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-b-0 ${activeResultIndex === index ? 'bg-blue-50' : ''
+                    }`}
                   aria-selected={activeResultIndex === index}
                   role="option"
                   data-result-index={index}
                 >
                   <div className="flex items-start space-x-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      result.type === 'report' ? 'bg-blue-100' :
-                      'bg-green-100'
-                    }`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${result.type === 'report' ? 'bg-blue-100' :
+                        'bg-green-100'
+                      }`}>
                       {result.type === 'report' && <FileText className="w-4 h-4 text-blue-600" />}
                       {result.type === 'prescription' && <Clipboard className="w-4 h-4 text-green-600" />}
                     </div>
@@ -496,102 +492,102 @@ const DashboardLayout = () => {
     );
   }, [showSearchResults, isSearching, searchResults, searchCategories, searchQuery, handleSearchResultClick, activeResultIndex]);
   const menuCategories = [
-    { 
+    {
       title: "Main",
       items: [
-        { 
-          icon: LayoutDashboard, 
-          label: "Dashboard", 
-          path: "/dashboard", 
+        {
+          icon: LayoutDashboard,
+          label: "Dashboard",
+          path: "/dashboard",
           description: "View your health overview",
           badge: null
         },
-        { 
-          icon: Calendar, 
-          label: "Appointments", 
-          path: "/dashboard/appointments", 
+        {
+          icon: Calendar,
+          label: "Appointments",
+          path: "/dashboard/appointments",
           description: "Manage your appointments",
           badge: { text: "SOON", color: "bg-purple-500" }
         },
-        { 
-          icon: Activity, 
-          label: "Health Stats", 
-          path: "/dashboard/health-stats", 
+        {
+          icon: Activity,
+          label: "Health Stats",
+          path: "/dashboard/health-stats",
           description: "Check your vital statistics",
           badge: { text: "SOON", color: "bg-purple-500" }
         }
       ]
     },
-    { 
+    {
       title: "Health Records",
       items: [
-         { 
-          icon: Upload, 
-          label: "Upload", 
-          path: "/dashboard/upload", 
+        {
+          icon: Upload,
+          label: "Upload",
+          path: "/dashboard/upload",
           description: "Upload medical documents",
-          badge: null 
+          badge: null
         },
-        { 
-          icon: FileText, 
-          label: "Reports", 
-          path: "/dashboard/reports", 
+        {
+          icon: FileText,
+          label: "Reports",
+          path: "/dashboard/reports",
           description: "View your medical reports",
-          badge: null 
-        },      
-        { 
-          icon: Clipboard, 
-          label: "Digital Prescriptions", 
-          path: "/dashboard/digital-prescriptions", 
+          badge: null
+        },
+        {
+          icon: Clipboard,
+          label: "Digital Prescriptions",
+          path: "/dashboard/digital-prescriptions",
           description: "View digital prescriptions",
-          badge: null 
+          badge: null
         },
-        { 
-          icon: Clock, 
-          label: "Prescription Reminders", 
-          path: "/dashboard/digital-prescriptions/reminders", 
+        {
+          icon: Clock,
+          label: "Prescription Reminders",
+          path: "/dashboard/digital-prescriptions/reminders",
           description: "Manage medication reminders",
-          badge: null 
+          badge: null
         },
-        { 
-          icon: MessageCircle, 
-          label: "Consultations", 
-          path: "/dashboard/consultations", 
+        {
+          icon: MessageCircle,
+          label: "Consultations",
+          path: "/dashboard/consultations",
           description: "Online doctor consultations",
-          badge: { text: "SOON", color: "bg-purple-500" } 
+          badge: { text: "SOON", color: "bg-purple-500" }
         }
       ]
     },
-    { 
+    {
       title: "Account",
       items: [
-        { 
-          icon: User, 
-          label: "Profile", 
-          path: "/dashboard/profile", 
+        {
+          icon: User,
+          label: "Profile",
+          path: "/dashboard/profile",
           description: "Manage your profile",
-          badge: null 
+          badge: null
         },
-        { 
-          icon: Bell, 
-          label: "Notifications", 
-          path: "/dashboard/notifications", 
+        {
+          icon: Bell,
+          label: "Notifications",
+          path: "/dashboard/notifications",
           description: "Check your notifications",
-          badge: { count: unreadNotificationsCount, color: "bg-yellow-500", hideWhenZero: false } 
+          badge: { count: unreadNotificationsCount, color: "bg-yellow-500", hideWhenZero: false }
         },
-        { 
-          icon: Settings, 
-          label: "Settings", 
-          path: "/dashboard/settings", 
+        {
+          icon: Settings,
+          label: "Settings",
+          path: "/dashboard/settings",
           description: "Customize settings",
-          badge: null 
+          badge: null
         },
-        { 
-          icon: HelpCircle, 
-          label: "Help", 
-          path: "/dashboard/help", 
+        {
+          icon: HelpCircle,
+          label: "Help",
+          path: "/dashboard/help",
           description: "Get assistance",
-          badge: null 
+          badge: null
         }
       ]
     }
@@ -600,7 +596,7 @@ const DashboardLayout = () => {
   // Badge component for menu items
   const MenuBadge = ({ badge }) => {
     if (!badge || (badge.hideWhenZero && badge.count === 0)) return null;
-    
+
     return (
       <span className={`${badge.color} text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] flex items-center justify-center`}>
         {badge.count !== undefined ? badge.count : badge.text}
@@ -612,7 +608,7 @@ const DashboardLayout = () => {
   const ProfilePicture = ({ className, showBorder = false }) => {
     const [imgError, setImgError] = useState(false);
     const [imgSrc, setImgSrc] = useState(usericon);
-    
+
     useEffect(() => {
       if (user?.photoURL) {
         setImgError(false);
@@ -625,7 +621,7 @@ const DashboardLayout = () => {
         setImgSrc(null);
       }
     }, [user?.photoURL]);
-    
+
     if (imgError || !imgSrc) {
       return (
         <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold ${className?.includes('w-12') ? 'text-lg' : 'text-sm'} ${showBorder ? 'ring-2 ring-blue-200' : ''} shadow-md`}>
@@ -633,7 +629,7 @@ const DashboardLayout = () => {
         </div>
       );
     }
-    
+
     return (
       <img
         src={imgSrc}
@@ -678,7 +674,7 @@ const DashboardLayout = () => {
 
       {/* Enhanced Floating Keyboard Shortcut */}
       {!searchQuery && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="absolute inset-y-0 right-0 pr-4 items-center pointer-events-none flex"
@@ -690,7 +686,7 @@ const DashboardLayout = () => {
           </div>
         </motion.div>
       )}
-      
+
       {/* Enhanced Clear Search Button */}
       <AnimatePresence>
         {searchQuery && (
@@ -712,7 +708,7 @@ const DashboardLayout = () => {
           </motion.button>
         )}
       </AnimatePresence>
-      
+
       {/* Search Results - Desktop Only */}
       <SearchResults />
     </div>
@@ -795,7 +791,7 @@ const DashboardLayout = () => {
   // Handle tooltip show/hide
   const handleTooltipShow = (event, text) => {
     if (!isSidebarCollapsed) return;
-    
+
     const rect = event.currentTarget.getBoundingClientRect();
     setTooltipData({
       show: true,
@@ -849,160 +845,156 @@ const DashboardLayout = () => {
       </AnimatePresence>
 
 
-        {/* Sidebar */}
-        <aside
-          className={`fixed top-0 left-0 h-screen ${
-            isSidebarCollapsed 
-              ? "w-20" 
-              : "w-72"
-          } bg-[#252A61] text-white z-50 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-screen ${isSidebarCollapsed
+            ? "w-20"
+            : "w-72"
+          } bg-[#252A61] text-white z-50 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0 flex flex-col rounded-tr-3xl rounded-br-3xl shadow-xl transition-transform duration-300 ease-in-out`}
-        >
-          <div className="flex flex-col h-full">
-            {/* Logo Section */}
-            <div className="flex items-center justify-center p-4 border-b border-white/10">
-              {!isSidebarCollapsed ? (
-                <Link to="/" className="flex items-center justify-center">
-                  <img 
-                    src={MedicareLogo} 
-                    alt="Medicare Logo" 
-                    className="w-32 h-auto" 
-                  />
-                </Link>
-              ) : (
-                <Link 
-                  to="/" 
-                  className="flex items-center justify-center"
-                  onMouseEnter={(e) => handleTooltipShow(e, "Medicare Home")}
-                  onMouseLeave={handleTooltipHide}
-                >
-                  <img 
-                    src={HandLogo} 
-                    alt="Medicare Hand Logo" 
-                    className="w-10 h-10 object-contain" 
-                  />
-                </Link>
-              )}
-              
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="lg:hidden absolute top-2 right-2 p-1.5 bg-white/10 rounded-full hover:bg-white/20"
-                aria-label="Close menu"
+      >
+        <div className="flex flex-col h-full">
+          {/* Logo Section */}
+          <div className="flex items-center justify-center p-4 border-b border-white/10">
+            {!isSidebarCollapsed ? (
+              <Link to="/" className="flex items-center justify-center">
+                <img
+                  src={MedicareLogo}
+                  alt="Medicare Logo"
+                  className="w-32 h-auto"
+                />
+              </Link>
+            ) : (
+              <Link
+                to="/"
+                className="flex items-center justify-center"
+                onMouseEnter={(e) => handleTooltipShow(e, "Medicare Home")}
+                onMouseLeave={handleTooltipHide}
               >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+                <img
+                  src={HandLogo}
+                  alt="Medicare Hand Logo"
+                  className="w-10 h-10 object-contain"
+                />
+              </Link>
+            )}
 
-            {/* Navigation Menu */}
-            <nav className="flex-1 px-2 py-2 overflow-y-auto">
-              {menuCategories.map((category, categoryIndex) => (
-                <div key={categoryIndex} className="mb-4">
-                  {!isSidebarCollapsed && (
-                    <h3 className="text-xs uppercase text-white/50 px-2 mb-1 font-semibold tracking-wider flex items-center">
-                      <span>{category.title}</span>
-                      <div className="ml-2 h-px bg-white/20 grow"></div>
-                    </h3>
-                  )}
-                  
-                  {category.items.map((item, idx) => {
-                    const isActive = location.pathname === item.path;
-                    const menuId = `${category.title}-${idx}`;
-                    const isComingSoon = item.badge?.text === "SOON";
-                    
-                    return (
-                      <div key={menuId} className="relative">
-                        <Link
-                          to={isComingSoon ? "#" : item.path}
-                          onClick={(e) => {
-                            if (isComingSoon) {
-                              e.preventDefault();
-                            }
-                            if (isSidebarOpen && window.innerWidth < 1024) {
-                              setIsSidebarOpen(false);
-                            }
-                          }}
-                          onMouseEnter={(e) => isSidebarCollapsed && handleTooltipShow(e, item.label)}
-                          onMouseLeave={isSidebarCollapsed ? handleTooltipHide : undefined}
-                          className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center justify-between"} 
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden absolute top-2 right-2 p-1.5 bg-white/10 rounded-full hover:bg-white/20"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation Menu */}
+          <nav className="flex-1 px-2 py-2 overflow-y-auto">
+            {menuCategories.map((category, categoryIndex) => (
+              <div key={categoryIndex} className="mb-4">
+                {!isSidebarCollapsed && (
+                  <h3 className="text-xs uppercase text-white/50 px-2 mb-1 font-semibold tracking-wider flex items-center">
+                    <span>{category.title}</span>
+                    <div className="ml-2 h-px bg-white/20 grow"></div>
+                  </h3>
+                )}
+
+                {category.items.map((item, idx) => {
+                  const isActive = location.pathname === item.path;
+                  const menuId = `${category.title}-${idx}`;
+                  const isComingSoon = item.badge?.text === "SOON";
+
+                  return (
+                    <div key={menuId} className="relative">
+                      <Link
+                        to={isComingSoon ? "#" : item.path}
+                        onClick={(e) => {
+                          if (isComingSoon) {
+                            e.preventDefault();
+                          }
+                          if (isSidebarOpen && window.innerWidth < 1024) {
+                            setIsSidebarOpen(false);
+                          }
+                        }}
+                        onMouseEnter={(e) => isSidebarCollapsed && handleTooltipShow(e, item.label)}
+                        onMouseLeave={isSidebarCollapsed ? handleTooltipHide : undefined}
+                        className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center justify-between"} 
                           px-2 py-2 rounded-lg mb-1
-                          ${isActive 
-                            ? "bg-white/20 text-white" 
+                          ${isActive
+                            ? "bg-white/20 text-white"
                             : "text-white/70 hover:bg-white/10 hover:text-white"}
                           ${isComingSoon ? "cursor-not-allowed opacity-70" : ""}`}
-                        >
-                          <div className={`flex ${!isSidebarCollapsed && "items-center space-x-2"}`}>
-                            <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
-                            {!isSidebarCollapsed && (
-                              <span className="text-sm font-medium truncate flex-1">
-                                {item.label}
-                              </span>
-                            )}
-                          </div>
-                          
+                      >
+                        <div className={`flex ${!isSidebarCollapsed && "items-center space-x-2"}`}>
+                          <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
                           {!isSidebarCollapsed && (
-                            <div className="flex items-center space-x-1">
-                              {item.badge && <MenuBadge badge={item.badge} />}
-                              {isActive && <ChevronRight className="w-4 h-4 text-white/70" />}
-                            </div>
+                            <span className="text-sm font-medium truncate flex-1">
+                              {item.label}
+                            </span>
                           )}
-                          
-                          {isSidebarCollapsed && item.badge && (
-                            <div className="absolute -top-1 -right-1">
-                              <MenuBadge badge={item.badge} />
-                            </div>
-                          )}
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </nav>
+                        </div>
 
-            {/* Footer Section */}
-            <div className="p-2 border-t border-white/10">
-              <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                onMouseEnter={(e) => isSidebarCollapsed && handleTooltipShow(e, "Expand Sidebar")}
-                onMouseLeave={isSidebarCollapsed ? handleTooltipHide : undefined}
-                className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center space-x-2"} w-full px-2 py-2 text-sm text-white/80 hover:text-white bg-white/5 rounded-lg hover:bg-white/10 mb-2`}
-              >
-                <Menu className="w-5 h-5" />
-                {!isSidebarCollapsed && <span className="truncate">Collapse</span>}
-              </button>
-            
-              <button
-                onClick={() => setIsLogoutModalOpen(true)}
-                onMouseEnter={(e) => isSidebarCollapsed && handleTooltipShow(e, "Logout")}
-                onMouseLeave={isSidebarCollapsed ? handleTooltipHide : undefined}
-                className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center space-x-2"} w-full px-2 py-2 text-sm text-red-100 bg-red-500/20 rounded-lg hover:bg-red-500/30`}
-              >
-                <LogOut className="w-5 h-5" />
-                {!isSidebarCollapsed && <span className="truncate">Logout</span>}
-              </button>
-            </div>
+                        {!isSidebarCollapsed && (
+                          <div className="flex items-center space-x-1">
+                            {item.badge && <MenuBadge badge={item.badge} />}
+                            {isActive && <ChevronRight className="w-4 h-4 text-white/70" />}
+                          </div>
+                        )}
+
+                        {isSidebarCollapsed && item.badge && (
+                          <div className="absolute -top-1 -right-1">
+                            <MenuBadge badge={item.badge} />
+                          </div>
+                        )}
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+
+          {/* Footer Section */}
+          <div className="p-2 border-t border-white/10">
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              onMouseEnter={(e) => isSidebarCollapsed && handleTooltipShow(e, "Expand Sidebar")}
+              onMouseLeave={isSidebarCollapsed ? handleTooltipHide : undefined}
+              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center space-x-2"} w-full px-2 py-2 text-sm text-white/80 hover:text-white bg-white/5 rounded-lg hover:bg-white/10 mb-2`}
+            >
+              <Menu className="w-5 h-5" />
+              {!isSidebarCollapsed && <span className="truncate">Collapse</span>}
+            </button>
+
+            <button
+              onClick={() => setIsLogoutModalOpen(true)}
+              onMouseEnter={(e) => isSidebarCollapsed && handleTooltipShow(e, "Logout")}
+              onMouseLeave={isSidebarCollapsed ? handleTooltipHide : undefined}
+              className={`flex ${isSidebarCollapsed ? "justify-center" : "items-center space-x-2"} w-full px-2 py-2 text-sm text-red-100 bg-red-500/20 rounded-lg hover:bg-red-500/30`}
+            >
+              <LogOut className="w-5 h-5" />
+              {!isSidebarCollapsed && <span className="truncate">Logout</span>}
+            </button>
           </div>
-        </aside>
+        </div>
+      </aside>
 
-        {/* Tooltip */}
-        <SidebarTooltip />
+      {/* Tooltip */}
+      <SidebarTooltip />
 
       <div className={`flex-1 ${isSidebarCollapsed ? "lg:ml-20" : "lg:ml-72"} transition-all duration-300 ease-in-out`}>
         {/* Ultra Modern Professional Navbar */}
-        <nav className={`sticky top-0 z-40 transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-white/95 backdrop-blur-xl shadow-2xl border-b border-blue-200/50' 
+        <nav className={`sticky top-0 z-40 transition-all duration-300 ${isScrolled
+            ? 'bg-white/95 backdrop-blur-xl shadow-2xl border-b border-blue-200/50'
             : 'bg-white/98 backdrop-blur-lg shadow-xl border-b border-blue-200/30'
-        }`}>
+          }`}>
           <div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-8">
-            <div className={`flex items-center justify-between transition-all duration-300 ${
-              isScrolled ? 'h-11 sm:h-12 lg:h-14' : 'h-12 sm:h-14 lg:h-16'
-            }`}>
+            <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-11 sm:h-12 lg:h-14' : 'h-12 sm:h-14 lg:h-16'
+              }`}>
               {/* Left Section - Enhanced Mobile Menu + Dynamic Breadcrumb */}
               <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 min-w-0 flex-1">
                 {/* Ultra Modern Mobile Menu Button */}
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.92 }}
                   onClick={() => setIsSidebarOpen(true)}
@@ -1014,7 +1006,7 @@ const DashboardLayout = () => {
 
                 {/* Enhanced Dynamic Breadcrumb Navigation - Desktop Only */}
                 <div className="hidden lg:flex items-center space-x-2 min-w-0">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="flex items-center space-x-1.5 text-xs sm:text-sm bg-gradient-to-r from-gray-50 to-blue-50/30 px-2.5 py-1 rounded-lg border border-gray-200/50"
@@ -1024,7 +1016,7 @@ const DashboardLayout = () => {
                     {location.pathname !== '/dashboard' && (
                       <>
                         <ChevronRight className="w-3 h-3 text-gray-400" />
-                        <motion.span 
+                        <motion.span
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           className="text-blue-700 font-semibold capitalize truncate max-w-40"
@@ -1037,7 +1029,7 @@ const DashboardLayout = () => {
                 </div>
 
                 {/* Enhanced Page Title for Mobile & Tablet - Full Width */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="lg:hidden min-w-0 flex-1"
@@ -1047,10 +1039,10 @@ const DashboardLayout = () => {
                   </h1>
                 </motion.div>
               </div>
-              
+
               {/* Center Section - Desktop Only Modern Search Bar */}
               <div className="hidden lg:block flex-1 max-w-xl mx-4">
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="relative group"
@@ -1077,7 +1069,7 @@ const DashboardLayout = () => {
                       >
                         <Search className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
                         <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-400/20 to-indigo-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                        
+
                         {/* Enhanced hover preview for mobile and tablet */}
                         <motion.div
                           initial={{ opacity: 0, scale: 0.9, y: 10 }}
@@ -1139,7 +1131,7 @@ const DashboardLayout = () => {
                   >
                     <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                     {unreadNotificationsCount > 0 && (
-                      <motion.span 
+                      <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 text-[10px] sm:text-xs font-bold leading-none text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-full shadow-lg animate-pulse ring-2 ring-white"
@@ -1152,7 +1144,7 @@ const DashboardLayout = () => {
                   {/* Ultra Modern Enhanced Notifications Dropdown */}
                   <AnimatePresence>
                     {isNotificationsOpen && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: -10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -1170,7 +1162,7 @@ const DashboardLayout = () => {
                             </div>
                             <div className="flex items-center space-x-2">
                               {unreadNotificationsCount > 0 && (
-                                <motion.span 
+                                <motion.span
                                   initial={{ scale: 0 }}
                                   animate={{ scale: 1 }}
                                   className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg"
@@ -1187,7 +1179,7 @@ const DashboardLayout = () => {
                               </Link>
                             </div>
                           </div>
-                        </div> 
+                        </div>
                         <div className="max-h-80 overflow-y-auto custom-scrollbar">
                           {patientStoreLoading ? (
                             <div className="py-12 text-center">
@@ -1222,41 +1214,38 @@ const DashboardLayout = () => {
                                   className="block w-full px-4 py-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 text-left border-b border-gray-50/50 last:border-b-0 group rounded-xl mx-2"
                                 >
                                   <div className="flex items-start space-x-4">
-                                    <div className={`flex-shrink-0 w-3 h-3 rounded-full mt-2 shadow-sm ${
-                                      !notification.read 
-                                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse' 
+                                    <div className={`flex-shrink-0 w-3 h-3 rounded-full mt-2 shadow-sm ${!notification.read
+                                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse'
                                         : 'bg-gray-300'
-                                    }`}></div>
+                                      }`}></div>
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1">
-                                          <p className={`text-sm font-semibold truncate ${
-                                            !notification.read ? 'text-gray-900' : 'text-gray-600'
-                                          } group-hover:text-blue-900`}>
+                                          <p className={`text-sm font-semibold truncate ${!notification.read ? 'text-gray-900' : 'text-gray-600'
+                                            } group-hover:text-blue-900`}>
                                             {notification.title || notification.message || 'New notification'}
                                           </p>
                                           <p className="text-sm text-gray-500 truncate mt-1 group-hover:text-blue-700">
                                             {notification.description || notification.content || 'Click to view details'}
                                           </p>
                                           <p className="text-xs text-gray-400 mt-2 font-medium">
-                                            {notification.createdAt 
+                                            {notification.createdAt
                                               ? new Date(notification.createdAt).toLocaleDateString('en-US', {
-                                                  month: 'short',
-                                                  day: 'numeric',
-                                                  hour: '2-digit',
-                                                  minute: '2-digit'
-                                                })
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                              })
                                               : 'Just now'
                                             }
                                           </p>
                                         </div>
                                         <div className="flex-shrink-0 ml-3">
-                                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                                            notification.type === 'prescription' ? 'bg-green-100 text-green-600' :
-                                            notification.type === 'appointment' ? 'bg-blue-100 text-blue-600' :
-                                            notification.type === 'report' ? 'bg-purple-100 text-purple-600' :
-                                            'bg-gray-100 text-gray-600'
-                                          }`}>
+                                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${notification.type === 'prescription' ? 'bg-green-100 text-green-600' :
+                                              notification.type === 'appointment' ? 'bg-blue-100 text-blue-600' :
+                                                notification.type === 'report' ? 'bg-purple-100 text-purple-600' :
+                                                  'bg-gray-100 text-gray-600'
+                                            }`}>
                                             {notification.type === 'prescription' && <Clipboard className="h-4 w-4" />}
                                             {notification.type === 'appointment' && <Calendar className="h-4 w-4" />}
                                             {notification.type === 'report' && <FileText className="h-4 w-4" />}
@@ -1322,7 +1311,7 @@ const DashboardLayout = () => {
                       <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden ring-2 ring-indigo-200 hover:ring-indigo-300 transition-all duration-200 shadow-md">
                         <ProfilePicture className="w-8 h-8 sm:w-9 sm:h-9 object-cover" />
                       </div>
-                      <motion.div 
+                      <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                         className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-gradient-to-r from-green-400 to-emerald-400 border-2 border-white rounded-full shadow-lg"
@@ -1346,7 +1335,7 @@ const DashboardLayout = () => {
                   {/* Compact Profile Dropdown Menu */}
                   <AnimatePresence>
                     {isProfileOpen && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: -10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -1359,7 +1348,7 @@ const DashboardLayout = () => {
                             <div className="w-11 h-11 rounded-xl overflow-hidden shadow-md">
                               <ProfilePicture className="w-11 h-11 object-cover" />
                             </div>
-                            <motion.div 
+                            <motion.div
                               animate={{ scale: [1, 1.2, 1] }}
                               transition={{ duration: 2, repeat: Infinity }}
                               className="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-400 border-2 border-white rounded-full shadow-lg"
@@ -1385,35 +1374,31 @@ const DashboardLayout = () => {
                             <Link
                               key={item.path}
                               to={item.path}
-                              className={`flex items-center px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r ${
-                                item.color === 'blue' ? 'hover:from-blue-50 hover:to-blue-100' :
-                                item.color === 'purple' ? 'hover:from-purple-50 hover:to-purple-100' :
-                                item.color === 'yellow' ? 'hover:from-yellow-50 hover:to-yellow-100' :
-                                'hover:from-green-50 hover:to-green-100'
-                              } transition-all duration-200 rounded-xl group`}
+                              className={`flex items-center px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r ${item.color === 'blue' ? 'hover:from-blue-50 hover:to-blue-100' :
+                                  item.color === 'purple' ? 'hover:from-purple-50 hover:to-purple-100' :
+                                    item.color === 'yellow' ? 'hover:from-yellow-50 hover:to-yellow-100' :
+                                      'hover:from-green-50 hover:to-green-100'
+                                } transition-all duration-200 rounded-xl group`}
                               onClick={() => setIsProfileOpen(false)}
                             >
-                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center mr-3 ${
-                                item.color === 'blue' ? 'bg-gradient-to-r from-blue-100 to-blue-200' :
-                                item.color === 'purple' ? 'bg-gradient-to-r from-purple-100 to-purple-200' :
-                                item.color === 'yellow' ? 'bg-gradient-to-r from-yellow-100 to-yellow-200' :
-                                'bg-gradient-to-r from-green-100 to-green-200'
-                              }`}>
-                                <item.icon className={`w-5 h-5 ${
-                                  item.color === 'blue' ? 'text-blue-600' :
-                                  item.color === 'purple' ? 'text-purple-600' :
-                                  item.color === 'yellow' ? 'text-yellow-600' :
-                                  'text-green-600'
-                                }`} />
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center mr-3 ${item.color === 'blue' ? 'bg-gradient-to-r from-blue-100 to-blue-200' :
+                                  item.color === 'purple' ? 'bg-gradient-to-r from-purple-100 to-purple-200' :
+                                    item.color === 'yellow' ? 'bg-gradient-to-r from-yellow-100 to-yellow-200' :
+                                      'bg-gradient-to-r from-green-100 to-green-200'
+                                }`}>
+                                <item.icon className={`w-5 h-5 ${item.color === 'blue' ? 'text-blue-600' :
+                                    item.color === 'purple' ? 'text-purple-600' :
+                                      item.color === 'yellow' ? 'text-yellow-600' :
+                                        'text-green-600'
+                                  }`} />
                               </div>
                               <span className="font-medium flex-1">{item.label}</span>
                               {item.badge > 0 && (
-                                <span className={`text-white text-xs rounded-full px-2 py-0.5 font-bold shadow-md ${
-                                  item.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
-                                  item.color === 'purple' ? 'bg-gradient-to-r from-purple-500 to-purple-600' :
-                                  item.color === 'yellow' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' :
-                                  'bg-gradient-to-r from-green-500 to-green-600'
-                                }`}>
+                                <span className={`text-white text-xs rounded-full px-2 py-0.5 font-bold shadow-md ${item.color === 'blue' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
+                                    item.color === 'purple' ? 'bg-gradient-to-r from-purple-500 to-purple-600' :
+                                      item.color === 'yellow' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' :
+                                        'bg-gradient-to-r from-green-500 to-green-600'
+                                  }`}>
                                   {item.badge}
                                 </span>
                               )}
@@ -1446,7 +1431,7 @@ const DashboardLayout = () => {
           </div>
         </nav>
         {/* Page Content */}
-         <main className="">
+        <main className="">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -1466,7 +1451,7 @@ const DashboardLayout = () => {
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={logout}
-      />  
+      />
     </div>
   );
 };

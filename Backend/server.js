@@ -113,6 +113,11 @@ async function startServer() {
       allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     })
   );
+
+  // Explicit preflight handler — ensures OPTIONS requests always succeed
+  // even if a reverse proxy or load balancer interferes with the cors middleware
+  app.options("*", cors());
+
   app.use(express.json());
   app.use(cookieParser()); // Add cookie parser for handling HTTP-only cookies
 
