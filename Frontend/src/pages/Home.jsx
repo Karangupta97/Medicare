@@ -307,7 +307,7 @@ const Home = () => {
           <div className="flex justify-center w-full bg-white dark:bg-gray-900 pb-3">
             <Navbar user={user} onLogout={handleLogout} />
           </div>
-      <UnderDevelopmentBanner />
+          {/* <UnderDevelopmentBanner /> */}
 
           {/* Hero Section */}
           <motion.div
@@ -562,14 +562,14 @@ const Home = () => {
                   </div>
 
                   <h1 className="font-bold text-white mb-1">
-                    <span 
+                    <span
                       className="text-x bg-clip-text text-transparent bg-linear-to-r from-white to-blue-200 cursor-pointer hover:opacity-80 transition-opacity"
                       onClick={scrollToVision}
                     >
                       Healthcare
                     </span>
                     <br />
-                    <span 
+                    <span
                       className="text-xl bg-clip-text text-transparent bg-linear-to-r from-blue-200 to-purple-300 cursor-pointer hover:opacity-80 transition-opacity"
                       onClick={scrollToVision}
                     >
@@ -1133,7 +1133,7 @@ const Home = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
                       </div>
                     </div>
-                    
+
                     {/* Content Section */}
                     <div className="lg:w-3/5 p-8 lg:p-12">
                       <div className="mb-6">
@@ -1162,25 +1162,25 @@ const Home = () => {
                       <div className="flex items-center space-x-4">
                         <span className="text-sm font-medium text-gray-700">Connect:</span>
                         {[
-                          { 
-                            icon: FiLinkedin, 
-                            href: "https://www.linkedin.com/in/karan-gupta-14a0a4260", 
-                            color: "text-blue-600 hover:text-blue-700" 
+                          {
+                            icon: FiLinkedin,
+                            href: "https://www.linkedin.com/in/karan-gupta-14a0a4260",
+                            color: "text-blue-600 hover:text-blue-700"
                           },
-                          { 
-                            icon: FiGithub, 
-                            href: "https://github.com/Karangupta97", 
-                            color: "text-gray-700 hover:text-gray-900" 
+                          {
+                            icon: FiGithub,
+                            href: "https://github.com/Karangupta97",
+                            color: "text-gray-700 hover:text-gray-900"
                           },
-                          { 
-                            icon: FiMail, 
-                            href: "mailto:karangupta3319@gmail.com", 
-                            color: "text-red-600 hover:text-red-700" 
+                          {
+                            icon: FiMail,
+                            href: "mailto:karangupta3319@gmail.com",
+                            color: "text-red-600 hover:text-red-700"
                           },
-                          { 
-                            icon: FiInstagramIcon, 
-                            href: "https://www.instagram.com/karangupta.19/", 
-                            color: "text-pink-600 hover:text-pink-700" 
+                          {
+                            icon: FiInstagramIcon,
+                            href: "https://www.instagram.com/karangupta.19/",
+                            color: "text-pink-600 hover:text-pink-700"
                           }
                         ].map((social, index) => (
                           <motion.a
@@ -1254,11 +1254,10 @@ const Home = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`mb-6 p-4 rounded-xl ${
-                  submitStatus.type === "success"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
-                }`}
+                className={`mb-6 p-4 rounded-xl ${submitStatus.type === "success"
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
               >
                 {submitStatus.message}
               </motion.div>
@@ -1283,11 +1282,10 @@ const Home = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     disabled={formData.isAnonymous}
-                    className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#252A61] focus:border-[#252A61] transition-all duration-200 bg-white/50 backdrop-blur-sm ${
-                      formData.isAnonymous
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
+                    className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#252A61] focus:border-[#252A61] transition-all duration-200 bg-white/50 backdrop-blur-sm ${formData.isAnonymous
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                      }`}
                     placeholder={
                       formData.isAnonymous ? "Anonymous" : "Enter your name"
                     }
@@ -1349,11 +1347,10 @@ const Home = () => {
                       key={star}
                       type="button"
                       onClick={() => handleRatingClick(star)}
-                      className={`p-1 transition-all duration-200 ${
-                        formData.rating >= star
-                          ? "text-yellow-400 scale-110"
-                          : "text-gray-300 hover:text-yellow-400"
-                      }`}
+                      className={`p-1 transition-all duration-200 ${formData.rating >= star
+                        ? "text-yellow-400 scale-110"
+                        : "text-gray-300 hover:text-yellow-400"
+                        }`}
                     >
                       <FiStar className="w-8 h-8" />
                     </button>
@@ -1384,9 +1381,8 @@ const Home = () => {
                   required
                   maxLength={1000}
                   rows="4"
-                  className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#252A61] focus:border-[#252A61] transition-all duration-200 bg-white/50 backdrop-blur-sm resize-none ${
-                    formData.review.length > 1000 ? "border-red-300" : ""
-                  }`}
+                  className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#252A61] focus:border-[#252A61] transition-all duration-200 bg-white/50 backdrop-blur-sm resize-none ${formData.review.length > 1000 ? "border-red-300" : ""
+                    }`}
                   placeholder="Share your experience with Medicare... (minimum 10 characters)"
                 ></textarea>
                 {formData.review.length < 10 && formData.review.length > 0 && (
@@ -1419,11 +1415,10 @@ const Home = () => {
                   disabled={isSubmitting}
                   whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                  className={`w-full sm:w-auto px-8 py-3 bg-[#252A61] text-white font-medium rounded-xl transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 ${
-                    isSubmitting
-                      ? "opacity-75 cursor-not-allowed"
-                      : "hover:bg-[#363b7e]"
-                  }`}
+                  className={`w-full sm:w-auto px-8 py-3 bg-[#252A61] text-white font-medium rounded-xl transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 ${isSubmitting
+                    ? "opacity-75 cursor-not-allowed"
+                    : "hover:bg-[#363b7e]"
+                    }`}
                 >
                   {isSubmitting ? (
                     <>
@@ -1591,7 +1586,7 @@ const Home = () => {
           </div>
         </motion.section>
         */}
-        
+
         {/* <FloatingActionButton /> */}
         <Footer />
       </div>
