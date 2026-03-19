@@ -21,21 +21,35 @@ if (!process.env.AWS_S3_BUCKET) {
   throw new Error('AWS S3 bucket name is not properly configured.');
 }
 
-// Initialize S3 client with additional configuration
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-  forcePathStyle: true, // Use path-style S3 URLs
-});
+const AWS_S3_FORCE_PATH_STYLE =
+  (process.env.AWS_S3_FORCE_PATH_STYLE ?? "true") === "true";
+
+const getRegionFromS3Endpoint = (endpointHost) => {
+  if (!endpointHost) return undefined;
+  // Example: medicare-medical-storage.s3.ap-south-1.amazonaws.com
+  const match = String(endpointHost).match(/\.s3\.([a-z0-9-]+)\.amazonaws\.com/i);
+  return match?.[1];
+};
+
+const createS3Client = ({ region }) =>
+  new S3Client({
+    region,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+    // Keep compatibility with S3-compatible providers; can be toggled via env var.
+    forcePathStyle: AWS_S3_FORCE_PATH_STYLE,
+  });
+
+// S3 client is kept mutable so we can recover from region mismatches (PermanentRedirect).
+let s3Client = createS3Client({ region: process.env.AWS_REGION });
 
 // Get permanent (non-expiring) URL using bucket and key
 // This creates a URL that doesn't expire but requires the object to be public or have appropriate permissions
-const getPermanentUrl = (bucketName, key) => {
+const getPermanentUrl = (bucketName, key, region = process.env.AWS_REGION) => {
   // Format: https://<bucket-name>.s3.<region>.amazonaws.com/<object-key>
-  return `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+  return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
 };
 
 export const uploadFile = async (file, userId, userName, isPermanent = false) => {
@@ -74,6 +88,8 @@ export const uploadFile = async (file, userId, userName, isPermanent = false) =>
       throw new Error('AWS configuration is incomplete');
     }
 
+    let hasRetriedAfterPermanentRedirect = false;
+
     try {
       // Upload file without ACL (bucket doesn't support ACLs)
       const uploadParams = {
@@ -82,7 +98,7 @@ export const uploadFile = async (file, userId, userName, isPermanent = false) =>
         Body: file.buffer,
         ContentType: file.mimetype,
       };
-      
+
       await s3Client.send(new PutObjectCommand(uploadParams));
       console.log('File successfully uploaded to S3:', { key: s3Key });
     } catch (uploadError) {
@@ -92,7 +108,36 @@ export const uploadFile = async (file, userId, userName, isPermanent = false) =>
       } else if (uploadError.name === 'AccessDenied') {
         throw new Error('Access denied to S3 bucket');
       }
-      throw new Error(`Failed to upload to S3: ${uploadError.message}`);
+
+      const isPermanentRedirect =
+        uploadError?.name === "PermanentRedirect" ||
+        uploadError?.Code === "PermanentRedirect" ||
+        /PermanentRedirect/i.test(uploadError?.message ?? "");
+
+      if (isPermanentRedirect) {
+        // Recover automatically when the bucket is in a different region than `AWS_REGION`.
+        const endpointHost = uploadError?.Endpoint || uploadError?.endpoint;
+
+        const endpointHostFromMessage = String(uploadError?.message ?? "").match(
+          /Endpoint:\s*'([^']+)'/i
+        )?.[1];
+
+        const resolvedEndpointHost = endpointHostFromMessage || endpointHost;
+        const redirectRegion = getRegionFromS3Endpoint(resolvedEndpointHost);
+
+        if (redirectRegion && !hasRetriedAfterPermanentRedirect) {
+          console.warn("S3 PermanentRedirect detected. Retrying upload with region:", {
+            redirectRegion,
+          });
+          hasRetriedAfterPermanentRedirect = true;
+          s3Client = createS3Client({ region: redirectRegion });
+          await s3Client.send(new PutObjectCommand(uploadParams));
+        } else {
+          throw new Error(`Failed to upload to S3: ${uploadError.message}`);
+        }
+      } else {
+        throw new Error(`Failed to upload to S3: ${uploadError.message}`);
+      }
     }
 
     let fileUrl;
