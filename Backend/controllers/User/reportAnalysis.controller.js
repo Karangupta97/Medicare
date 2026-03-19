@@ -92,13 +92,6 @@ export const analyzeReport = async (req, res) => {
     } else if (error.message.includes('No text could be extracted')) {
       statusCode = 400;
       errorMessage = 'No text could be extracted from the report. Please try uploading a clearer image or PDF.';
-    } else if (
-      error.message.includes('Vision API is not initialized') ||
-      error.message.includes('Neither GOOGLE_CLOUD_KEY_PATH nor GOOGLE_CLOUD_API_KEY is configured') ||
-      error.message.includes('Failed to initialize Vision client')
-    ) {
-      statusCode = 500;
-      errorMessage = 'OCR (Vision API) is not configured correctly on the server.';
     } else if (error.message.includes('API key')) {
       statusCode = 500;
       errorMessage = 'AI analysis service is not properly configured.';
