@@ -1,5 +1,4 @@
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap')
-layer(base);
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400&display=swap') layer(base);
 
 @import 'tailwindcss';
 
@@ -30,6 +29,7 @@ layer(base);
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -155,6 +155,7 @@ layer(base);
 }
 
 @layer utilities {
+
   /* Global styles to prevent horizontal scrolling */
   html,
   body,
@@ -169,8 +170,15 @@ layer(base);
 
 /* Custom Animations */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-float {
@@ -178,8 +186,13 @@ layer(base);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fadeIn {
@@ -187,8 +200,15 @@ layer(base);
 }
 
 @keyframes slideInFromRight {
-  from { transform: translateX(30px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .animate-slideIn {
@@ -205,7 +225,7 @@ layer(base);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -234,26 +254,31 @@ layer(base);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
+  box-shadow:
     0 32px 64px -12px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
+
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 @keyframes scroll {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(200%);
   }
 }
+
 .animate-scroll {
   animation: scroll 8s linear infinite;
 }
@@ -296,9 +321,8 @@ layer(base);
 
 /* Ring Gradient Utilities */
 .ring-gradient-to-r {
-  box-shadow: 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color), 
-              0 0 0 calc(var(--tw-ring-width) + var(--tw-ring-offset-width)) 
-              linear-gradient(to right, var(--tw-gradient-stops));
+  box-shadow: 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color),
+    0 0 0 calc(var(--tw-ring-width) + var(--tw-ring-offset-width)) linear-gradient(to right, var(--tw-gradient-stops));
 }
 
 /* Enhanced Glass Effect */
@@ -327,18 +351,21 @@ layer(base);
 
 .search-focus-animation:focus {
   transform: scale(1.02);
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1),
     0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Notification Badge Pulse */
 @keyframes notification-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 0.8;
@@ -351,10 +378,13 @@ layer(base);
 
 /* Profile Status Indicator */
 @keyframes status-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
   }
+
   70% {
     transform: scale(1.1);
     box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
@@ -403,7 +433,7 @@ layer(base);
 
 .card-hover:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.05);
 }
@@ -420,8 +450,8 @@ layer(base);
 
 .mobile-search-input:focus {
   transform: scale(1.01);
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1),
     0 0 0 3px rgba(59, 130, 246, 0.1);
 }
@@ -432,18 +462,18 @@ layer(base);
     opacity: 0;
     transform: translateY(10px) scale(0.95);
   }
-  
+
   .search-suggestion-enter-active {
     opacity: 1;
     transform: translateY(0) scale(1);
     transition: all 300ms ease-out;
   }
-  
+
   .search-suggestion-exit {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-  
+
   .search-suggestion-exit-active {
     opacity: 0;
     transform: translateY(-10px) scale(0.95);
@@ -473,4 +503,112 @@ layer(base);
 .mobile-search-btn:hover::before {
   width: 120%;
   height: 120%;
+}
+
+@keyframes medicalFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes medicalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes medicalPulseRing {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.35;
+  }
+
+  70% {
+    transform: scale(1.08);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes medicalDots {
+  0%,
+  20% {
+    content: '.';
+  }
+
+  40% {
+    content: '..';
+  }
+
+  60%,
+  100% {
+    content: '...';
+  }
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -240px 0;
+  }
+
+  100% {
+    background-position: 240px 0;
+  }
+}
+
+.animate-medical-fade {
+  animation: medicalFadeIn 240ms ease-out;
+}
+
+.animate-medical-pop {
+  animation: medicalPopIn 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.animate-medical-pulse-ring {
+  animation: medicalPulseRing 2.2s ease-out infinite;
+  border: 2px solid rgba(59, 130, 246, 0.35);
+}
+
+.animate-medical-dots {
+  position: relative;
+  min-width: 20px;
+  color: rgb(71 85 105);
+}
+
+.animate-medical-dots::after {
+  content: '...';
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: medicalDots 1.4s steps(1, end) infinite;
+}
+
+.skeleton-medical {
+  background: linear-gradient(90deg, rgba(226, 232, 240, 0.7) 25%, rgba(255, 255, 255, 0.9) 50%, rgba(226, 232, 240, 0.7) 75%);
+  background-size: 240px 100%;
+  animation: skeletonShimmer 1.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-medical-fade,
+  .animate-medical-pop,
+  .animate-medical-pulse-ring,
+  .animate-medical-dots::after,
+  .skeleton-medical {
+    animation: none !important;
+  }
 }
