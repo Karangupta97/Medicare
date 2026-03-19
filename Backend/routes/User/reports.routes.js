@@ -13,6 +13,7 @@ import {
   analyzeReport,
   getAnalysisStatus,
 } from "../../controllers/User/reportAnalysis.controller.js";
+import { analyzeReportRateLimit } from "../../middleware/User/rateLimitAI.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -84,8 +85,8 @@ router.patch("/:id/move", moveReport);
 // Update report title and description
 router.patch("/:id", updateReport);
 
-// Analyze a report with OCR and AI
-router.post("/:reportId/analyze", analyzeReport);
+// Analyze a report with OCR and AI - WITH RATE LIMITING
+router.post("/:reportId/analyze", analyzeReportRateLimit, analyzeReport);
 
 // Get analysis status for a report
 router.get("/:reportId/analysis-status", getAnalysisStatus);
