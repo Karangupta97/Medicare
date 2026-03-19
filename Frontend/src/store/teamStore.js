@@ -3,7 +3,8 @@ import { create } from "zustand";
 import { safeStorageAccess } from "../utils/errorHandling";
 
 // API URL for backend communication
-const API_URL = import.meta.env.VITE_API_URL;
+// Fallback prevents requests like ".../undefined/api/..." when env is not set in production.
+const API_URL = import.meta.env.VITE_API_URL || "https://api.medicares.in";
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;

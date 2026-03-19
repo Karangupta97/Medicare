@@ -4,7 +4,8 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { safeStorageAccess } from "../utils/errorHandling";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Fallback prevents requests like ".../undefined/api/..." when env is not set in production.
+const API_URL = import.meta.env.VITE_API_URL || "https://api.medicares.in";
 
 // Utility function to get the staff token for doctor verification
 const getAuthToken = () => {

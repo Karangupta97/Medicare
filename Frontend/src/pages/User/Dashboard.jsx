@@ -94,7 +94,7 @@ const Dashboard = () => {
     const connectSocket = () => {
       console.log("Setting up WebSocket connection for notifications");
 
-      const apiBaseUrl = import.meta.env.VITE_API_URL;
+      const apiBaseUrl = import.meta.env.VITE_API_URL || "https://api.medicares.in";
 
       if (window.socket) {
         console.log("Socket already exists, not creating a new one");

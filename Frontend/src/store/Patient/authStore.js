@@ -2,7 +2,8 @@ import axios from "axios";
 import { create } from "zustand";
 import { safeStorageAccess } from "../../utils/errorHandling";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Fallback prevents requests like ".../undefined/api/..." when env is not set in production.
+const API_URL = import.meta.env.VITE_API_URL || "https://api.medicares.in";
 
 // Global request timestamps to prevent duplicate requests
 const requestTimestamps = {
