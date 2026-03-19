@@ -5,6 +5,22 @@ import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Trim AWS env vars to remove hidden \r or whitespace from Windows-style .env files on Linux
+['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION', 'AWS_S3_BUCKET'].forEach(key => {
+  if (process.env[key]) {
+    process.env[key] = process.env[key].trim();
+  }
+});
+
+// Debug: log masked AWS credentials to verify correct values in production
+console.log('AWS Config Check:', {
+  accessKeyPrefix: process.env.AWS_ACCESS_KEY_ID?.substring(0, 8) + '...',
+  accessKeyLength: process.env.AWS_ACCESS_KEY_ID?.length,
+  secretKeyLength: process.env.AWS_SECRET_ACCESS_KEY?.length,
+  region: process.env.AWS_REGION,
+  bucket: process.env.AWS_S3_BUCKET,
+});
+
 // Validate AWS credentials during initialization
 if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
   console.error('AWS credentials are missing or invalid. Please check the .env file.');
@@ -90,15 +106,16 @@ export const uploadFile = async (file, userId, userName, isPermanent = false) =>
 
     let hasRetriedAfterPermanentRedirect = false;
 
-    try {
-      // Upload file without ACL (bucket doesn't support ACLs)
-      const uploadParams = {
-        Bucket: process.env.AWS_S3_BUCKET,
-        Key: s3Key,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
+    // Declare uploadParams outside the try block so it's accessible in the catch
+    // block during PermanentRedirect retry.
+    const uploadParams = {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: s3Key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
 
+    try {
       await s3Client.send(new PutObjectCommand(uploadParams));
       console.log('File successfully uploaded to S3:', { key: s3Key });
     } catch (uploadError) {
