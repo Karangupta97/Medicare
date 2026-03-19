@@ -27,12 +27,14 @@ import {
   FiCalendar,
   FiInfo,
   FiPlus,
+  FiTrendingUp,
 } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
 import { useDropzone } from "react-dropzone";
 import StorageLimitModal from "../../components/StorageLimitModal";
+import ReportAnalysisModal from "../../components/ReportAnalysisModal";
 
 const style = document.createElement("style");
 style.textContent = `
@@ -642,6 +644,12 @@ const Reports = () => {
     show: false,
     details: null,
   });
+  const [analysisModal, setAnalysisModal] = useState({
+    show: false,
+    report: null,
+    analysis: null,
+    loading: false,
+  });
   const imageContainerRef = useRef(null);
   const { token, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -658,6 +666,7 @@ const Reports = () => {
     deleteReport,
     moveReport,
     updateReport,
+    analyzeReport,
   } = usePatientStore();
 
   useEffect(() => {
@@ -974,6 +983,61 @@ const Reports = () => {
       toast.error(errorMessage);
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  // Handle report analysis with OCR and AI
+  const handleAnalyzeReport = async (report) => {
+    if (!report) {
+      toast.error("No report selected for analysis");
+      return;
+    }
+
+    // Check if file type is supported for analysis
+    const supportedTypes = ['image/png', 'image/jpeg', 'application/pdf', 'image/tiff'];
+    if (!supportedTypes.includes(report.contentType)) {
+      toast.error(
+        `Analysis not supported for ${report.contentType}. Supported types: PNG, JPEG, PDF, TIFF.`
+      );
+      return;
+    }
+
+    setAnalysisModal({
+      show: true,
+      report,
+      analysis: null,
+      loading: true,
+    });
+
+    try {
+      const loadingToast = toast.loading("Analyzing your medical report...");
+      
+      console.log("Starting report analysis for:", report._id);
+      const result = await analyzeReport(token, report._id);
+      
+      toast.dismiss(loadingToast);
+      toast.success("Report analyzed successfully!");
+
+      setAnalysisModal((prev) => ({
+        ...prev,
+        analysis: result,
+        loading: false,
+      }));
+
+      console.log("Analysis completed:", result);
+    } catch (error) {
+      console.error("Error analyzing report:", error);
+      
+      toast.error(
+        error.response?.data?.message || 
+        error.message || 
+        "Failed to analyze report. Please try again."
+      );
+
+      setAnalysisModal((prev) => ({
+        ...prev,
+        loading: false,
+      }));
     }
   };
 
@@ -1455,6 +1519,26 @@ const Reports = () => {
                     <span className="xs:hidden">🗑</span>
                     <span className="hidden sm:inline">Delete</span>
                   </button>
+
+                  <button
+                    onClick={() => handleAnalyzeReport(report)}
+                    className="flex items-center justify-center py-1.5 xs:py-2 sm:py-2.5 px-2 xs:px-3 
+                               bg-gradient-to-r from-purple-50 to-pink-50 
+                               hover:from-purple-100 hover:to-pink-100
+                               text-purple-700 hover:text-purple-800 
+                               rounded-md xs:rounded-lg sm:rounded-xl 
+                               transition-all duration-300 font-medium text-xs xs:text-sm
+                               border border-purple-200/50 hover:border-purple-300/80
+                               shadow-sm hover:shadow-md group/btn hover:shadow-purple-500/20
+                               transform hover:scale-[1.02] active:scale-[0.98]
+                               min-h-[28px] xs:min-h-[32px] sm:min-h-[36px]"
+                    title="Analyze Report with AI"
+                  >
+                    <FiTrendingUp className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1 xs:mr-1.5 group-hover/btn:scale-110 transition-transform duration-200 flex-shrink-0" />
+                    <span className="hidden xs:inline sm:hidden">AI</span>
+                    <span className="xs:hidden">🔬</span>
+                    <span className="hidden sm:inline">Analyze</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1671,6 +1755,20 @@ const Reports = () => {
                     <FiTrash2 className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 group-hover/btn:scale-110 transition-transform duration-200 flex-shrink-0" />
                     <span className="hidden xs:inline">Delete</span>
                     <span className="xs:hidden">🗑</span>
+                  </button>
+                  <button
+                    onClick={() => handleAnalyzeReport(report)}
+                    className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-2.5 
+                               bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 
+                               text-purple-700 rounded-lg xs:rounded-xl sm:rounded-2xl transition-all duration-300 
+                               font-medium text-xs xs:text-sm border border-purple-200/50 hover:border-purple-300/80 
+                               shadow-sm hover:shadow-md group/btn hover:shadow-purple-500/20
+                               transform hover:scale-[1.02] active:scale-[0.98] min-h-[28px] xs:min-h-[32px] sm:min-h-[36px]"
+                    title="Analyze Report with AI"
+                  >
+                    <FiTrendingUp className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 group-hover/btn:scale-110 transition-transform duration-200 flex-shrink-0" />
+                    <span className="hidden xs:inline">Analyze</span>
+                    <span className="xs:hidden">🔬</span>
                   </button>
                 </div>
               </div>
@@ -3261,6 +3359,15 @@ const Reports = () => {
         onClose={() => setStorageModal({ show: false, details: null })}
         storageDetails={storageModal.details}
         planType={storageModal.details?.planType || "free"}
+      />
+
+      {/* Report Analysis Modal */}
+      <ReportAnalysisModal
+        show={analysisModal.show}
+        report={analysisModal.report}
+        analysis={analysisModal.analysis}
+        loading={analysisModal.loading}
+        onClose={() => setAnalysisModal({ show: false, report: null, analysis: null, loading: false })}
       />
     </div>
   );

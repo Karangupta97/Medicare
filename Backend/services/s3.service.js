@@ -235,3 +235,38 @@ export const refreshProfilePictureUrl = async (s3Key) => {
   }
 };
 
+/**
+ * Download file buffer from S3
+ * @param {string} s3Key - The S3 key/path of the file
+ * @returns {Promise<Buffer>} - The file buffer
+ */
+export const downloadFileFromS3 = async (s3Key) => {
+  try {
+    if (!s3Key) {
+      throw new Error('S3 key is required to download file');
+    }
+
+    console.log(`Downloading file from S3: ${s3Key}`);
+
+    const response = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: s3Key,
+      })
+    );
+
+    // Convert readable stream to buffer
+    const chunks = [];
+    for await (const chunk of response.Body) {
+      chunks.push(chunk);
+    }
+    const fileBuffer = Buffer.concat(chunks);
+
+    console.log(`File downloaded successfully from S3: ${s3Key} (${fileBuffer.length} bytes)`);
+    return fileBuffer;
+  } catch (error) {
+    console.error(`S3 download error for key ${s3Key}:`, error);
+    throw error;
+  }
+};
+

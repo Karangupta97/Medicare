@@ -9,6 +9,10 @@ import {
   updateReport,
   refreshReportUrl,
 } from "../../controllers/User/reports.controller.js";
+import {
+  analyzeReport,
+  getAnalysisStatus,
+} from "../../controllers/User/reportAnalysis.controller.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -79,5 +83,11 @@ router.patch("/:id/move", moveReport);
 
 // Update report title and description
 router.patch("/:id", updateReport);
+
+// Analyze a report with OCR and AI
+router.post("/:reportId/analyze", analyzeReport);
+
+// Get analysis status for a report
+router.get("/:reportId/analysis-status", getAnalysisStatus);
 
 export default router;

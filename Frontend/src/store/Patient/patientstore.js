@@ -747,6 +747,25 @@ const usePatientStore = create((set, get) => ({
     }
   },
 
+  // Analyze medical report with OCR and AI
+  analyzeReport: async (token, reportId) => {
+    try {
+      set({ isLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.post(`/api/reports/${reportId}/analyze`);
+
+      set({ isLoading: false });
+      return response.data.data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to analyze report",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   // Clear store data
   clearStore: () => {
     set({
