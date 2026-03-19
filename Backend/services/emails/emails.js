@@ -22,11 +22,12 @@ export const sendVerificationEmail = async (email, verificationToken) => {
     });
 
     if (error) {
-      console.error(`Error:`, error);
-      throw new Error("Failed to send verification email");
+      console.error(`Resend error (verification):`, { email, error });
+      throw new Error(error?.message || "Failed to send verification email");
     }
 
-    console.log("Verification email sent successfully", data);
+    console.log("Verification email sent successfully", { email, id: data?.id });
+    return data;
   } catch (error) {
     console.error(`Error sending verification email:`, error);
     throw new Error(`Error sending verification: ${error.message}`);
@@ -43,11 +44,12 @@ export const sendWelcomeEmail = async (email, name) => {
     });
 
     if (error) {
-      console.error(`Error:`, error);
-      throw new Error("Failed to send welcome email");
+      console.error(`Resend error (welcome):`, { email, error });
+      throw new Error(error?.message || "Failed to send welcome email");
     }
 
-    console.log("Welcome email sent successfully", data);
+    console.log("Welcome email sent successfully", { email, id: data?.id });
+    return data;
   } catch (error) {
     console.error(`Error sending welcome email:`, error);
     throw new Error(`Error sending welcome email: ${error.message}`);
@@ -64,11 +66,12 @@ export const sendPasswordResetEmail = async (email, resetURL) => {
     });
 
     if (error) {
-      console.error(`Error:`, error);
-      throw new Error("Failed to send password reset email");
+      console.error(`Resend error (password reset request):`, { email, error });
+      throw new Error(error?.message || "Failed to send password reset email");
     }
 
-    console.log("Password reset email sent successfully", data);
+    console.log("Password reset email sent successfully", { email, id: data?.id });
+    return data;
   } catch (error) {
     console.error(`Error sending password reset email:`, error);
     throw new Error(`Error sending password reset email: ${error.message}`);
@@ -85,11 +88,12 @@ export const sendPasswordResetSuccessEmail = async (email) => {
     });
 
     if (error) {
-      console.error(`Error:`, error);
-      throw new Error("Failed to send password reset success email");
+      console.error(`Resend error (password reset success):`, { email, error });
+      throw new Error(error?.message || "Failed to send password reset success email");
     }
 
-    console.log("Password reset success email sent successfully", data);
+    console.log("Password reset success email sent successfully", { email, id: data?.id });
+    return data;
   } catch (error) {
     console.error(`Error sending password reset success email:`, error);
     throw new Error(`Error sending password reset success email: ${error.message}`);

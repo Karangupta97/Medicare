@@ -32,9 +32,9 @@ export default defineConfig({
     historyApiFallback: true,
     proxy: {
       "/api": {
-        target: "http://localhost:4000",
+        // target: "http://localhost:4000",
         // target: ["http://localhost:4000", "http://192.168.0.107:4000/"],
-        // target: "https://api.medicares.in",
+        target: "https://api.medicares.in",
         // target: "https://medicare-backend-pdci8.ondigitalocean.app", 
         // target: "https://medicare-3c0t.onrender.com", 
         changeOrigin: true,
@@ -57,12 +57,12 @@ export default defineConfig({
               path: req.path,
               headers: proxyReq.getHeaders()
             });
-            
+
             // Ensure Authorization header is properly forwarded
             if (req.headers.authorization) {
               proxyReq.setHeader('Authorization', req.headers.authorization);
             }
-            
+
             // For multipart/form-data requests, ensure the content-type header is preserved
             if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
               console.log('Handling multipart/form-data request');
@@ -75,7 +75,7 @@ export default defineConfig({
               url: req.url,
               headers: proxyRes.headers
             });
-            
+
             // Log 404 errors with more details
             if (proxyRes.statusCode === 404) {
               console.error('404 Error Details:', {

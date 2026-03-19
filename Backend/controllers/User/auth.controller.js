@@ -52,7 +52,7 @@ export const signup = async (req, res) => {
 
     const token = await generateTokenAndsendcookie(res, user._id);
     // send Verification Email with otp
-    await sendVerificationEmail(user.email, verificationToken);
+    const emailResult = await sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
       success: true,
@@ -62,6 +62,9 @@ export const signup = async (req, res) => {
         password: undefined,
       },
       token,
+      ...(process.env.NODE_ENV === "development" && emailResult?.id
+        ? { verificationEmailId: emailResult.id }
+        : {}),
     });
   } catch (error) {
     console.log(error);
@@ -173,13 +176,16 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     //send email
-    await sendPasswordResetEmail(
+    const emailResult = await sendPasswordResetEmail(
       user.email,
       `${process.env.CLIENT_URL}/reset-password/${resetToken}`
     );
     res.status(200).json({
       success: true,
       message: "Reset password link sent to your email",
+      ...(process.env.NODE_ENV === "development" && emailResult?.id
+        ? { passwordResetEmailId: emailResult.id }
+        : {}),
     });
   } catch (error) {
     console.log("Error in forgotPassword", error);
@@ -275,9 +281,14 @@ export const resendOtp = async (req, res) => {
     await user.save();
 
     // Send email
-    await sendVerificationEmail(user.email, otp);
+    const emailResult = await sendVerificationEmail(user.email, otp);
 
-    res.status(200).json({ message: "Verification code resent to email" });
+    res.status(200).json({
+      message: "Verification code resent to email",
+      ...(process.env.NODE_ENV === "development" && emailResult?.id
+        ? { verificationEmailId: emailResult.id }
+        : {}),
+    });
   } catch (err) {
     console.error('Error in resendOtp:', err);
     res.status(500).json({ message: "Failed to send verification code. Please try again." });

@@ -6,6 +6,15 @@ let doctorDB = null;
 let managementDB = null;
 let feedbackDB = null;
 
+// Safely derive DB-specific URIs while preserving the query string (ssl/replicaSet/etc).
+// Regex-based replacement here is fragile because your base URI ends with `/?ssl=...`.
+const withDatabaseName = (baseURI, dbName) => {
+  const [pathPart, queryPart] = baseURI.split("?");
+  const updatedPath = pathPart.replace(/\/[^\/]*$/, `/${dbName}`);
+  if (!queryPart) return updatedPath;
+  return `${updatedPath}?${queryPart}`;
+};
+
 const connectAllDatabases = async () => {
   try {
     // Extract base URI from environment variable
@@ -26,10 +35,10 @@ const connectAllDatabases = async () => {
     };
     
     // Create separate database connections
-    patientDB = mongoose.createConnection(baseURI.replace(/\/[^\/]*(\?|$)/, '/Patient$1'), options);
-    doctorDB = mongoose.createConnection(baseURI.replace(/\/[^\/]*(\?|$)/, '/Doctor$1'), options);
-    managementDB = mongoose.createConnection(baseURI.replace(/\/[^\/]*(\?|$)/, '/Management$1'), options);
-    feedbackDB = mongoose.createConnection(baseURI.replace(/\/[^\/]*(\?|$)/, '/Feedback$1'), options);
+    patientDB = mongoose.createConnection(withDatabaseName(baseURI, "Patient"), options);
+    doctorDB = mongoose.createConnection(withDatabaseName(baseURI, "Doctor"), options);
+    managementDB = mongoose.createConnection(withDatabaseName(baseURI, "Management"), options);
+    feedbackDB = mongoose.createConnection(withDatabaseName(baseURI, "Feedback"), options);
     
     // Create promises with timeout for each connection
     const createConnectionPromise = (connection, name) => {

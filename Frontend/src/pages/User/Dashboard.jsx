@@ -94,13 +94,7 @@ const Dashboard = () => {
     const connectSocket = () => {
       console.log("Setting up WebSocket connection for notifications");
 
-      const apiBaseUrl =
-        import.meta.env.VITE_API_URL ||
-        (window.location.hostname === "localhost"
-          ? `http://localhost:4000`
-          : window.location.protocol === "https:"
-          ? "https://medicare-backend-pdci8.ondigitalocean.app"
-          : "http://medicare-backend-pdci8.ondigitalocean.app");
+      const apiBaseUrl = import.meta.env.VITE_API_URL;
 
       if (window.socket) {
         console.log("Socket already exists, not creating a new one");

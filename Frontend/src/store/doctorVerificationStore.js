@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { safeStorageAccess } from "../utils/errorHandling";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Utility function to get the staff token for doctor verification
 const getAuthToken = () => {
