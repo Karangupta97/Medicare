@@ -107,15 +107,17 @@ const Dashboard = () => {
 
       socket = io(apiBaseUrl, {
         path: "/socket.io",
-        // Prefer polling first; some reverse proxies fail WebSocket upgrade initially.
-        transports: ["polling", "websocket"],
-        withCredentials: false,
+        transports: ["websocket", "polling"],
+        withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 10,
         reconnectionDelay: 3000,
         timeout: 30000,
         autoConnect: true,
         forceNew: false,
+        extraHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       window.socket = socket;
