@@ -26,6 +26,8 @@ import ForgotPassword from "./pages/User/ForgotPassword";
 import VerifyEmail from "./pages/User/VerifyEmail";
 import ResetPassword from "./pages/User/ResetPassword";
 import Reports from "./pages/User/Reports";
+import EmergencyFolder from "./pages/User/EmergencyFolder";
+import EmergencyFolderPublic from "./pages/User/EmergencyFolderPublic";
 import Upload from "./pages/User/Upload";
 import Profile from "./pages/User/Profile";
 import Notifications from "./pages/User/Notifications";
@@ -411,6 +413,7 @@ const App = () => {
           >
             <Route index element={<Dashboard />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="emergency-folder" element={<EmergencyFolder />} />
             <Route path="upload" element={<Upload />} />
             <Route
               path="digital-prescriptions"
@@ -683,6 +686,7 @@ const App = () => {
           <Route path="/test" element={<Test />} />
           <Route path="/test1" element={<Test1 />} />
           <Route path="/detail-review" element={<DetailReview />} />
+          <Route path="/emergency/:umid" element={<EmergencyFolderPublic />} />
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>

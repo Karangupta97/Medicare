@@ -650,6 +650,8 @@ const Reports = () => {
     analysis: null,
     loading: false,
   });
+  const [emergencyFolderLoadingId, setEmergencyFolderLoadingId] =
+    useState(null);
   const imageContainerRef = useRef(null);
   const { token, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -673,6 +675,7 @@ const Reports = () => {
     updateReport,
     refreshReportUrl,
     analyzeReport,
+    setReportEmergencyFolder,
   } = usePatientStore();
 
   useEffect(() => {
@@ -750,6 +753,31 @@ const Reports = () => {
     } catch (error) {
       console.error("Error deleting report:", error);
       toast.error(error.response?.data?.message || "Failed to delete report");
+    }
+  };
+
+  const toggleEmergencyFolder = async (report, nextInFolder) => {
+    if (!report?._id) return;
+    setEmergencyFolderLoadingId(report._id);
+    try {
+      await setReportEmergencyFolder(token, report._id, nextInFolder);
+      setPreviewModal((prev) =>
+        prev.show && prev.report?._id === report._id
+          ? { ...prev, report: { ...prev.report, inEmergencyFolder: nextInFolder } }
+          : prev
+      );
+      toast.success(
+        nextInFolder
+          ? "Added to Emergency Folder"
+          : "Removed from Emergency Folder"
+      );
+    } catch (error) {
+      console.error("Emergency Folder toggle:", error);
+      toast.error(
+        error.response?.data?.message || "Could not update Emergency Folder"
+      );
+    } finally {
+      setEmergencyFolderLoadingId(null);
     }
   };
 
@@ -1246,13 +1274,14 @@ const Reports = () => {
         {filteredReports.map((report, index) => (
           <div
             key={report._id}
-            className="group relative overflow-hidden bg-white/95 backdrop-blur-xl hover-lift
+            className={`group relative overflow-hidden bg-white/95 backdrop-blur-xl hover-lift
                        rounded-xl xs:rounded-2xl sm:rounded-3xl lg:rounded-[2rem] 
                        shadow-lg hover:shadow-2xl 
                        border border-gray-100/50 hover:border-blue-200/80
                        transform transition-all duration-700 hover:scale-[1.02] hover:-translate-y-2
                        animate-fade-in-up hover:shadow-blue-500/20
-                       before:absolute before:inset-0 before:bg-gradient-to-br before:from-transparent before:via-white/5 before:to-transparent before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500"
+                       before:absolute before:inset-0 before:bg-gradient-to-br before:from-transparent before:via-white/5 before:to-transparent before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500
+                       ${report.inEmergencyFolder ? "ring-2 ring-red-500/80 border-red-200/80" : ""}`}
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {/* Enhanced Gradient Overlay */}
@@ -1371,7 +1400,7 @@ const Reports = () => {
                 </div>
 
                 {/* Category Badge - Always visible - Responsive */}
-                <div className="absolute top-1.5 xs:top-2 sm:top-3 left-1.5 xs:left-2 sm:left-3">
+                <div className="absolute top-1.5 xs:top-2 sm:top-3 left-1.5 xs:left-2 sm:left-3 flex flex-col gap-1 items-start">
                   <span
                     className={`inline-flex items-center px-1.5 xs:px-2 py-0.5 xs:py-1 
                                   rounded-md xs:rounded-lg sm:rounded-full 
@@ -1394,6 +1423,11 @@ const Reports = () => {
                         report.category.slice(1)}
                     </span>
                   </span>
+                  {report.inEmergencyFolder && (
+                    <span className="inline-flex items-center px-1.5 xs:px-2 py-0.5 rounded-md text-[10px] xs:text-xs font-bold bg-red-600 text-white shadow-md border border-red-700/30">
+                      EMERGENCY
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -1467,7 +1501,26 @@ const Reports = () => {
                 </div>
 
                 {/* Enhanced Action Buttons - Fully Responsive */}
-                <div className="mt-auto pt-2 xs:pt-3 border-t border-gray-100/50 grid grid-cols-2 gap-1 xs:gap-1.5 sm:gap-2">
+                <div className="mt-auto pt-2 xs:pt-3 border-t border-gray-100/50 flex flex-col gap-1 xs:gap-1.5 sm:gap-2">
+                  <button
+                    type="button"
+                    disabled={emergencyFolderLoadingId === report._id}
+                    onClick={() =>
+                      toggleEmergencyFolder(report, !report.inEmergencyFolder)
+                    }
+                    className={`w-full flex items-center justify-center py-2 xs:py-2.5 px-2 xs:px-3 rounded-md xs:rounded-lg sm:rounded-xl transition-all duration-300 font-semibold text-xs xs:text-sm border shadow-sm min-h-[32px] xs:min-h-[36px] disabled:opacity-60 ${
+                      report.inEmergencyFolder
+                        ? "bg-red-600 hover:bg-red-700 text-white border-red-700"
+                        : "bg-red-50 hover:bg-red-100 text-red-800 border-red-200"
+                    }`}
+                  >
+                    {emergencyFolderLoadingId === report._id
+                      ? "…"
+                      : report.inEmergencyFolder
+                      ? "Remove from Emergency Folder"
+                      : "Add to Emergency Folder"}
+                  </button>
+                  <div className="grid grid-cols-2 gap-1 xs:gap-1.5 sm:gap-2">
                   <button
                     onClick={() => handlePreviewClick(report)}
                     className="flex items-center justify-center py-1.5 xs:py-2 sm:py-2.5 px-2 xs:px-3 
@@ -1572,6 +1625,7 @@ const Reports = () => {
                     <span className="xs:hidden">🔬</span>
                     <span className="hidden sm:inline">Analyze</span>
                   </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1587,12 +1641,13 @@ const Reports = () => {
         {filteredReports.map((report, index) => (
           <div
             key={report._id}
-            className="group bg-white/95 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl 
+            className={`group bg-white/95 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl 
                        p-3 xs:p-4 sm:p-6 shadow-lg hover:shadow-xl 
                        border border-gray-100/50 hover:border-blue-200/80 
                        transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-1
                        animate-fade-in-up hover:shadow-blue-500/20 relative overflow-hidden
-                       before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500"
+                       before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500
+                       ${report.inEmergencyFolder ? "ring-2 ring-red-500/80 border-red-200/80" : ""}`}
             style={{ animationDelay: `${index * 30}ms` }}
           >
             {/* Shimmer Effect */}
@@ -1657,9 +1712,15 @@ const Reports = () => {
                       {report.description || "No description provided"}
                     </p>
                   </div>
-                  <span
-                    className={`inline-flex items-center px-2 xs:px-3 py-1 xs:py-1.5 rounded-full text-xs font-bold 
-                                shadow-sm border flex-shrink-0 mt-1 xs:mt-0 ${
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0 mt-1 xs:mt-0">
+                    {report.inEmergencyFolder && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] xs:text-xs font-bold bg-red-600 text-white border border-red-700/40 shadow-sm">
+                        EMERGENCY
+                      </span>
+                    )}
+                    <span
+                      className={`inline-flex items-center px-2 xs:px-3 py-1 xs:py-1.5 rounded-full text-xs font-bold 
+                                shadow-sm border ${
                                   report.category === "medical"
                                     ? "bg-emerald-100/90 text-emerald-800 border-emerald-200/50"
                                     : report.category === "lab"
@@ -1668,15 +1729,16 @@ const Reports = () => {
                                     ? "bg-blue-100/90 text-blue-800 border-blue-200/50"
                                     : "bg-gray-100/90 text-gray-800 border-gray-200/50"
                                 }`}
-                  >
-                    <span className="hidden xs:inline">
-                      {report.category.charAt(0).toUpperCase() +
-                        report.category.slice(1)}
+                    >
+                      <span className="hidden xs:inline">
+                        {report.category.charAt(0).toUpperCase() +
+                          report.category.slice(1)}
+                      </span>
+                      <span className="xs:hidden">
+                        {report.category.charAt(0).toUpperCase()}
+                      </span>
                     </span>
-                    <span className="xs:hidden">
-                      {report.category.charAt(0).toUpperCase()}
-                    </span>
-                  </span>
+                  </div>
                 </div>
 
                 {/* Enhanced File Details - Responsive grid */}
@@ -1731,6 +1793,24 @@ const Reports = () => {
 
                 {/* Enhanced Actions - Responsive button layout */}
                 <div className="flex flex-wrap gap-1 xs:gap-1.5 sm:gap-2">
+                  <button
+                    type="button"
+                    disabled={emergencyFolderLoadingId === report._id}
+                    onClick={() =>
+                      toggleEmergencyFolder(report, !report.inEmergencyFolder)
+                    }
+                    className={`flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl transition-all duration-300 font-semibold text-xs xs:text-sm border shadow-sm min-h-[28px] xs:min-h-[32px] sm:min-h-[36px] disabled:opacity-60 w-full sm:w-auto ${
+                      report.inEmergencyFolder
+                        ? "bg-red-600 hover:bg-red-700 text-white border-red-700"
+                        : "bg-red-50 hover:bg-red-100 text-red-800 border-red-200"
+                    }`}
+                  >
+                    {emergencyFolderLoadingId === report._id
+                      ? "…"
+                      : report.inEmergencyFolder
+                      ? "Remove from Emergency Folder"
+                      : "Add to Emergency Folder"}
+                  </button>
                   <button
                     onClick={() => handlePreviewClick(report)}
                     className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-2.5 
@@ -2204,7 +2284,40 @@ const Reports = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-2 flex-shrink-0">
+              <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-2 flex-shrink-0 flex-wrap justify-end">
+                <button
+                  type="button"
+                  disabled={
+                    emergencyFolderLoadingId === previewModal.report._id
+                  }
+                  onClick={() =>
+                    toggleEmergencyFolder(
+                      previewModal.report,
+                      !previewModal.report.inEmergencyFolder
+                    )
+                  }
+                  className={`inline-flex items-center px-2 py-1.5 sm:px-2.5 rounded-lg text-[10px] xs:text-xs sm:text-xs font-bold transition-colors border disabled:opacity-60 max-w-[5.5rem] sm:max-w-none ${
+                    previewModal.report.inEmergencyFolder
+                      ? "bg-red-600 text-white border-red-700 hover:bg-red-700"
+                      : "bg-red-50 text-red-800 border-red-200 hover:bg-red-100"
+                  }`}
+                  title={
+                    previewModal.report.inEmergencyFolder
+                      ? "Remove from Emergency Folder"
+                      : "Add to Emergency Folder"
+                  }
+                >
+                  <span className="sm:hidden truncate">
+                    {previewModal.report.inEmergencyFolder
+                      ? "Remove"
+                      : "Add EMR"}
+                  </span>
+                  <span className="hidden sm:inline">
+                    {previewModal.report.inEmergencyFolder
+                      ? "Remove from Emergency Folder"
+                      : "Add to Emergency Folder"}
+                  </span>
+                </button>
                 <button
                   onClick={() => toast.info("Download feature is currently unavailable")}
                   className="flex items-center justify-center p-1.5 xs:p-2 hover:bg-blue-50 rounded-lg xs:rounded-xl transition-colors"

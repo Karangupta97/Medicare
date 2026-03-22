@@ -285,6 +285,35 @@ const usePatientStore = create((set, get) => ({
     }
   },
 
+  setReportEmergencyFolder: async (token, reportId, inEmergencyFolder) => {
+    try {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.patch(
+        `/api/reports/${reportId}/emergency-folder`,
+        { inEmergencyFolder }
+      );
+
+      const updated = response.data.report;
+      set((state) => ({
+        reports: state.reports.map((report) =>
+          String(report._id) === String(reportId)
+            ? { ...report, ...updated, inEmergencyFolder }
+            : report
+        ),
+      }));
+
+      return updated;
+    } catch (error) {
+      set({
+        error:
+          error.response?.data?.message ||
+          "Failed to update Emergency Folder",
+      });
+      throw error;
+    }
+  },
+
   // Fetch prescriptions
   fetchPrescriptions: async (token) => {
     try {

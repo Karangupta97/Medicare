@@ -8,6 +8,7 @@ import {
   moveReport,
   updateReport,
   refreshReportUrl,
+  setReportEmergencyFolder,
 } from "../../controllers/User/reports.controller.js";
 import {
   analyzeReport,
@@ -81,6 +82,9 @@ router.delete("/:id", deleteReport);
 
 // Move a report to a different category
 router.patch("/:id/move", moveReport);
+
+// Include or exclude report from Emergency Folder
+router.patch("/:id/emergency-folder", setReportEmergencyFolder);
 
 // Update report title and description
 router.patch("/:id", updateReport);

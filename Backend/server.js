@@ -27,6 +27,7 @@ import { sendNotificationToUser } from "./utils/notifications.js";
 import cookieParser from "cookie-parser";
 import reviewRoutes from "./routes/review.routes.js";
 import pincodeRoutes from "./routes/User/pincode.routes.js";
+import emergencyRoutes from "./routes/User/emergency.routes.js";
 
 // Define a simple logger
 const logger = {
@@ -97,7 +98,7 @@ async function startServer() {
           "https://www.medicares.in",
           "http://localhost:5173", // Vite's default port for development
           "http://localhost:3000", // Additional development port
-          "http://192.168.0.101:3000", // For Mobile test
+          "http://192.168.0.106:3000", // For Mobile test
         ];
 
         // Check if origin is allowed or if it's null (like for same-origin requests)
@@ -147,6 +148,7 @@ async function startServer() {
   app.use("/api/doctor-verification", doctorVerificationRoutes); // Move doctor verification to a separate path
   app.use("/api/reviews", reviewRoutes); // Add review routes
   app.use("/api/pincode", pincodeRoutes);
+  app.use("/api/emergency", emergencyRoutes); // Public Emergency Folder by UMID (QR scan)
 
   // Root route
   app.get("/", (req, res) => {
@@ -203,7 +205,7 @@ async function startServer() {
           "https://www.medicares.in",
           "http://localhost:5173", // Vite's default port for development
           "http://localhost:3000", // Additional development port
-          "http://192.168.0.101:3000", // For Mobile tets
+          "http://192.168.0.106:3000", // For Mobile test
         ];
 
         if (!origin || allowedOrigins.includes(origin)) {

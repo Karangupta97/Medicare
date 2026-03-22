@@ -26,6 +26,7 @@ import {
   Activity,
   Clock,
   Search,
+  FolderOpen,
 } from "lucide-react";
 import useAuthStore from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
@@ -533,6 +534,13 @@ const DashboardLayout = () => {
           label: "Reports",
           path: "/dashboard/reports",
           description: "View your medical reports",
+          badge: null
+        },
+        {
+          icon: FolderOpen,
+          label: "Emergency Folder",
+          path: "/dashboard/emergency-folder",
+          description: "Critical info for emergency access (QR / UMID)",
           badge: null
         },
         {

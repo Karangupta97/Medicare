@@ -356,6 +356,58 @@ export const deleteReport = async (req, res) => {
   }
 };
 
+// Toggle whether a report appears in the Emergency Folder
+export const setReportEmergencyFolder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { inEmergencyFolder } = req.body;
+
+    if (typeof inEmergencyFolder !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "inEmergencyFolder must be a boolean",
+      });
+    }
+
+    const ReportModel = Report();
+    const report = await ReportModel.findOne({
+      _id: id,
+      userId: req.user.id,
+    });
+
+    if (!report) {
+      return res.status(404).json({
+        success: false,
+        message: "Report not found.",
+      });
+    }
+
+    report.inEmergencyFolder = inEmergencyFolder;
+    await report.save();
+
+    let fileUrl = report.fileUrl;
+    try {
+      fileUrl = await getFileUrl(report.s3Key);
+    } catch (e) {
+      console.error("setReportEmergencyFolder: could not refresh signed URL", e);
+    }
+
+    res.json({
+      success: true,
+      message: inEmergencyFolder
+        ? "Report added to Emergency Folder"
+        : "Report removed from Emergency Folder",
+      report: { ...report.toObject(), fileUrl },
+    });
+  } catch (error) {
+    console.error("Error updating Emergency Folder flag:", error);
+    res.status(500).json({
+      success: false,
+      message: `Failed to update Emergency Folder: ${error.message}`,
+    });
+  }
+};
+
 // Move a report to a different category
 export const moveReport = async (req, res) => {
   try {

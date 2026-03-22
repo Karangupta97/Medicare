@@ -9,7 +9,7 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
   // Use a frontend URL that will be properly handled by React Router
   const origin = window.location.origin;
   // Ensure we use a valid frontend route that will be handled by React Router
-  const qrValue = `${origin}/user/${userUmid}`;
+  const qrValue = `${origin}/emergency/${userUmid}`;
 
   const downloadQRCode = () => {
     const canvas = document.querySelector("canvas");
@@ -97,7 +97,7 @@ const QRCodeModal = ({ isOpen, onClose, userUmid, logo }) => {
           </div>
           <div className="text-center">
             <p className="text-gray-600 mb-4 text-sm md:text-base">
-              Scan this QR code to quickly access your Medicare information. Show this at healthcare facilities for easy identification.
+              Scan this QR code to view your Emergency Folder (blood type, allergies, emergency contact, and selected reports). Share with responders in emergencies.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <motion.button
