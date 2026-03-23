@@ -25,22 +25,6 @@ const doctorSchema = new mongoose.Schema({
     required: [true, "Phone number is required"],
     trim: true
   },
-  medicalRegistrationNumber: {
-    type: String,
-    required: [true, "Medical registration number is required"],
-    unique: true,
-    trim: true
-  },
-  councilName: {
-    type: String,
-    required: [true, "Medical council name is required"],
-    trim: true
-  },
-  state: {
-    type: String,
-    required: [true, "State is required"],
-    trim: true
-  },
   specialization: {
     type: String,
     trim: true
@@ -53,23 +37,6 @@ const doctorSchema = new mongoose.Schema({
     s3Key: String,
     fileUrl: String,
     originalFilename: String
-  },
-  isVerified: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending"
-  },
-  rejectionReason: {
-    type: String,
-    default: ""
-  },
-  verifiedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff"
-  },
-  verifiedAt: {
-    type: Date,
-    default: null
   },
   doctorId: {
     type: String,

@@ -181,6 +181,99 @@ export const verifyFounderOTP = async (req, res) => {
   }
 };
 
+// Founder Login - Resend OTP (uses the existing tempToken to re-identify the founder)
+export const resendFounderOTP = async (req, res) => {
+  try {
+    const tempToken = req.headers.authorization?.split(" ")[1];
+
+    if (!tempToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Temporary token is required"
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "Verification session expired, please login again"
+      });
+    }
+
+    if (decoded.step !== "otp_required") {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid authentication flow"
+      });
+    }
+
+    const FounderModel = Founder();
+    const founder = await FounderModel.findById(decoded.id);
+
+    if (!founder) {
+      return res.status(401).json({
+        success: false,
+        message: "Founder not found"
+      });
+    }
+
+    // Generate a fresh OTP
+    const otp = founder.generateOTP();
+    await founder.save();
+
+    const clientIp = getClientIp(req);
+    await sendFounderLoginOTP(founder.email, otp, clientIp);
+
+    res.status(200).json({
+      success: true,
+      message: "OTP resent to your email"
+    });
+  } catch (error) {
+    console.error("Error in resendFounderOTP:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+// Check Auth - verify current founder session
+export const checkFounderAuth = async (req, res) => {
+  try {
+    const FounderModel = Founder();
+    const founder = await FounderModel.findById(req.user.id).select("-password -otpToken -otpTokenExpiresAt -resetPasswordToken -resetPasswordExpiresAt -twoFactorSecret");
+
+    if (!founder) {
+      return res.status(401).json({
+        success: false,
+        message: "Founder not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      founder: {
+        id: founder._id,
+        name: founder.name,
+        email: founder.email,
+        role: founder.role,
+        photoURL: founder.photoURL,
+        isActive: founder.isActive,
+        lastLogin: founder.lastLogin
+      }
+    });
+  } catch (error) {
+    console.error("Error in checkFounderAuth:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
 // Founder Logout
 export const founderLogout = async (req, res) => {
   try {

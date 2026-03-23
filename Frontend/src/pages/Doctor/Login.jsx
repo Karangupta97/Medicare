@@ -1,59 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDoctorStore } from '../../store/doctorStore';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaBug } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Helmet } from 'react-helmet-async';
 
-// Debug component to display authentication state - will only appear in development mode
-const AuthDebugger = () => {
-  const { isAuthenticated, isCheckingAuth, error } = useDoctorStore();
-  const location = useLocation();
-  const [showDebug, setShowDebug] = useState(false);
-
-  if (import.meta.env.PROD) return null;
-  
-  return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <button 
-        onClick={() => setShowDebug(!showDebug)}
-        className="bg-red-600 text-white p-2 rounded-full shadow-lg"
-        title="Toggle Auth Debugger"
-      >
-        <FaBug size={20} />
-      </button>
-      
-      {showDebug && (
-        <div className="bg-gray-900 text-white p-4 rounded-lg mt-2 shadow-xl max-w-md">
-          <h3 className="font-bold mb-2 border-b border-gray-700 pb-1">Auth Debug Info</h3>
-          <div className="text-xs space-y-1">
-            <p>Current path: <span className="text-green-400">{location.pathname}</span></p>
-            <p>isAuthenticated: <span className={isAuthenticated ? "text-green-400" : "text-red-400"}>{isAuthenticated ? "true" : "false"}</span></p>
-            <p>isCheckingAuth: <span className={isCheckingAuth ? "text-yellow-400" : "text-green-400"}>{isCheckingAuth ? "true" : "false"}</span></p>
-            <p>error: <span className={error ? "text-red-400" : "text-green-400"}>{error || "none"}</span></p>
-          </div>
-          <div className="mt-2 text-xs">
-            <p className="text-yellow-400">If redirect occurs, this may indicate an issue with the routing wrapper in App.jsx</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 const DoctorLogin = () => {
   const navigate = useNavigate();
   const { loginDoctor, isAuthenticated, isLoading, error, clearErrors } = useDoctorStore();
-  
-  // Debug log for tracking
-  console.log("DoctorLogin rendering - isAuthenticated:", isAuthenticated);
 
   // Track component mount/unmount
   useEffect(() => {
-    console.log("DoctorLogin MOUNTED");
-    
-    return () => {
-      console.log("DoctorLogin UNMOUNTING");
-    };
+    return () => {};
   }, []);
   
   const [formData, setFormData] = useState({
@@ -65,9 +23,7 @@ const DoctorLogin = () => {
   
   // Check if already authenticated
   useEffect(() => {
-    console.log("DoctorLogin useEffect - isAuthenticated changed:", isAuthenticated);
     if (isAuthenticated) {
-      console.log("DoctorLogin redirecting to dashboard due to isAuthenticated=true");
       navigate('/doctor/dashboard');
     }
     
@@ -101,13 +57,10 @@ const DoctorLogin = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Doctor login form submitted");
     
     if (validateForm()) {
-      console.log("Form validated, attempting doctor login");
       try {
-        const result = await loginDoctor(formData);
-        console.log("Login result:", result);
+        await loginDoctor(formData);
       } catch (err) {
         console.error("Login error:", err);
       }
@@ -119,8 +72,6 @@ const DoctorLogin = () => {
       <Helmet>
         <title>Doctor Login | Medicare</title>
       </Helmet>
-      
-      <AuthDebugger />
       
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">

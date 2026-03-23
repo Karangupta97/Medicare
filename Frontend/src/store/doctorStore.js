@@ -47,24 +47,15 @@ export const useDoctorStore = create((set, get) => ({
 
   // Check if doctor is already authenticated
   checkAuthStatus: async () => {
-    console.log("doctorStore: checkAuthStatus called");
     try {
       set({ isCheckingAuth: true, error: null });
-      console.log("doctorStore: state before API call", {
-        isAuthenticated: get().isAuthenticated,
-        isCheckingAuth: get().isCheckingAuth,
-        doctor: get().doctor ? "exists" : "null",
-      });
       
       try {
-        console.log("doctorStore: making API call to check-auth");
         const response = await axios.get(`${API_URL}/api/doctor/check-auth`, {
           withCredentials: true
         });
         
-        console.log("doctorStore: check-auth response:", response.data);
         if (response.data.success) {
-          console.log("doctorStore: doctor is authenticated");
           set({ 
             isAuthenticated: true, 
             doctor: response.data.doctor,
@@ -72,7 +63,6 @@ export const useDoctorStore = create((set, get) => ({
           });
           return true;
         } else {
-          console.log("doctorStore: doctor is NOT authenticated");
           set({ 
             isAuthenticated: false, 
             doctor: null,
@@ -81,13 +71,6 @@ export const useDoctorStore = create((set, get) => ({
           return false;
         }
       } catch (error) {
-        console.error('doctorStore: Authentication check API call failed:', error);
-        console.log("doctorStore: error response details:", {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-        });
-        
         set({ 
           isAuthenticated: false, 
           doctor: null, 
@@ -97,7 +80,6 @@ export const useDoctorStore = create((set, get) => ({
         return false;
       }
     } catch (error) {
-      console.error('doctorStore: Authentication check outer try-catch failed:', error);
       set({ 
         isAuthenticated: false, 
         doctor: null, 
@@ -105,32 +87,22 @@ export const useDoctorStore = create((set, get) => ({
         isCheckingAuth: false
       });
       return false;
-    } finally {
-      console.log("doctorStore: checkAuthStatus completed, final state:", {
-        isAuthenticated: get().isAuthenticated,
-        isCheckingAuth: get().isCheckingAuth,
-        hasDoctor: !!get().doctor,
-        hasError: !!get().error
-      });
     }
   },
 
   // Doctor signup
-  signupDoctor: async (formData) => {
+  signupDoctor: async (payload) => {
     try {
       set({ isLoading: true, error: null });
       
-      const response = await axios.post(`${API_URL}/api/doctor/signup`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await axios.post(`${API_URL}/api/doctor/signup`, payload, {
         withCredentials: true
       });
       
       set({ isLoading: false });
       
       if (response.data.success) {
-        toast.success('Registration successful! Your account is pending verification.');
+        toast.success('Registration successful! You can now log in.');
         return response.data;
       }
     } catch (error) {

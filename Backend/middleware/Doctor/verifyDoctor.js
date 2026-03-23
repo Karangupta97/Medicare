@@ -33,16 +33,6 @@ export const verifyDoctor = async (req, res, next) => {
       });
     }
     
-    // Check if doctor is verified
-    if (doctor.isVerified !== "approved") {
-      return res.status(403).json({
-        success: false,
-        message: doctor.isVerified === "pending"
-          ? "Your account is still pending verification. Please wait for admin approval."
-          : "Your account verification was rejected. Please contact support."
-      });
-    }
-    
     // Add doctor object to request
     req.doctor = {
       id: doctor._id,

@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 import { Doctor } from "../../models/Doctor/doctor.model.js";
-import { uploadFile } from "../../services/s3.service.js";
-import { sendDoctorVerificationEmail, sendDoctorApprovalEmail, sendDoctorRejectionEmail } from "../../services/emails/emails.js";
 import crypto from "crypto";
 
 // Generate JWT token for doctor
@@ -31,81 +29,48 @@ export const doctorSignup = async (req, res) => {
       email,
       password,
       phone,
-      medicalRegistrationNumber,
-      councilName,
-      state,
       specialization,
       experience
     } = req.body;
 
     // Validate required fields
-    if (!fullName || !email || !password || !phone || !medicalRegistrationNumber || !councilName || !state) {
+    if (!fullName || !email || !password || !phone) {
       return res.status(400).json({
         success: false,
         message: "Please provide all required fields"
       });
     }
 
-    // Check if doctor already exists with this email or medical registration number
+    // Check if doctor already exists with this email
     const DoctorModel = Doctor();
-    const existingDoctor = await DoctorModel.findOne({
-      $or: [
-        { email },
-        { medicalRegistrationNumber }
-      ]
-    });
+    const existingDoctor = await DoctorModel.findOne({ email });
 
     if (existingDoctor) {
       return res.status(400).json({
         success: false,
-        message: existingDoctor.email === email
-          ? "Email already registered"
-          : "Medical registration number already registered"
+        message: "Email already registered"
       });
     }
-
-    // Check if license document is uploaded
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Please upload your medical license document"
-      });
-    }
-
-    // Upload license document to S3
-    const uploadedFile = await uploadFile(
-      req.file,
-      medicalRegistrationNumber,
-      fullName
-    );
 
     // Generate unique doctor ID
     const doctorId = await DoctorModel.generateDoctorId();
 
-    // Create new doctor
+    // Create new doctor – immediately approved, no manual verification needed
     const newDoctor = new DoctorModel({
       fullName,
       email,
       password, // Will be hashed by pre-save hook
       phone,
-      medicalRegistrationNumber,
-      councilName,
-      state,
       specialization: specialization || "",
       experience: experience || 0,
-      doctorId,
-      licenseDocument: {
-        s3Key: uploadedFile.s3Key,
-        fileUrl: uploadedFile.fileUrl,
-        originalFilename: uploadedFile.formattedFilename
-      }
+      doctorId
     });
 
     await newDoctor.save();
 
     res.status(201).json({
       success: true,
-      message: "Doctor registration successful. Your account is pending verification.",
+      message: "Doctor registration successful. You can now log in.",
       doctorId: newDoctor.doctorId
     });
   } catch (error) {
@@ -147,16 +112,6 @@ export const doctorLogin = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials"
-      });
-    }
-    
-    // Check if doctor is verified
-    if (doctor.isVerified !== "approved") {
-      return res.status(403).json({
-        success: false,
-        message: doctor.isVerified === "pending"
-          ? "Your account is still pending verification. Please wait for admin approval."
-          : "Your account verification was rejected. Please contact support."
       });
     }
     
@@ -322,8 +277,7 @@ export const checkDoctorAuth = async (req, res) => {
         email: doctor.email,
         doctorId: doctor.doctorId,
         specialization: doctor.specialization,
-        photoURL: doctor.photoURL,
-        isVerified: doctor.isVerified
+        photoURL: doctor.photoURL
       }
     });
     

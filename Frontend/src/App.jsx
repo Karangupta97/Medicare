@@ -53,7 +53,6 @@ import StaffLogin from "./pages/Admin/Staff/StaffLogin";
 import StaffForgotPassword from "./pages/Admin/Staff/ForgotPassword";
 import ChangePassword from "./pages/Admin/Staff/ChangePassword";
 import StaffDashboard from "./pages/Admin/Staff/Dashboard/StaffDashboard";
-import DoctorVerification from "./pages/Admin/Staff/DoctorVerification/DoctorVerification";
 // Doctor Pages
 import DoctorLogin from "./pages/Doctor/Login";
 import DoctorSignup from "./pages/Doctor/Signup";
@@ -77,22 +76,6 @@ import HealthRecords from "./pages/User/HealthRecords";
 import Loading from "./components/Loading";
 import DashboardLayout from "./layouts/Patient/DashboardLayout";
 
-// Simple stub component for pending verification
-const PendingVerificationStub = () => {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-4 text-center text-2xl font-bold">
-          Account Pending Verification
-        </h1>
-        <p className="text-center text-gray-600">
-          Your doctor account is awaiting verification. Please check your email
-          for updates.
-        </p>
-      </div>
-    </div>
-  );
-};
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
@@ -357,13 +340,24 @@ const App = () => {
       setIsLoading(true);
       try {
         if (location.pathname.startsWith("/founder")) {
-          await checkFounderAuth();
+          // Skip the network check if the store already knows we're authenticated
+          // (e.g. immediately after OTP login navigates us here).
+          // FounderRoute will still do its own checkAuth on mount.
+          if (!isFounderAuthenticated) {
+            await checkFounderAuth();
+          }
         } else if (location.pathname.startsWith("/staff")) {
-          await checkStaffAuth();
+          if (!isStaffAuthenticated) {
+            await checkStaffAuth();
+          }
         } else if (location.pathname.startsWith("/doctor")) {
-          await checkDoctorAuth();
+          if (!isDoctorAuthenticated) {
+            await checkDoctorAuth();
+          }
         } else {
-          await checkAuth();
+          if (!isAuthenticated) {
+            await checkAuth();
+          }
         }
       } catch (error) {
         console.error("Auth check error:", error);
@@ -379,6 +373,10 @@ const App = () => {
     checkFounderAuth,
     checkStaffAuth,
     checkDoctorAuth,
+    isFounderAuthenticated,
+    isStaffAuthenticated,
+    isDoctorAuthenticated,
+    isAuthenticated,
   ]);
 
   // Custom loading component
@@ -641,38 +639,11 @@ const App = () => {
             }
           />
           <Route
-            path="/doctor/pending-verification"
-            element={<PendingVerificationStub />}
-          />
-          <Route
             path="/doctor/dashboard"
             element={
               <DoctorRoute>
                 <DoctorDashboard />
               </DoctorRoute>
-            }
-          />
-          {/* Staff Doctor Verification Routes */}
-          <Route
-            path="/staff/doctor-verification"
-            element={
-              <StaffRoute>
-                <Suspense
-                  fallback={
-                    <div className="flex flex-col items-center justify-center p-8">
-                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                      <p className="text-gray-600">
-                        Loading doctor verification interface...
-                      </p>
-                      <p className="text-sm text-gray-500 mt-2">
-                        This may take a moment...
-                      </p>
-                    </div>
-                  }
-                >
-                  <DoctorVerification />
-                </Suspense>
-              </StaffRoute>
             }
           />
           {/* Public */}
