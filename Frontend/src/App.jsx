@@ -57,6 +57,7 @@ import StaffDashboard from "./pages/Admin/Staff/Dashboard/StaffDashboard";
 import DoctorLogin from "./pages/Doctor/Login";
 import DoctorSignup from "./pages/Doctor/Signup";
 import DoctorDashboard from "./pages/Doctor/Dashboard";
+import DoctorFindPatient from "./pages/Doctor/FindPatient";
 //piblic
 import Home from "./pages/Home";
 import Services from "./pages/Services";
@@ -643,6 +644,14 @@ const App = () => {
             element={
               <DoctorRoute>
                 <DoctorDashboard />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/find-patient"
+            element={
+              <DoctorRoute>
+                <DoctorFindPatient />
               </DoctorRoute>
             }
           />

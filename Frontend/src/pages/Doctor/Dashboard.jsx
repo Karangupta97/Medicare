@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDoctorStore } from '../../store/doctorStore';
-import { Navigate, Link, useNavigate } from 'react-router-dom';
+import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -24,6 +24,7 @@ import {
   FiBookOpen,
   FiGrid,
   FiBriefcase,
+  FiSearch,
 } from 'react-icons/fi';
 
 // ─── Animation Variants ──────────────────────────────────────────────────────
@@ -60,7 +61,8 @@ const slideIn = {
 // ─── Sidebar Navigation Items ────────────────────────────────────────────────
 
 const navItems = [
-  { label: 'Dashboard', icon: FiHome, path: '/doctor/dashboard', active: true },
+  { label: 'Dashboard', icon: FiHome, path: '/doctor/dashboard' },
+  { label: 'Find Patient', icon: FiSearch, path: '/doctor/find-patient' },
   { label: 'Patients', icon: FiUsers, path: '/doctor/patients' },
   { label: 'Appointments', icon: FiCalendar, path: '/doctor/appointments' },
   { label: 'Medical Records', icon: FiFileText, path: '/doctor/medical-records' },
@@ -173,6 +175,7 @@ const quickActions = [
 const DoctorDashboard = () => {
   const { isAuthenticated, doctor, getDoctorProfile, logoutDoctor, isLoading } = useDoctorStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -283,6 +286,7 @@ const DoctorDashboard = () => {
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
+          const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.label}
@@ -290,17 +294,17 @@ const DoctorDashboard = () => {
               onClick={() => setSidebarOpen(false)}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
               style={{
-                background: item.active ? 'rgba(99,102,241,0.2)' : 'transparent',
-                color: item.active ? '#fff' : 'rgba(255,255,255,0.6)',
-                fontWeight: item.active ? 600 : 500,
+                background: isActive ? 'rgba(99,102,241,0.2)' : 'transparent',
+                color: isActive ? '#fff' : 'rgba(255,255,255,0.6)',
+                fontWeight: isActive ? 600 : 500,
                 fontSize: '0.88rem',
-                border: item.active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
+                border: isActive ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
               }}
               onMouseEnter={(e) => {
-                if (!item.active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
               }}
               onMouseLeave={(e) => {
-                if (!item.active) e.currentTarget.style.background = 'transparent';
+                if (!isActive) e.currentTarget.style.background = 'transparent';
               }}
             >
               <Icon style={{ fontSize: '1.1rem', flexShrink: 0 }} />
