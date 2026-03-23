@@ -56,6 +56,41 @@ const pageTransition = {
   duration: 0.5,
 };
 
+const DashboardProfilePicture = React.memo(({ user, className, showBorder = false }) => {
+  const [imgError, setImgError] = useState(false);
+  const [imgSrc, setImgSrc] = useState(usericon);
+
+  useEffect(() => {
+    if (user?.photoURL) {
+      setImgError(false);
+      if (!user.photoIsPermanent && !user.photoURL.includes('?')) {
+        setImgSrc(`${user.photoURL}?t=${Date.now()}`);
+      } else {
+        setImgSrc(user.photoURL);
+      }
+    } else {
+      setImgSrc(null);
+    }
+  }, [user?.photoURL, user?.photoIsPermanent]);
+
+  if (imgError || !imgSrc) {
+    return (
+      <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold ${className?.includes('w-12') ? 'text-lg' : 'text-sm'} ${showBorder ? 'ring-2 ring-blue-200' : ''} shadow-md`}>
+        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={imgSrc}
+      alt={`${user?.name || 'User'}'s profile`}
+      className={`${className || "w-full h-full object-cover"} rounded-full ${showBorder ? 'ring-2 ring-blue-200' : ''} shadow-md`}
+      onError={() => setImgError(true)}
+    />
+  );
+});
+
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -609,42 +644,6 @@ const DashboardLayout = () => {
       <span className={`${badge.color} text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] flex items-center justify-center`}>
         {badge.count !== undefined ? badge.count : badge.text}
       </span>
-    );
-  };
-
-  // Profile picture with error handling and enhanced styling
-  const ProfilePicture = ({ className, showBorder = false }) => {
-    const [imgError, setImgError] = useState(false);
-    const [imgSrc, setImgSrc] = useState(usericon);
-
-    useEffect(() => {
-      if (user?.photoURL) {
-        setImgError(false);
-        if (!user.photoIsPermanent && !user.photoURL.includes('?')) {
-          setImgSrc(`${user.photoURL}?t=${new Date().getTime()}`);
-        } else {
-          setImgSrc(user.photoURL);
-        }
-      } else {
-        setImgSrc(null);
-      }
-    }, [user?.photoURL]);
-
-    if (imgError || !imgSrc) {
-      return (
-        <div className={`${className || "w-full h-full"} rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold ${className?.includes('w-12') ? 'text-lg' : 'text-sm'} ${showBorder ? 'ring-2 ring-blue-200' : ''} shadow-md`}>
-          {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-        </div>
-      );
-    }
-
-    return (
-      <img
-        src={imgSrc}
-        alt={`${user?.name || 'User'}'s profile`}
-        className={`${className || "w-full h-full object-cover"} rounded-full ${showBorder ? 'ring-2 ring-blue-200' : ''} shadow-md`}
-        onError={() => setImgError(true)}
-      />
     );
   };
 
@@ -1317,7 +1316,7 @@ const DashboardLayout = () => {
                   >
                     <div className="relative">
                       <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden ring-2 ring-indigo-200 hover:ring-indigo-300 transition-all duration-200 shadow-md">
-                        <ProfilePicture className="w-8 h-8 sm:w-9 sm:h-9 object-cover" />
+                        <DashboardProfilePicture user={user} className="w-8 h-8 sm:w-9 sm:h-9 object-cover" />
                       </div>
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
@@ -1354,7 +1353,7 @@ const DashboardLayout = () => {
                         <div className="flex items-center space-x-3 px-4 py-3 border-b border-indigo-100">
                           <div className="relative">
                             <div className="w-11 h-11 rounded-xl overflow-hidden shadow-md">
-                              <ProfilePicture className="w-11 h-11 object-cover" />
+                              <DashboardProfilePicture user={user} className="w-11 h-11 object-cover" />
                             </div>
                             <motion.div
                               animate={{ scale: [1, 1.2, 1] }}

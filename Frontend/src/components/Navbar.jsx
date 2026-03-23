@@ -21,6 +21,43 @@ import { useAuthStore } from "../store/Patient/authStore";
 import usePatientStore from "../store/Patient/patientstore";
 import LogoutModal from "./User/LogoutModal";
 
+const ProfilePicture = React.memo(({ authUser, className }) => {
+  const [imgError, setImgError] = useState(false);
+  const [imgSrc, setImgSrc] = useState(UserIcon);
+
+  useEffect(() => {
+    if (authUser?.photoURL) {
+      setImgError(false);
+      if (!authUser.photoIsPermanent && !authUser.photoURL.includes("?")) {
+        setImgSrc(`${authUser.photoURL}?t=${Date.now()}`);
+      } else {
+        setImgSrc(authUser.photoURL);
+      }
+    } else {
+      setImgSrc(null);
+    }
+  }, [authUser?.photoURL, authUser?.photoIsPermanent]);
+
+  if (imgError || !imgSrc) {
+    return (
+      <div
+        className={`${className || "w-full h-full"} rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}
+      >
+        {authUser?.name?.charAt(0) || "U"}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={imgSrc}
+      alt="User"
+      className={className || "w-full h-full object-cover"}
+      onError={() => setImgError(true)}
+    />
+  );
+});
+
 const Navbar = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -31,66 +68,17 @@ const Navbar = ({ user, onLogout }) => {
   const { unreadNotificationsCount, fetchAllMedicalData } = usePatientStore();
   const authUser = useAuthStore((state) => state.user) || user;
 
-  // Refresh user data to get fresh profile picture when component mounts
   useEffect(() => {
     refreshUserData();
   }, [refreshUserData]);
 
-  // Fetch medical data when component mounts or token changes
   useEffect(() => {
-    const fetchData = async () => {
-      if (token) {
-        try {
-          await fetchAllMedicalData(token);
-        } catch (error) {
-          console.error("Error fetching medical data:", error);
-        }
-      }
-    };
-
-    fetchData();
-  }, [token, fetchAllMedicalData]);
-
-  // Profile picture component with error handling
-  const ProfilePicture = ({ className }) => {
-    const [imgError, setImgError] = useState(false);
-    const [imgSrc, setImgSrc] = useState(UserIcon);
-
-    useEffect(() => {
-      if (authUser?.photoURL) {
-        setImgError(false);
-
-        if (!authUser.photoIsPermanent && !authUser.photoURL.includes("?")) {
-          setImgSrc(`${authUser.photoURL}?t=${new Date().getTime()}`);
-        } else {
-          setImgSrc(authUser.photoURL);
-        }
-      } else {
-        setImgSrc(null);
-      }
-    }, [authUser?.photoURL, authUser?.photoIsPermanent]);
-
-    if (imgError || !imgSrc) {
-      return (
-        <div
-          className={`${
-            className || "w-full h-full"
-          } rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg`}
-        >
-          {authUser?.name?.charAt(0) || "U"}
-        </div>
+    if (token) {
+      fetchAllMedicalData(token).catch((err) =>
+        console.error("Error fetching medical data:", err)
       );
     }
-
-    return (
-      <img
-        src={imgSrc}
-        alt="User"
-        className={className || "w-full h-full object-cover"}
-        onError={() => setImgError(true)}
-      />
-    );
-  };
+  }, [token, fetchAllMedicalData]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -148,9 +136,9 @@ const Navbar = ({ user, onLogout }) => {
       {/* Navbar with Framer Motion for animations */}
       <div className="flex justify-center w-full bg-white dark:bg-gray-900">
         <motion.nav
-          initial={{ opacity: 0, y: -20 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.2 }}
           className="w-full max-w-[1700px] flex justify-between items-center py-2 sm:py-3 lg:py-4 px-4 sm:px-6 lg:px-8 relative z-40"
         >
           {/* Logout Modal */}
@@ -177,7 +165,7 @@ const Navbar = ({ user, onLogout }) => {
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-[#252A61]"
                   >
-                    <ProfilePicture className="w-8 h-8 rounded-full object-cover" />
+                    <ProfilePicture authUser={authUser} className="w-8 h-8 rounded-full object-cover" />
                   </button>
 
                   {/* Mobile Profile Dropdown Menu */}
@@ -311,7 +299,7 @@ const Navbar = ({ user, onLogout }) => {
                     className="flex items-center space-x-3 p-1.5 hover:bg-gray-50 rounded-xl group"
                   >
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-linear-to-br from-[#252A61] to-[#4318FF]">
-                      <ProfilePicture />
+                      <ProfilePicture authUser={authUser} />
                     </div>
                     <FiChevronDown className="w-4 h-4 text-gray-600 group-hover:text-gray-800" />
                   </button>
