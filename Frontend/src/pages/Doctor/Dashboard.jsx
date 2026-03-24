@@ -25,6 +25,7 @@ import {
   FiGrid,
   FiBriefcase,
   FiSearch,
+  FiShield,
 } from 'react-icons/fi';
 
 // ─── Animation Variants ──────────────────────────────────────────────────────
@@ -63,6 +64,7 @@ const slideIn = {
 const navItems = [
   { label: 'Dashboard', icon: FiHome, path: '/doctor/dashboard' },
   { label: 'Find Patient', icon: FiSearch, path: '/doctor/find-patient' },
+  { label: 'Emergency Folder', icon: FiShield, path: '/doctor/emergency-folder' },
   { label: 'Patients', icon: FiUsers, path: '/doctor/patients' },
   { label: 'Appointments', icon: FiCalendar, path: '/doctor/appointments' },
   { label: 'Medical Records', icon: FiFileText, path: '/doctor/medical-records' },
@@ -78,7 +80,7 @@ const statCards = [
     value: '—',
     sub: 'Check back soon',
     icon: FiUsers,
-    gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    gradient: 'linear-gradient(135deg, #6s366f1, #8b5cf6)',
     softBg: 'rgba(99,102,241,0.10)',
     accent: '#6366f1',
   },
