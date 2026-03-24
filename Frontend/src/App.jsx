@@ -440,6 +440,42 @@ const App = () => {
             <Route path="user-lookup" element={<UserLookup />} />
             <Route path="pincode-lookup" element={<PincodeLookup />} />
             <Route path="settings" element={<Settings />} />
+            <Route
+              path="appointments"
+              element={
+                <WorkingOnIt
+                  title="Appointments"
+                  message="Patient appointment features are coming soon!"
+                />
+              }
+            />
+            <Route
+              path="health-stats"
+              element={
+                <WorkingOnIt
+                  title="Health Stats"
+                  message="Health statistics features are coming soon!"
+                />
+              }
+            />
+            <Route
+              path="consultations"
+              element={
+                <WorkingOnIt
+                  title="Consultations"
+                  message="Online consultations are coming soon!"
+                />
+              }
+            />
+            <Route
+              path="help"
+              element={
+                <WorkingOnIt
+                  title="Help Center"
+                  message="Help and support resources are coming soon!"
+                />
+              }
+            />
 
           </Route>
           <Route

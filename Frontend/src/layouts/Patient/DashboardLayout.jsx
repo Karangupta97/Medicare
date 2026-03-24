@@ -31,30 +31,6 @@ import {
 import useAuthStore from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
 import LogoutModal from "../../components/User/LogoutModal";
-// Animation variants for page transitions
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    x: -200,
-    scale: 0.8,
-  },
-  in: {
-    opacity: 1,
-    x: 0,
-    scale: 1,
-  },
-  out: {
-    opacity: 0,
-    x: 200,
-    scale: 1.2,
-  },
-};
-
-const pageTransition = {
-  type: "tween",
-  ease: "anticipate",
-  duration: 0.5,
-};
 
 const DashboardProfilePicture = React.memo(({ user, className, showBorder = false }) => {
   const [imgError, setImgError] = useState(false);
@@ -909,16 +885,12 @@ const DashboardLayout = () => {
                 {category.items.map((item, idx) => {
                   const isActive = location.pathname === item.path;
                   const menuId = `${category.title}-${idx}`;
-                  const isComingSoon = item.badge?.text === "SOON";
 
                   return (
                     <div key={menuId} className="relative">
                       <Link
-                        to={isComingSoon ? "#" : item.path}
-                        onClick={(e) => {
-                          if (isComingSoon) {
-                            e.preventDefault();
-                          }
+                        to={item.path}
+                        onClick={() => {
                           if (isSidebarOpen && window.innerWidth < 1024) {
                             setIsSidebarOpen(false);
                           }
@@ -929,8 +901,7 @@ const DashboardLayout = () => {
                           px-2 py-2 rounded-lg mb-1
                           ${isActive
                             ? "bg-white/20 text-white"
-                            : "text-white/70 hover:bg-white/10 hover:text-white"}
-                          ${isComingSoon ? "cursor-not-allowed opacity-70" : ""}`}
+                            : "text-white/70 hover:bg-white/10 hover:text-white"}`}
                       >
                         <div className={`flex ${!isSidebarCollapsed && "items-center space-x-2"}`}>
                           <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
@@ -1377,7 +1348,7 @@ const DashboardLayout = () => {
                             { icon: Settings, label: "Settings", path: "/dashboard/settings", color: "purple" },
                             { icon: Bell, label: "Notifications", path: "/dashboard/notifications", color: "yellow", badge: unreadNotificationsCount },
                             { icon: HelpCircle, label: "Help", path: "/dashboard/help", color: "green" }
-                          ].map((item, index) => (
+                          ].map((item) => (
                             <Link
                               key={item.path}
                               to={item.path}
@@ -1439,18 +1410,7 @@ const DashboardLayout = () => {
         </nav>
         {/* Page Content */}
         <main className="">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
+          <Outlet />
         </main>
       </div>
       {/* Logout Confirmation Modal */}
