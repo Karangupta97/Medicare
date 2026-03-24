@@ -48,6 +48,11 @@ const reportSchema = new mongoose.Schema(
     tags: [{
       type: String,
     }],
+    /** When true, the report is private and cannot be viewed by doctors except via Emergency Folder. */
+    isPrivate: {
+      type: Boolean,
+      default: true,
+    },
     /** When true, this report is included in the patient's Emergency Folder (intended for emergency-only public disclosure). */
     inEmergencyFolder: {
       type: Boolean,

@@ -7,6 +7,9 @@ import {
   requestPasswordReset,
   checkDoctorAuth
 } from "../../controllers/Doctor/doctorAuth.controller.js";
+import {
+  getDoctorEmergencyAccess,
+} from "../../controllers/Doctor/doctorEmergency.controller.js";
 import { verifyDoctor } from "../../middleware/Doctor/verifyDoctor.js";
 
 
@@ -21,5 +24,8 @@ router.get("/check-auth", verifyDoctor, checkDoctorAuth);
 
 // Doctor Profile Routes
 router.get("/profile", verifyDoctor, getDoctorProfile);
+
+// Doctor Emergency Access Routes
+router.get("/emergency/:umid", verifyDoctor, getDoctorEmergencyAccess);
 
 export default router; 

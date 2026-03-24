@@ -115,6 +115,15 @@ const statCards = [
 
 const quickActions = [
   {
+    label: 'Find Patient',
+    description: 'Search patients by UMID',
+    icon: FiSearch,
+    path: '/doctor/find-patient',
+    gradient: 'from-cyan-500 to-blue-600',
+    softBg: 'rgba(6,182,212,0.08)',
+    accent: '#06b6d4',
+  },
+  {
     label: 'View Patients',
     description: 'See your patient list and records',
     icon: FiUsers,

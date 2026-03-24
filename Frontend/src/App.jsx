@@ -58,6 +58,12 @@ import DoctorLogin from "./pages/Doctor/Login";
 import DoctorSignup from "./pages/Doctor/Signup";
 import DoctorDashboard from "./pages/Doctor/Dashboard";
 import DoctorFindPatient from "./pages/Doctor/FindPatient";
+import DoctorProfile from "./pages/Doctor/Profile";
+import DoctorAppointments from "./pages/Doctor/Appointments";
+import DoctorPatients from "./pages/Doctor/Patients";
+import DoctorMedicalRecords from "./pages/Doctor/MedicalRecords";
+import DoctorHospitals from "./pages/Doctor/Hospitals";
+import DoctorEmergencyFolder from "./pages/Doctor/EmergencyFolder";
 //piblic
 import Home from "./pages/Home";
 import Services from "./pages/Services";
@@ -652,6 +658,54 @@ const App = () => {
             element={
               <DoctorRoute>
                 <DoctorFindPatient />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/profile"
+            element={
+              <DoctorRoute>
+                <DoctorProfile />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/appointments"
+            element={
+              <DoctorRoute>
+                <DoctorAppointments />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/patients"
+            element={
+              <DoctorRoute>
+                <DoctorPatients />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/medical-records"
+            element={
+              <DoctorRoute>
+                <DoctorMedicalRecords />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/emergency-folder"
+            element={
+              <DoctorRoute>
+                <DoctorEmergencyFolder />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/hospitals"
+            element={
+              <DoctorRoute>
+                <DoctorHospitals />
               </DoctorRoute>
             }
           />
