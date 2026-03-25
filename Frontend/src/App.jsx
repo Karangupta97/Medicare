@@ -37,6 +37,7 @@ import PrescriptionReminders from "./pages/User/PrescriptionReminders";
 import UserLookup from "./pages/User/UserLookup";
 import PincodeLookup from "./pages/User/DashboardPincodeLookup";
 import Settings from "./pages/User/Settings";
+import SharedReportsManager from "./pages/User/SharedReportsManager";
 //Hospital
 import FindPatient from "./pages/Hospital/FindPatient";
 import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
@@ -64,6 +65,7 @@ import DoctorPatients from "./pages/Doctor/Patients";
 import DoctorMedicalRecords from "./pages/Doctor/MedicalRecords";
 import DoctorHospitals from "./pages/Doctor/Hospitals";
 import DoctorEmergencyFolder from "./pages/Doctor/EmergencyFolder";
+import DoctorSharedReports from "./pages/Doctor/SharedReports";
 //piblic
 import Home from "./pages/Home";
 import Services from "./pages/Services";
@@ -440,6 +442,7 @@ const App = () => {
             <Route path="user-lookup" element={<UserLookup />} />
             <Route path="pincode-lookup" element={<PincodeLookup />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="shared-reports" element={<SharedReportsManager />} />
             <Route
               path="appointments"
               element={
@@ -742,6 +745,14 @@ const App = () => {
             element={
               <DoctorRoute>
                 <DoctorHospitals />
+              </DoctorRoute>
+            }
+          />
+          <Route
+            path="/doctor/shared-reports"
+            element={
+              <DoctorRoute>
+                <DoctorSharedReports />
               </DoctorRoute>
             }
           />

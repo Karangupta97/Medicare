@@ -10,6 +10,11 @@ import {
 import {
   getDoctorEmergencyAccess,
 } from "../../controllers/Doctor/doctorEmergency.controller.js";
+import {
+  getSharedReports,
+  viewSharedReport,
+  addNote,
+} from "../../controllers/Doctor/sharedReports.controller.js";
 import { verifyDoctor } from "../../middleware/Doctor/verifyDoctor.js";
 
 
@@ -27,5 +32,10 @@ router.get("/profile", verifyDoctor, getDoctorProfile);
 
 // Doctor Emergency Access Routes
 router.get("/emergency/:umid", verifyDoctor, getDoctorEmergencyAccess);
+
+// Doctor Shared Reports Routes
+router.get("/shared-reports", verifyDoctor, getSharedReports);
+router.get("/shared-reports/:shareId/reports/:reportId", verifyDoctor, viewSharedReport);
+router.post("/shared-reports/:shareId/notes", verifyDoctor, addNote);
 
 export default router; 

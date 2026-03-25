@@ -65,6 +65,7 @@ const navItems = [
   { label: 'Dashboard', icon: FiHome, path: '/doctor/dashboard' },
   { label: 'Find Patient', icon: FiSearch, path: '/doctor/find-patient' },
   { label: 'Emergency Folder', icon: FiShield, path: '/doctor/emergency-folder' },
+  { label: 'Shared Reports', icon: FiFileText, path: '/doctor/shared-reports' },
   { label: 'Patients', icon: FiUsers, path: '/doctor/patients' },
   { label: 'Appointments', icon: FiCalendar, path: '/doctor/appointments' },
   { label: 'Medical Records', icon: FiFileText, path: '/doctor/medical-records' },
@@ -178,6 +179,15 @@ const quickActions = [
     gradient: 'from-violet-500 to-purple-600',
     softBg: 'rgba(139,92,246,0.08)',
     accent: '#8b5cf6',
+  },
+  {
+    label: 'Shared Reports',
+    description: 'View reports shared by patients',
+    icon: FiShield,
+    path: '/doctor/shared-reports',
+    gradient: 'from-fuchsia-500 to-pink-600',
+    softBg: 'rgba(217,70,239,0.08)',
+    accent: '#d946ef',
   },
 ];
 

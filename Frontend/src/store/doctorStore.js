@@ -45,6 +45,10 @@ export const useDoctorStore = create((set, get) => ({
   error: null,
   isCheckingAuth: true,
 
+  // Shared reports state
+  sharedReports: [],
+  sharedReportsLoading: false,
+
   // Check if doctor is already authenticated
   checkAuthStatus: async () => {
     try {
@@ -261,5 +265,68 @@ export const useDoctorStore = create((set, get) => ({
   },
 
   // Clear errors
-  clearErrors: () => set({ error: null })
-})); 
+  clearErrors: () => set({ error: null }),
+
+  // ===== SHARED REPORTS FUNCTIONALITY =====
+
+  // Fetch all shared reports for the doctor
+  fetchSharedReports: async () => {
+    try {
+      set({ sharedReportsLoading: true });
+      const response = await axios.get(`${API_URL}/api/doctor/shared-reports`, {
+        withCredentials: true,
+      });
+      set({
+        sharedReports: response.data.shares || [],
+        sharedReportsLoading: false,
+      });
+      return response.data.shares;
+    } catch (error) {
+      console.error('Error fetching shared reports:', error);
+      set({ sharedReportsLoading: false });
+      return [];
+    }
+  },
+
+  // View a specific shared report (returns report data with signed URL)
+  viewSharedReport: async (shareId, reportId) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/doctor/shared-reports/${shareId}/reports/${reportId}`,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error viewing shared report:', error);
+      toast.error(error.response?.data?.message || 'Failed to view report');
+      return null;
+    }
+  },
+
+  // Add a note to a shared report
+  addNoteToShare: async (shareId, { text, type }) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/doctor/shared-reports/${shareId}/notes`,
+        { text, type },
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        // Update the notes in the local state
+        set((state) => ({
+          sharedReports: state.sharedReports.map((share) =>
+            share._id === shareId
+              ? { ...share, notes: response.data.notes }
+              : share
+          ),
+        }));
+        toast.success('Note added successfully');
+        return response.data;
+      }
+    } catch (error) {
+      console.error('Error adding note:', error);
+      toast.error(error.response?.data?.message || 'Failed to add note');
+      return null;
+    }
+  },
+}));

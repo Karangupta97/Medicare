@@ -28,6 +28,7 @@ import cookieParser from "cookie-parser";
 import reviewRoutes from "./routes/review.routes.js";
 import pincodeRoutes from "./routes/User/pincode.routes.js";
 import emergencyRoutes from "./routes/User/emergency.routes.js";
+import reportSharingRoutes from "./routes/User/reportSharing.routes.js";
 
 // Define a simple logger
 const logger = {
@@ -149,6 +150,7 @@ async function startServer() {
   app.use("/api/reviews", reviewRoutes); // Add review routes
   app.use("/api/pincode", pincodeRoutes);
   app.use("/api/emergency", emergencyRoutes); // Public Emergency Folder by UMID (QR scan)
+  app.use("/api/report-sharing", reportSharingRoutes); // Patient report sharing with doctors
 
   // Root route
   app.get("/", (req, res) => {
@@ -259,6 +261,29 @@ async function startServer() {
   };
 
   void connectWithRetry();
+
+  // ── Auto-expire time-limited report shares (every 15 minutes) ─────────
+  setInterval(async () => {
+    try {
+      const { ReportShare } = await import("./models/User/ReportShare.model.js");
+      const ShareModel = ReportShare();
+      const result = await ShareModel.updateMany(
+        {
+          status: "active",
+          expiresAt: { $ne: null, $lte: new Date() },
+        },
+        { $set: { status: "expired" } }
+      );
+      if (result.modifiedCount > 0) {
+        console.log(`⏰ Auto-expired ${result.modifiedCount} report share(s)`);
+      }
+    } catch (err) {
+      // Silently ignore if DB is not ready yet
+      if (!err.message?.includes("not connected")) {
+        console.error("Error auto-expiring shares:", err.message);
+      }
+    }
+  }, 15 * 60 * 1000); // 15 minutes
 }
 
 // Helper function to send notification to a specific user

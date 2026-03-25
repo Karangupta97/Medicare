@@ -28,6 +28,7 @@ import {
   FiInfo,
   FiPlus,
   FiTrendingUp,
+  FiShield,
 } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "../../store/Patient/authStore";
@@ -35,6 +36,7 @@ import usePatientStore from "../../store/Patient/patientstore";
 import { useDropzone } from "react-dropzone";
 import StorageLimitModal from "../../components/StorageLimitModal";
 import ReportAnalysisModal from "../../components/ReportAnalysisModal";
+import ShareWithDoctorModal from "../../components/reports/ShareWithDoctorModal";
 
 const style = document.createElement("style");
 style.textContent = `
@@ -652,6 +654,7 @@ const Reports = () => {
   });
   const [emergencyFolderLoadingId, setEmergencyFolderLoadingId] =
     useState(null);
+  const [shareModal, setShareModal] = useState({ show: false, preSelected: [] });
   const imageContainerRef = useRef(null);
   const { token, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -1625,6 +1628,28 @@ const Reports = () => {
                     <span className="xs:hidden">🔬</span>
                     <span className="hidden sm:inline">Analyze</span>
                   </button>
+
+                  <button
+                    onClick={() =>
+                      setShareModal({ show: true, preSelected: [report._id] })
+                    }
+                    className="flex items-center justify-center py-1.5 xs:py-2 sm:py-2.5 px-2 xs:px-3 
+                               bg-gradient-to-r from-indigo-50 to-violet-50 
+                               hover:from-indigo-100 hover:to-violet-100
+                               text-indigo-700 hover:text-indigo-800 
+                               rounded-md xs:rounded-lg sm:rounded-xl 
+                               transition-all duration-300 font-medium text-xs xs:text-sm
+                               border border-indigo-200/50 hover:border-indigo-300/80
+                               shadow-sm hover:shadow-md group/btn hover:shadow-indigo-500/20
+                               transform hover:scale-[1.02] active:scale-[0.98]
+                               min-h-[28px] xs:min-h-[32px] sm:min-h-[36px]"
+                    title="Share with Doctor"
+                  >
+                    <FiShield className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1 xs:mr-1.5 group-hover/btn:scale-110 transition-transform duration-200 flex-shrink-0" />
+                    <span className="hidden xs:inline sm:hidden">Share</span>
+                    <span className="xs:hidden">🔗</span>
+                    <span className="hidden sm:inline">Share</span>
+                  </button>
                   </div>
                 </div>
               </div>
@@ -1883,6 +1908,22 @@ const Reports = () => {
                     <FiTrendingUp className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 group-hover/btn:scale-110 transition-transform duration-200 flex-shrink-0" />
                     <span className="hidden xs:inline">Analyze</span>
                     <span className="xs:hidden">🔬</span>
+                  </button>
+                  <button
+                    onClick={() =>
+                      setShareModal({ show: true, preSelected: [report._id] })
+                    }
+                    className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-2 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-2.5 
+                               bg-gradient-to-r from-indigo-50 to-violet-50 hover:from-indigo-100 hover:to-violet-100 
+                               text-indigo-700 rounded-lg xs:rounded-xl sm:rounded-2xl transition-all duration-300 
+                               font-medium text-xs xs:text-sm border border-indigo-200/50 hover:border-indigo-300/80 
+                               shadow-sm hover:shadow-md group/btn hover:shadow-indigo-500/20
+                               transform hover:scale-[1.02] active:scale-[0.98] min-h-[28px] xs:min-h-[32px] sm:min-h-[36px]"
+                    title="Share with Doctor"
+                  >
+                    <FiShield className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 group-hover/btn:scale-110 transition-transform duration-200 flex-shrink-0" />
+                    <span className="hidden xs:inline">Share</span>
+                    <span className="xs:hidden">🔗</span>
                   </button>
                 </div>
               </div>
@@ -3516,6 +3557,14 @@ const Reports = () => {
         analysis={analysisModal.analysis}
         loading={analysisModal.loading}
         onClose={() => setAnalysisModal({ show: false, report: null, analysis: null, loading: false })}
+      />
+
+      {/* Share with Doctor Modal */}
+      <ShareWithDoctorModal
+        isOpen={shareModal.show}
+        onClose={() => setShareModal({ show: false, preSelected: [] })}
+        reports={reports}
+        preSelectedReportIds={shareModal.preSelected}
       />
     </div>
   );

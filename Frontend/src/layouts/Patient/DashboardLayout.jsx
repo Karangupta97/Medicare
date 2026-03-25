@@ -27,10 +27,14 @@ import {
   Clock,
   Search,
   FolderOpen,
+  Shield,
 } from "lucide-react";
 import useAuthStore from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
 import LogoutModal from "../../components/User/LogoutModal";
+
+// eslint workaround: some eslint configs don't treat `motion.div` as a usage of `motion`
+const _motion = motion;
 
 const DashboardProfilePicture = React.memo(({ user, className, showBorder = false }) => {
   const [imgError, setImgError] = useState(false);
@@ -98,6 +102,8 @@ const DashboardLayout = () => {
   const {
     unreadNotificationsCount,
     fetchAllMedicalData,
+    sharedReports,
+    fetchMyShares,
     notifications,
     fetchNotifications,
     markNotificationAsRead,
@@ -105,6 +111,8 @@ const DashboardLayout = () => {
     searchMedicalData,
     isLoading: patientStoreLoading
   } = usePatientStore();
+
+  const sharedReportsActiveCount = (sharedReports || []).filter((s) => s.status === "active").length;
   // Handle keyboard navigation in search results
   const [activeResultIndex, setActiveResultIndex] = useState(-1);
   // Fetch all medical data when component mounts or user changes
@@ -123,6 +131,16 @@ const DashboardLayout = () => {
       fetchData();
     }
   }, [user?._id, isAuthenticated, fetchAllMedicalData]);
+
+  // Fetch shared reports for sidebar badge
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if ((sharedReports?.length || 0) > 0) return; // already loaded
+
+    fetchMyShares(localStorage.getItem('token')).catch(() => {
+      // Badge is non-critical; ignore fetch failures silently.
+    });
+  }, [isAuthenticated, sharedReports?.length, fetchMyShares]);
 
   // Refresh user data on component mount with error handling
   useEffect(() => {
@@ -210,7 +228,7 @@ const DashboardLayout = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isMobileSearchBarVisible]);
 
   // Enhanced scroll effect for navbar
   useEffect(() => {
@@ -553,6 +571,13 @@ const DashboardLayout = () => {
           path: "/dashboard/emergency-folder",
           description: "Critical info for emergency access (QR / UMID)",
           badge: null
+        },
+        {
+          icon: Shield,
+          label: "Shared Reports",
+          path: "/dashboard/shared-reports",
+          description: "Manage reports shared with doctors",
+          badge: { count: sharedReportsActiveCount, color: "bg-purple-500", hideWhenZero: true }
         },
         {
           icon: Clipboard,

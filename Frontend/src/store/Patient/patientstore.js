@@ -31,6 +31,10 @@ const usePatientStore = create((set, get) => ({
   connectedDevicesLoading: false,
   connectedDevicesError: null,
 
+  // Report sharing state
+  sharedReports: [],
+  sharedReportsLoading: false,
+
   // Actions
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
@@ -814,7 +818,108 @@ const usePatientStore = create((set, get) => ({
       connectedDevices: [],
       connectedDevicesLoading: false,
       connectedDevicesError: null,
+      sharedReports: [],
+      sharedReportsLoading: false,
     });
+  },
+
+  // ===== REPORT SHARING FUNCTIONALITY =====
+
+  // Share reports with a doctor
+  shareReportsWithDoctor: async (token, { doctorId, reportIds, accessDuration, customExpiry }) => {
+    try {
+      set({ sharedReportsLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.post("/api/report-sharing", {
+        doctorId,
+        reportIds,
+        accessDuration,
+        customExpiry,
+      });
+
+      if (response.data.success) {
+        set((state) => ({
+          sharedReports: [response.data.share, ...state.sharedReports],
+          sharedReportsLoading: false,
+        }));
+        return response.data;
+      }
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to share reports",
+        sharedReportsLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  // Fetch all shares for the patient
+  fetchMyShares: async (token) => {
+    try {
+      set({ sharedReportsLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.get("/api/report-sharing");
+      set({
+        sharedReports: response.data.shares || [],
+        sharedReportsLoading: false,
+      });
+      return response.data.shares;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to fetch shares",
+        sharedReportsLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  // Revoke a share
+  revokeShare: async (token, shareId) => {
+    try {
+      set({ sharedReportsLoading: true, error: null });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await axios.patch(`/api/report-sharing/${shareId}/revoke`);
+
+      set((state) => ({
+        sharedReports: state.sharedReports.map((share) =>
+          share._id === shareId ? { ...share, status: "revoked" } : share
+        ),
+        sharedReportsLoading: false,
+      }));
+
+      return response.data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || "Failed to revoke share",
+        sharedReportsLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  // Validate a doctor ID
+  validateDoctorId: async (token, doctorId) => {
+    try {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      const response = await axios.get(`/api/report-sharing/validate-doctor/${doctorId}`);
+      return response.data;
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || "Doctor not found" };
+    }
+  },
+
+  // Fetch access log for a share
+  fetchShareAccessLog: async (token, shareId) => {
+    try {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      const response = await axios.get(`/api/report-sharing/${shareId}/access-log`);
+      return response.data;
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || "Failed to fetch access log" };
+    }
   },
 }));
 
