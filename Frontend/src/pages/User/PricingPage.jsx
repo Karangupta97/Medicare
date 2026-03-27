@@ -33,18 +33,19 @@ const plans = [
     cta: "Get Started Free",
     ctaStyle: "bg-gray-900 hover:bg-gray-800 text-white",
     features: [
-      "Up to 5 report uploads",
+      "50 MB cloud storage",
       "Basic health records",
       "Emergency folder (limited)",
       "Email support",
-      "1 digital prescription",
+      "Unlimited digital prescriptions",
     ],
   },
   {
     name: "Pro",
     tagline: "For individuals who want more",
-    monthlyPrice: 299,
-    annualPrice: 2499,
+    monthlyPrice: 99,
+    annualPrice: 832,
+    savePct: 30,
     icon: FiZap,
     popular: true,
     color: "from-[#252A61] to-[#4318FF]",
@@ -53,21 +54,22 @@ const plans = [
     cta: "Start Pro Plan",
     ctaStyle: "bg-[#252A61] hover:bg-[#3b3b98] text-white",
     features: [
-      "Unlimited report uploads",
+      "500 MB cloud storage",
       "Full health records & analytics",
       "Emergency folder (full)",
       "Priority email & chat support",
       "Unlimited digital prescriptions",
       "Prescription reminders",
       "Share reports with doctors",
-      "Family Vault — up to 4 members",
+      "Family Vault — up to 3 members (1+2)",
     ],
   },
   {
     name: "Premium",
     tagline: "Complete family healthcare",
-    monthlyPrice: 599,
-    annualPrice: 4999,
+    monthlyPrice: 399,
+    annualPrice: 3112,
+    savePct: 35,
     icon: FiStar,
     color: "from-amber-500 to-orange-600",
     cardBg: "bg-white",
@@ -76,8 +78,8 @@ const plans = [
     ctaStyle:
       "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white",
     features: [
-      "Everything in Pro",
-      "Family Vault — up to 10 members",
+      "Everything in Pro + 2 GB storage",
+      "Family Vault — up to 7 members (1+6)",
       "AI health insights & trends",
       "Video consultations (coming soon)",
       "Dedicated account manager",
@@ -89,13 +91,13 @@ const plans = [
 ];
 
 const comparisonFeatures = [
-  { name: "Report Uploads", free: "5", pro: "Unlimited", premium: "Unlimited" },
+  { name: "Storage", free: "50 MB", pro: "500 MB", premium: "2 GB" },
   { name: "Health Records", free: "Basic", pro: "Full + Analytics", premium: "Full + Analytics" },
   { name: "Emergency Folder", free: "Limited", pro: true, premium: true },
-  { name: "Digital Prescriptions", free: "1", pro: "Unlimited", premium: "Unlimited" },
+  { name: "Digital Prescriptions", free: "Unlimited", pro: "Unlimited", premium: "Unlimited" },
   { name: "Prescription Reminders", free: false, pro: true, premium: true },
   { name: "Share Reports with Doctors", free: false, pro: true, premium: true },
-  { name: "Family Vault Members", free: false, pro: "Up to 4", premium: "Up to 10" },
+  { name: "Family Vault Members", free: false, pro: "Up to 3 (1+2)", premium: "Up to 7 (1+6)" },
   { name: "AI Health Insights", free: false, pro: false, premium: true },
   { name: "Video Consultations", free: false, pro: false, premium: "Coming Soon" },
   { name: "Data Export (PDF/CSV)", free: false, pro: "Basic", premium: "Advanced" },
@@ -168,7 +170,7 @@ const ToggleSwitch = ({ isAnnual, onToggle }) => (
         animate={{ opacity: 1, scale: 1 }}
         className="ml-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700"
       >
-        Save 30%
+        Save up to 35%
       </motion.span>
     )}
   </div>
@@ -252,13 +254,24 @@ const PricingCard = ({ plan, isAnnual, index }) => {
             )}
           </div>
           {isAnnual && plan.monthlyPrice > 0 && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs text-gray-400 mt-1.5 line-through"
-            >
-              ₹{(plan.monthlyPrice * 12).toLocaleString("en-IN")}/year
-            </motion.p>
+            <div className="flex items-center gap-2 mt-1.5">
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-xs text-gray-400 line-through"
+              >
+                ₹{(plan.monthlyPrice * 12).toLocaleString("en-IN")}/year
+              </motion.p>
+              {plan.savePct && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700"
+                >
+                  {plan.savePct}% OFF
+                </motion.span>
+              )}
+            </div>
           )}
         </div>
 
