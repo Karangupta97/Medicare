@@ -45,7 +45,8 @@ const Dashboard = () => {
     notifications,
     isLoading,  
     error,
-    fetchAllMedicalData,
+    fetchReports,
+    fetchPrescriptions,
     fetchNotifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
@@ -67,7 +68,12 @@ const Dashboard = () => {
           }
 
           setIsInitialLoad(true);
-          await fetchAllMedicalData(token);
+          // Load only data required on this screen to avoid unnecessary API calls.
+          await Promise.all([
+            fetchReports(token),
+            fetchPrescriptions(token),
+            fetchNotifications(token),
+          ]);
         } catch (error) {
           console.error("Error loading dashboard data:", error);
           toast.error("Unable to load dashboard data. Please try again later.");
@@ -78,7 +84,7 @@ const Dashboard = () => {
 
       loadInitialData();
     }
-  }, [token]);
+  }, [token, fetchReports, fetchPrescriptions, fetchNotifications]);
 
   // Handler for opening profile photo modal
   const handleProfilePhotoClick = () => { 
@@ -107,7 +113,8 @@ const Dashboard = () => {
 
       socket = io(apiBaseUrl, {
         path: "/socket.io",
-        transports: ["websocket", "polling"],
+        // Start with polling so Socket.IO can safely upgrade to websocket when available.
+        transports: ["polling", "websocket"],
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 10,
@@ -115,8 +122,9 @@ const Dashboard = () => {
         timeout: 30000,
         autoConnect: true,
         forceNew: false,
-        extraHeaders: {
-          Authorization: `Bearer ${token}`,
+        auth: {
+          token,
+          userId: user._id,
         },
       });
 
@@ -127,7 +135,7 @@ const Dashboard = () => {
         window.hasShownSocketError = false;
 
         if (user?._id) {
-          socket.emit("authenticate", { userId: user._id, token });
+          socket.emit("authenticate", user._id);
           console.log("Sent authentication for user:", user._id);
         }
       });
@@ -181,6 +189,9 @@ const Dashboard = () => {
         socket.off("disconnect");
         socket.off("error");
         socket.disconnect();
+        if (window.socket === socket) {
+          window.socket = null;
+        }
       }
     };
   }, [token, user?._id]);
@@ -1538,12 +1549,16 @@ const Dashboard = () => {
                   </span>
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold text-gray-800 text-sm sm:text-base">
-                      {user.umid}
+                      {user?.umid || "Not available"}
                     </h4>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => {
+                        if (!user?.umid) {
+                          toast.error("Medicare ID not available");
+                          return;
+                        }
                         navigator.clipboard.writeText(user.umid);
                         toast.success("Medicare ID copied to clipboard");
                       }}

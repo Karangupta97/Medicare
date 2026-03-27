@@ -8,6 +8,7 @@ const API_URL =
   rawApiUrl && rawApiUrl !== "undefined"
     ? rawApiUrl
     : "https://api.medicares.in";
+const DEBUG_API_LOGS = import.meta.env.DEV && import.meta.env.VITE_DEBUG_API === "true";
 
 // Global request timestamps to prevent duplicate requests
 const requestTimestamps = {
@@ -45,7 +46,7 @@ axios.interceptors.request.use(
     config.withCredentials = true;
     
     // Log request details in development
-    if (import.meta.env.DEV) {
+    if (DEBUG_API_LOGS) {
       console.log(`Making ${config.method.toUpperCase()} request to ${config.url}`, {
         headers: config.headers,
         data: config.data,
@@ -65,7 +66,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => {
     // Log response details in development
-    if (import.meta.env.DEV) {
+    if (DEBUG_API_LOGS) {
       console.log(`Response from ${response.config.url}:`, {
         status: response.status,
         data: response.data,
@@ -114,7 +115,7 @@ const initialToken = safeStorageAccess.getItem('token');
 const initialUserId = safeStorageAccess.getItem('userId');
 
 // Only store essential user data, not profile pictures
-const getUserEssentialData = (userData) => {
+const _getUserEssentialData = (userData) => {
   if (!userData) return null;
   
   // Extract only the essential user data - exclude large binary data like images

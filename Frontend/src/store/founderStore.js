@@ -9,6 +9,7 @@ const API_URL =
   rawApiUrl && rawApiUrl !== "undefined"
     ? rawApiUrl
     : "https://api.medicares.in";
+const DEBUG_API_LOGS = import.meta.env.DEV && import.meta.env.VITE_DEBUG_API === "true";
 
 // Import or recreate the throttling mechanism
 // Global request timestamps to prevent duplicate requests
@@ -51,7 +52,7 @@ const addTokenInterceptor = axios.interceptors.request.use(
     config.withCredentials = true;
     
     // Log request details in development
-    if (import.meta.env.DEV) {
+    if (DEBUG_API_LOGS) {
       console.log(`Making ${config.method.toUpperCase()} request to ${config.url}`, {
         headers: config.headers,
         data: config.data,
@@ -71,7 +72,7 @@ const addTokenInterceptor = axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => {
     // Log response details in development
-    if (import.meta.env.DEV) {
+    if (DEBUG_API_LOGS) {
       console.log(`Response from ${response.config.url}:`, {
         status: response.status,
         data: response.data,

@@ -1,5 +1,3 @@
-import { Server } from 'socket.io';
-
 let io;
 
 // Configure Socket.IO handlers (receives already-created instance)
@@ -11,7 +9,12 @@ export const initSocket = (ioInstance) => {
     console.log(`User connected: ${socket.id}`);
 
     // Handle authentication
-    socket.on('authenticate', (userId) => {
+    socket.on('authenticate', (authPayload) => {
+      const userId =
+        typeof authPayload === 'string'
+          ? authPayload
+          : authPayload?.userId;
+
       if (userId) {
         // Join a room specific to this user
         socket.join(`user:${userId}`);

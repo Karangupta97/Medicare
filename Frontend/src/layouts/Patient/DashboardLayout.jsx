@@ -101,9 +101,7 @@ const DashboardLayout = () => {
   const { user, logout, refreshUserData, isAuthenticated } = useAuthStore();
   const {
     unreadNotificationsCount,
-    fetchAllMedicalData,
     sharedReports,
-    fetchMyShares,
     notifications,
     fetchNotifications,
     markNotificationAsRead,
@@ -115,32 +113,7 @@ const DashboardLayout = () => {
   const sharedReportsActiveCount = (sharedReports || []).filter((s) => s.status === "active").length;
   // Handle keyboard navigation in search results
   const [activeResultIndex, setActiveResultIndex] = useState(-1);
-  // Fetch all medical data when component mounts or user changes
-  useEffect(() => {
-    const fetchData = async () => {
-      if (user?._id && isAuthenticated) {
-        try {
-          await fetchAllMedicalData(localStorage.getItem('token'));
-        } catch (error) {
-          console.error("Error fetching medical data:", error);
-        }
-      }
-    };
-
-    if (isAuthenticated) {
-      fetchData();
-    }
-  }, [user?._id, isAuthenticated, fetchAllMedicalData]);
-
-  // Fetch shared reports for sidebar badge
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    if ((sharedReports?.length || 0) > 0) return; // already loaded
-
-    fetchMyShares(localStorage.getItem('token')).catch(() => {
-      // Badge is non-critical; ignore fetch failures silently.
-    });
-  }, [isAuthenticated, sharedReports?.length, fetchMyShares]);
+  // Keep layout lightweight: page components fetch their own data on demand.
 
   // Refresh user data on component mount with error handling
   useEffect(() => {

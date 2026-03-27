@@ -210,7 +210,7 @@ const HealthRecords = () => {
             
             <div className="flex items-center gap-3">
               <Link
-                to="/upload"
+                to="/dashboard/upload"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <FiUpload className="mr-2" />
@@ -338,7 +338,7 @@ const HealthRecords = () => {
                   : `You don't have any ${activeTab} yet.`}
               </p>
               <Link
-                to="/upload"
+                to="/dashboard/upload"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <FiUpload className="mr-2" />
@@ -424,7 +424,16 @@ const HealthRecords = () => {
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => navigate(activeTab === 'reports' ? `/reports/${item._id}` : `/digital-prescriptions/${item._id}`)}
+                        onClick={() => {
+                          if (activeTab === "reports") {
+                            navigate("/dashboard/reports", {
+                              state: { fromSearch: true, reportData: item },
+                            });
+                            return;
+                          }
+
+                          navigate(`/dashboard/digital-prescriptions/${item._id}`);
+                        }}
                         className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
                       >
                         <FiEye className="w-4 h-4" />

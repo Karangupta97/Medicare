@@ -265,7 +265,7 @@ const Navbar = ({ user, onLogout }) => {
               <Link to="/health-records" className="nav-link">
                 Health Records
               </Link>
-              <Link to="/upload" className="nav-link">
+              <Link to="/dashboard/upload" className="nav-link">
                 Upload Reports
               </Link>
               <Link to="/aboutus" className="nav-link">
@@ -430,7 +430,7 @@ const Navbar = ({ user, onLogout }) => {
                     <Link to="/health-records" className="mobile-nav-link">
                       Health Records
                     </Link>
-                    <Link to="/upload" className="mobile-nav-link">
+                    <Link to="/dashboard/upload" className="mobile-nav-link">
                       Upload Reports
                     </Link>
                     <Link to="/aboutus" className="mobile-nav-link">
@@ -526,12 +526,12 @@ const Navbar = ({ user, onLogout }) => {
 
             {/* Upload Button - Enhanced */}
             <Link
-              to="/upload"
+              to="/dashboard/upload"
               className="relative flex flex-col items-center -mt-8 group"
             >
               <div
                 className={`w-16 h-16 rounded-full ${
-                  isActive("/upload") ? "bg-[#252A61]" : "bg-[#3b3b98]"
+                  isActive("/dashboard/upload") ? "bg-[#252A61]" : "bg-[#3b3b98]"
                 } flex items-center justify-center shadow-lg border-4 border-white/80 backdrop-blur-lg transition-all duration-300 hover:shadow-xl group-hover:scale-105 group-hover:border-white`}
               >
                 <FiPlus className="w-7 h-7 text-white transition-transform duration-300 group-hover:rotate-180" />
@@ -539,7 +539,7 @@ const Navbar = ({ user, onLogout }) => {
               </div>
               <span
                 className={`text-xs font-medium mt-1 transition-all duration-300 ${
-                  isActive("/upload")
+                  isActive("/dashboard/upload")
                     ? "text-[#252A61] opacity-100"
                     : "text-gray-500 group-hover:text-[#252A61]"
                 }`}
