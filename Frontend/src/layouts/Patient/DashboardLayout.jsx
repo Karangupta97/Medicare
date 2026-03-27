@@ -28,6 +28,7 @@ import {
   Search,
   FolderOpen,
   Shield,
+  Users,
 } from "lucide-react";
 import useAuthStore from "../../store/Patient/authStore";
 import usePatientStore from "../../store/Patient/patientstore";
@@ -551,6 +552,13 @@ const DashboardLayout = () => {
           path: "/dashboard/shared-reports",
           description: "Manage reports shared with doctors",
           badge: { count: sharedReportsActiveCount, color: "bg-purple-500", hideWhenZero: true }
+        },
+        {
+          icon: Users,
+          label: "Family Vault",
+          path: "/dashboard/family-vault",
+          description: "Manage family health records",
+          badge: null
         },
         {
           icon: Clipboard,

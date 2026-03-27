@@ -325,3 +325,47 @@ export const DOCTOR_REJECTION_EMAIL_TEMPLATE = `
 </body>
 </html>
 `;
+
+export const FAMILY_VAULT_INVITE_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Vault Invitation</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #7c3aed, #a855f7); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Family Vault Invitation</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello,</p>
+    <p><strong>{headMemberName}</strong> has invited you to join their Family Vault <strong>"{vaultName}"</strong> on Medicare as a <strong>{relationship}</strong>.</p>
+    
+    <div style="background-color: #f3e8ff; border-left: 4px solid #7c3aed; padding: 15px; margin: 20px 0;">
+      <p style="margin: 0;"><strong>What is Family Vault?</strong></p>
+      <p style="margin: 10px 0 0 0;">Family Vault lets your family securely manage and monitor medical records together. The head member can view shared reports, track health trends, and access emergency information for all family members.</p>
+    </div>
+    
+    <p>To accept this invitation, share the following verification code with <strong>{headMemberName}</strong>:</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #7c3aed; background-color: #f3e8ff; padding: 8px 16px; border-radius: 4px;">{otpCode}</span>
+    </div>
+    <div style="text-align: center; margin: 20px 0; padding: 15px; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
+      <p style="margin: 0; color: #166534; font-size: 14px;"><strong>How it works:</strong> Share this code with {headMemberName}. They will enter it in their Medicare dashboard to complete your registration.</p>
+    </div>
+    <p>This code will expire in <strong>10 minutes</strong> for security reasons.</p>
+    
+    <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 10px; margin: 20px 0;">
+      <p style="margin: 0; color: #92400e;"><strong>Note:</strong> By joining, the head member will be able to view your medical reports and health information based on the permissions you agree to. You can leave the vault at any time.</p>
+    </div>
+    
+    <p>If you did not expect this invitation, you can safely ignore this email.</p>
+    <p>Best regards,<br>Medicare Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message from the Medicare platform. Please do not reply to this email.</p>
+  </div>
+</body>
+</html>
+`;

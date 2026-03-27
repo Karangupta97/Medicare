@@ -8,6 +8,7 @@ import { STAFF_PASSWORD_RESET_EMAIL_TEMPLATE } from "./emailTemplates.js";
 import { resend, sender } from "./email.config.js";
 import { DOCTOR_APPROVAL_EMAIL_TEMPLATE } from "./emailTemplates.js";
 import { DOCTOR_REJECTION_EMAIL_TEMPLATE } from "./emailTemplates.js";
+import { FAMILY_VAULT_INVITE_EMAIL_TEMPLATE } from "./emailTemplates.js";
 
 export const sendVerificationEmail = async (email, verificationToken) => {
   try {
@@ -350,5 +351,40 @@ export const sendDoctorVerificationEmail = async (email, verificationToken) => {
   } catch (error) {
     console.error(`Error sending doctor verification email:`, error);
     throw new Error(`Error sending doctor verification email: ${error.message}`);
+  }
+};
+
+/**
+ * Send Family Vault invitation email with OTP
+ * @param {string} email - Invitee's email
+ * @param {string} otpCode - 6-digit OTP
+ * @param {string} headMemberName - Name of the head member
+ * @param {string} vaultName - Name of the family vault
+ * @param {string} relationship - Relationship type (child, parent, spouse, etc.)
+ */
+export const sendFamilyVaultInviteEmail = async (email, otpCode, headMemberName, vaultName, relationship) => {
+  try {
+    let emailContent = FAMILY_VAULT_INVITE_EMAIL_TEMPLATE
+      .replace("{otpCode}", otpCode)
+      .replace("{headMemberName}", headMemberName)
+      .replace("{vaultName}", vaultName)
+      .replace("{relationship}", relationship);
+
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: [email],
+      subject: `Medicare Family Vault - You've been invited to join "${vaultName}"`,
+      html: emailContent,
+    });
+
+    if (error) {
+      console.error(`Error:`, error);
+      throw new Error("Failed to send Family Vault invite email");
+    }
+
+    console.log("Family Vault invite email sent successfully", data);
+  } catch (error) {
+    console.error(`Error sending Family Vault invite email:`, error);
+    throw new Error(`Error sending Family Vault invite email: ${error.message}`);
   }
 };

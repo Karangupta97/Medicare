@@ -38,6 +38,8 @@ import UserLookup from "./pages/User/UserLookup";
 import PincodeLookup from "./pages/User/DashboardPincodeLookup";
 import Settings from "./pages/User/Settings";
 import SharedReportsManager from "./pages/User/SharedReportsManager";
+import FamilyVault from "./pages/User/FamilyVault";
+import FamilyVaultMemberDetail from "./pages/User/FamilyVaultMemberDetail";
 //Hospital
 import FindPatient from "./pages/Hospital/FindPatient";
 import HospitalDashboard from "./pages/Hospital/HospitalDashboard";
@@ -443,6 +445,8 @@ const App = () => {
             <Route path="pincode-lookup" element={<PincodeLookup />} />
             <Route path="settings" element={<Settings />} />
             <Route path="shared-reports" element={<SharedReportsManager />} />
+            <Route path="family-vault" element={<FamilyVault />} />
+            <Route path="family-vault/member/:memberId" element={<FamilyVaultMemberDetail />} />
             <Route
               path="appointments"
               element={

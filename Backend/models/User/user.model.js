@@ -135,6 +135,12 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Prescription"
   }],
+  // Family Vault reference
+  familyVaultId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FamilyVault",
+    default: null,
+  },
 }, {
   timestamps: true,
 });
