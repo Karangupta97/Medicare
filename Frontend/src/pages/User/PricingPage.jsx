@@ -50,9 +50,9 @@ const plans = [
   {
     name: "Pro",
     tagline: "For individuals who want more",
-    monthlyPrice: 1,
-    annualPrice: 1,
-    savePct: 0,
+    monthlyPrice: 11,
+    annualPrice: 92,
+    savePct: 30,
     icon: FiZap,
     popular: true,
     color: "from-[#252A61] to-[#4318FF]",

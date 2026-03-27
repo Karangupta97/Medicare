@@ -19,8 +19,8 @@ const getRazorpay = () => {
 // ─── Plan price map (amount in paise) ──────────────────────────────────────
 const PLAN_PRICES = {
   pro: {
-    monthly: 100, // ₹1 (test)
-    annual: 100, // ₹1 (test)
+    monthly: 1100, // ₹11
+    annual: 9200, // ₹92.40 (30% off yearly)
   },
   premium: {
     monthly: 39900, // ₹399
@@ -139,6 +139,14 @@ export const verifyPayment = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Payment record not found",
+      });
+    }
+
+    // Ensure authenticated user owns this payment order
+    if (String(payment.userId) !== String(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to verify this payment",
       });
     }
 
