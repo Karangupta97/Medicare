@@ -36,6 +36,7 @@ import {
 import { useAuthStore } from "../../store/Patient/authStore";
 import { toast } from "react-hot-toast";
 import usePatientStore from "../../store/Patient/patientstore";
+import { getStorageLimitForPlan, getStorageLimitLabel } from "../../config/planConfig";
 
 const Dashboard = () => {
   const { user, token } = useAuthStore();
@@ -260,7 +261,8 @@ const Dashboard = () => {
     (acc, report) => acc + (report.fileSize || 0),
     0
   );
-  const storageLimit = 5 * 1024 * 1024; // 5 MB in bytes
+  const storageLimit = getStorageLimitForPlan(user?.planType);
+  const storageLimitLabel = getStorageLimitLabel(user?.planType);
   const usedStorageInMB = (totalStorageUsed / (1024 * 1024)).toFixed(2);
   const storagePercentage = ((totalStorageUsed / storageLimit) * 100).toFixed(
     1
@@ -672,7 +674,7 @@ const Dashboard = () => {
                     Storage Used
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {storagePercentage}% of 5 MB limit
+                    {storagePercentage}% of {storageLimitLabel} limit
                   </p>
                 </div>
               </div>
@@ -861,7 +863,7 @@ const Dashboard = () => {
                 </div>
                 <div className="mt-2">
                   <p className="text-3xl font-bold bg-gradient-to-r from-teal-500 to-teal-700 bg-clip-text text-transparent">
-                    {usedStorageInMB} / 5 MB
+                    {usedStorageInMB} MB / {storageLimitLabel}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
                     {storagePercentage}% of limit

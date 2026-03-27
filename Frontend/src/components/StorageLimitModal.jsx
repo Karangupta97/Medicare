@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiX, FiAlertTriangle, FiArrowUp, FiHardDrive, FiBarChart, FiCheck } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 const StorageLimitModal = ({ 
   isOpen, 
@@ -7,42 +8,46 @@ const StorageLimitModal = ({
   storageDetails = null,
   planType = 'free' 
 }) => {
+  const navigate = useNavigate();
   if (!isOpen) return null;
+
+  // Plan-aware storage limits (in MB)
+  const PLAN_LIMITS_MB = { free: 50, pro: 500, premium: 2048 };
+  const limitMB = PLAN_LIMITS_MB[planType] || PLAN_LIMITS_MB.free;
 
   // Default storage details if not provided
   const defaultStorageDetails = {
-    currentUsageMB: 5.0,
-    storageLimitMB: 5.0,
+    currentUsageMB: limitMB,
+    storageLimitMB: limitMB,
     usagePercentage: 100,
     planType: planType
   };
 
   const details = storageDetails || defaultStorageDetails;
 
-  // Plan upgrade options
-  const planOptions = [
+  // Plan upgrade options — only show plans higher than the current one
+  const allPlans = [
     {
-      name: 'Basic Plan',
-      storage: '50MB',
-      price: '₹19/month',
-      features: ['50MB storage', 'Priority support', 'Basic analytics'],
-      recommended: details.planType === 'free'
+      name: 'Pro Plan',
+      storage: '500 MB',
+      price: '₹11/month',
+      features: ['500 MB storage', 'Family Vault (2 members)', 'Share reports with doctors', 'Prescription reminders'],
+      planKey: 'pro',
     },
     {
       name: 'Premium Plan',
-      storage: '500MB',
-      price: '₹99/month',
-      features: ['500MB storage', '24/7 support', 'Advanced analytics', 'Add up to 3 family members'],
-      recommended: details.planType === 'basic'
+      storage: '2 GB',
+      price: '₹399/month',
+      features: ['2 GB storage', 'Family Vault (6 members)', 'AI health insights', 'Priority 24/7 support'],
+      planKey: 'premium',
     },
-    {
-      name: 'Pro Plan',
-      storage: '2GB',
-      price: '₹359/month',
-      features: ['2GB storage', 'Priority 24/7 support', 'Full analytics suite', 'Add Family Members'],
-      recommended: details.planType === 'premium'
-    }
   ];
+
+  const planOrder = ['free', 'pro', 'premium'];
+  const currentIndex = planOrder.indexOf(details.planType || 'free');
+  const upgradePlans = allPlans.filter(p => planOrder.indexOf(p.planKey) > currentIndex);
+  // Mark first available upgrade as recommended
+  if (upgradePlans.length > 0) upgradePlans[0].recommended = true;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -126,7 +131,7 @@ const StorageLimitModal = ({
           </div>
 
           <div className="grid gap-4 mb-6">
-            {planOptions.map((plan, index) => (
+            {upgradePlans.map((plan, index) => (
               <div 
                 key={index}
                 className={`relative border rounded-xl p-4 transition-all duration-200 hover:shadow-md ${
@@ -169,9 +174,8 @@ const StorageLimitModal = ({
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => {
-                // TODO: Implement upgrade functionality
-                console.log('Upgrade plan clicked');
                 onClose();
+                navigate('/pricing');
               }}
               className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"            >
               <FiArrowUp className="w-5 h-5" />

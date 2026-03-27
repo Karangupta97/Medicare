@@ -404,7 +404,7 @@ const PricingPage = () => {
   const [showComparison, setShowComparison] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(null);
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, refreshUserData } = useAuthStore();
 
   const handleBuyNow = useCallback(
     async (plan, annual) => {
@@ -455,6 +455,12 @@ const PricingPage = () => {
                   verifyRes.data.message || "Payment successful! Plan upgraded 🎉",
                   { duration: 5000 }
                 );
+                // Refresh user data so UI immediately reflects the new plan
+                try {
+                  await refreshUserData();
+                } catch (refreshErr) {
+                  console.warn("Could not refresh user data after payment:", refreshErr);
+                }
               } else {
                 toast.error("Payment verification failed. Please contact support.");
               }
@@ -510,7 +516,7 @@ const PricingPage = () => {
         }
       }
     },
-    [navigate, isAuthenticated, user]
+    [navigate, isAuthenticated, user, refreshUserData]
   );
 
   return (

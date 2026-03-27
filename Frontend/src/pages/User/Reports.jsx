@@ -37,6 +37,7 @@ import { useDropzone } from "react-dropzone";
 import StorageLimitModal from "../../components/StorageLimitModal";
 import ReportAnalysisModal from "../../components/ReportAnalysisModal";
 import ShareWithDoctorModal from "../../components/reports/ShareWithDoctorModal";
+import { getStorageLimitForPlan, getStorageLimitLabel } from "../../config/planConfig";
 
 const style = document.createElement("style");
 style.textContent = `
@@ -572,8 +573,8 @@ const StatCard = ({
                   className={`text-xs ${textColorClass} opacity-60 leading-tight`}
                   title={subtitle}
                 >
-                  <span className="xs:hidden">/ 5MB</span>
-                  <span className="hidden xs:inline">of 5 MB limit</span>
+                  <span className="xs:hidden">/ {subtitle?.split('of ')?.[1] || 'limit'}</span>
+                  <span className="hidden xs:inline">{subtitle}</span>
                 </p>
               </div>
             )}
@@ -807,7 +808,8 @@ const Reports = () => {
     (acc, report) => acc + (report.fileSize || 0),
     0
   );
-  const storageLimit = 5 * 1024 * 1024; // 5 MB in bytes
+  const storageLimit = getStorageLimitForPlan(useAuthStore.getState().user?.planType);
+  const storageLimitLabel = getStorageLimitLabel(useAuthStore.getState().user?.planType);
   const usedStorageInMB = (totalStorageUsed / (1024 * 1024)).toFixed(2);
   const storagePercentage = ((totalStorageUsed / storageLimit) * 100).toFixed(
     1
@@ -2147,7 +2149,7 @@ const Reports = () => {
           />
           <StatCard
             title="Storage Used"
-            count={`${usedStorageInMB} / 5 MB`}
+            count={`${usedStorageInMB} / ${storageLimitLabel}`}
             subtitle={`${storagePercentage}% of limit`}
             icon={FiHardDrive}
             iconColor="text-teal-600"

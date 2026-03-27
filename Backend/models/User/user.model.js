@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   planType: {
     type: String,
-    enum: ["free", "basic", "premium", "pro"],
+    enum: ["free", "pro", "premium"],
     default: "free",
   },
   role: {
@@ -151,7 +151,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 // Pre-save middleware to normalize gender to lowercase
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
   if (this.gender && this.gender !== "") {
     this.gender = this.gender.toLowerCase();
   }
@@ -159,7 +159,7 @@ userSchema.pre('save', function(next) {
 });
 
 // Pre-update middleware to normalize gender to lowercase
-userSchema.pre('findOneAndUpdate', function(next) {
+userSchema.pre('findOneAndUpdate', function (next) {
   if (this._update.gender && this._update.gender !== "") {
     this._update.gender = this._update.gender.toLowerCase();
   }

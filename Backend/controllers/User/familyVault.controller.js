@@ -5,6 +5,7 @@ import { MedicalInfo } from "../../models/User/medicalInfo.model.js";
 import { Report } from "../../models/User/report.model.js";
 import { getFileUrl } from "../../services/s3.service.js";
 import { sendFamilyVaultInviteEmail } from "../../services/emails/emails.js";
+import { getMaxFamilyMembersForPlan } from "../../config/planConfig.js";
 import crypto from "crypto";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -15,11 +16,6 @@ const generateOTP = () => {
 
 const hashOTP = (otp) => {
   return crypto.createHash("sha256").update(otp).digest("hex");
-};
-
-const PLAN_MEMBER_LIMITS = {
-  pro: 2,
-  premium: 6,
 };
 
 // ─── Create Vault ───────────────────────────────────────────────────────────

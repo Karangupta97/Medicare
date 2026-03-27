@@ -126,6 +126,7 @@ const _getUserEssentialData = (userData) => {
     email, 
     verified, 
     photoURL, // Store only the URL/path, not the actual image data
+    planType,
     createdAt
   } = userData;
   
@@ -136,6 +137,7 @@ const _getUserEssentialData = (userData) => {
     email, 
     verified, 
     photoURL,
+    planType,
     createdAt
   };
 };

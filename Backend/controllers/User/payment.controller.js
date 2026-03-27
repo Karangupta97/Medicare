@@ -2,6 +2,8 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import { Payment } from "../../models/User/Payment.model.js";
 import { User } from "../../models/User/user.model.js";
+import { FamilyVault } from "../../models/User/FamilyVault.model.js";
+import { PLAN_CONFIG } from "../../config/planConfig.js";
 
 // ─── Razorpay instance (lazy singleton) ────────────────────────────────────
 let razorpayInstance = null;
@@ -169,16 +171,33 @@ export const verifyPayment = async (req, res) => {
     payment.razorpaySignature = razorpay_signature;
     await payment.save();
 
+    const newPlan = payment.planName;
+
     // Update user's plan type
     const UserModel = User();
     await UserModel.findByIdAndUpdate(userId, {
-      planType: payment.planName,
+      planType: newPlan,
     });
+
+    // ─── Sync Family Vault limits with new plan ──────────────────────
+    const VaultModel = FamilyVault();
+    const vault = await VaultModel.findOne({ headMember: userId });
+
+    if (vault) {
+      // Update vault planType — the pre-save hook will set maxMembers automatically
+      vault.planType = newPlan;
+      await vault.save();
+    }
+
+    // Build plan details for the response
+    const planDetails = PLAN_CONFIG[newPlan] || PLAN_CONFIG.free;
 
     return res.status(200).json({
       success: true,
-      message: `Payment successful! Your plan has been upgraded to ${payment.planName}.`,
-      plan: payment.planName,
+      message: `Payment successful! Your plan has been upgraded to ${newPlan}.`,
+      plan: newPlan,
+      storageLimitBytes: planDetails.storageLimitBytes,
+      maxFamilyMembers: planDetails.maxFamilyMembers,
     });
   } catch (error) {
     console.error("Error verifying payment:", error);
@@ -189,3 +208,4 @@ export const verifyPayment = async (req, res) => {
     });
   }
 };
+

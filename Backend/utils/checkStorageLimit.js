@@ -1,5 +1,6 @@
 import { Report } from "../models/User/report.model.js";
 import { User } from "../models/User/user.model.js";
+import { getStorageLimitForPlan } from "../config/planConfig.js";
 
 /**
  * Calculate total storage usage for a user based on their uploaded files
@@ -24,18 +25,10 @@ export const calculateUserStorageUsage = async (userId) => {
  * @returns {number} Storage limit in bytes
  */
 export const getUserStorageLimit = (user) => {
-  // Default storage limits based on plan types (in bytes)
-  const storageLimits = {
-    'free': 5 * 1024 * 1024,      // 5MB for free users
-    'basic': 50 * 1024 * 1024,    // 50MB for basic plan
-    'premium': 500 * 1024 * 1024, // 500MB for premium plan
-    'pro': 2 * 1024 * 1024 * 1024 // 2GB for pro plan
-  };
-
-  // Get user's plan type, default to 'free' if not specified
   const planType = user.planType || 'free';
-  return storageLimits[planType] || storageLimits.free;
+  return getStorageLimitForPlan(planType);
 };
+
 
 /**
  * Check if adding a new file would exceed the user's storage limit

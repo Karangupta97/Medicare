@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { getPatientDB } from "../../DB/connections.js";
+import { getMaxFamilyMembersForPlan } from "../../config/planConfig.js";
 
 const familyVaultMemberSchema = new mongoose.Schema({
   userId: {
@@ -48,7 +49,7 @@ const familyVaultSchema = new mongoose.Schema({
   members: [familyVaultMemberSchema],
   planType: {
     type: String,
-    enum: ["pro", "premium"],
+    enum: ["free", "pro", "premium"],
     required: true,
   },
   maxMembers: {
@@ -60,14 +61,11 @@ const familyVaultSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Set maxMembers based on planType before saving
+// Set maxMembers based on planType before saving (uses centralized config)
 familyVaultSchema.pre("save", function (next) {
-  if (this.planType === "premium") {
-    this.maxMembers = 6;
-  } else {
-    this.maxMembers = 2;
-  }
+  this.maxMembers = getMaxFamilyMembersForPlan(this.planType);
   next();
 });
 
 export const FamilyVault = () => getPatientDB().model("FamilyVault", familyVaultSchema);
+
