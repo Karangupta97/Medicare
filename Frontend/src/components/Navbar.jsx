@@ -271,6 +271,9 @@ const Navbar = ({ user, onLogout }) => {
               <Link to="/aboutus" className="nav-link">
                 About Us
               </Link>
+              <Link to="/pricing" className="nav-link">
+                Pricing
+              </Link>
               <Link to="/dashboard" className="nav-link">
                 Dashboard
               </Link>
@@ -436,6 +439,9 @@ const Navbar = ({ user, onLogout }) => {
                     <Link to="/aboutus" className="mobile-nav-link">
                       About Us
                     </Link>
+                    <Link to="/pricing" className="mobile-nav-link">
+                      Pricing
+                    </Link>
                     <Link to="/profile" className="mobile-nav-link">
                       Profile
                     </Link>
@@ -453,11 +459,10 @@ const Navbar = ({ user, onLogout }) => {
             {/* Home Button */}
             <Link
               to="/"
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
-                isActive("/")
-                  ? "text-[#252A61]"
-                  : "text-gray-400 hover:text-[#252A61]"
-              }`}
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${isActive("/")
+                ? "text-[#252A61]"
+                : "text-gray-400 hover:text-[#252A61]"
+                }`}
             >
               {isActive("/") && (
                 <motion.div
@@ -468,20 +473,18 @@ const Navbar = ({ user, onLogout }) => {
               )}
               <div className="relative">
                 <FiHome
-                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
-                    isActive("/") ? "scale-110" : ""
-                  }`}
+                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${isActive("/") ? "scale-110" : ""
+                    }`}
                 />
                 {isActive("/") && (
                   <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
                 )}
               </div>
               <span
-                className={`text-xs font-medium transition-all duration-300 ${
-                  isActive("/")
-                    ? "opacity-100 transform translate-y-0"
-                    : "opacity-70 group-hover:opacity-100"
-                }`}
+                className={`text-xs font-medium transition-all duration-300 ${isActive("/")
+                  ? "opacity-100 transform translate-y-0"
+                  : "opacity-70 group-hover:opacity-100"
+                  }`}
               >
                 Home
               </span>
@@ -490,11 +493,10 @@ const Navbar = ({ user, onLogout }) => {
             {/* Health Records Button */}
             <Link
               to="/health-records"
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
-                isActive("/health-records")
-                  ? "text-[#252A61]"
-                  : "text-gray-400 hover:text-[#252A61]"
-              }`}
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${isActive("/health-records")
+                ? "text-[#252A61]"
+                : "text-gray-400 hover:text-[#252A61]"
+                }`}
             >
               {isActive("/health-records") && (
                 <motion.div
@@ -505,20 +507,18 @@ const Navbar = ({ user, onLogout }) => {
               )}
               <div className="relative">
                 <FiFileText
-                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
-                    isActive("/health-records") ? "scale-110" : ""
-                  }`}
+                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${isActive("/health-records") ? "scale-110" : ""
+                    }`}
                 />
                 {isActive("/health-records") && (
                   <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
                 )}
               </div>
               <span
-                className={`text-xs font-medium transition-all duration-300 ${
-                  isActive("/health-records")
-                    ? "opacity-100 transform translate-y-0"
-                    : "opacity-70 group-hover:opacity-100"
-                }`}
+                className={`text-xs font-medium transition-all duration-300 ${isActive("/health-records")
+                  ? "opacity-100 transform translate-y-0"
+                  : "opacity-70 group-hover:opacity-100"
+                  }`}
               >
                 Records
               </span>
@@ -530,19 +530,17 @@ const Navbar = ({ user, onLogout }) => {
               className="relative flex flex-col items-center -mt-8 group"
             >
               <div
-                className={`w-16 h-16 rounded-full ${
-                  isActive("/dashboard/upload") ? "bg-[#252A61]" : "bg-[#3b3b98]"
-                } flex items-center justify-center shadow-lg border-4 border-white/80 backdrop-blur-lg transition-all duration-300 hover:shadow-xl group-hover:scale-105 group-hover:border-white`}
+                className={`w-16 h-16 rounded-full ${isActive("/dashboard/upload") ? "bg-[#252A61]" : "bg-[#3b3b98]"
+                  } flex items-center justify-center shadow-lg border-4 border-white/80 backdrop-blur-lg transition-all duration-300 hover:shadow-xl group-hover:scale-105 group-hover:border-white`}
               >
                 <FiPlus className="w-7 h-7 text-white transition-transform duration-300 group-hover:rotate-180" />
                 <div className="absolute inset-0 bg-[#252A61]/20 rounded-full blur-xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <span
-                className={`text-xs font-medium mt-1 transition-all duration-300 ${
-                  isActive("/dashboard/upload")
-                    ? "text-[#252A61] opacity-100"
-                    : "text-gray-500 group-hover:text-[#252A61]"
-                }`}
+                className={`text-xs font-medium mt-1 transition-all duration-300 ${isActive("/dashboard/upload")
+                  ? "text-[#252A61] opacity-100"
+                  : "text-gray-500 group-hover:text-[#252A61]"
+                  }`}
               >
                 Upload
               </span>
@@ -551,11 +549,10 @@ const Navbar = ({ user, onLogout }) => {
             {/* About Button */}
             <Link
               to="/aboutus"
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
-                isActive("/aboutus")
-                  ? "text-[#252A61]"
-                  : "text-gray-400 hover:text-[#252A61]"
-              }`}
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${isActive("/aboutus")
+                ? "text-[#252A61]"
+                : "text-gray-400 hover:text-[#252A61]"
+                }`}
             >
               {isActive("/aboutus") && (
                 <motion.div
@@ -566,20 +563,18 @@ const Navbar = ({ user, onLogout }) => {
               )}
               <div className="relative">
                 <FiInfo
-                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
-                    isActive("/aboutus") ? "scale-110" : ""
-                  }`}
+                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${isActive("/aboutus") ? "scale-110" : ""
+                    }`}
                 />
                 {isActive("/aboutus") && (
                   <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
                 )}
               </div>
               <span
-                className={`text-xs font-medium transition-all duration-300 ${
-                  isActive("/aboutus")
-                    ? "opacity-100 transform translate-y-0"
-                    : "opacity-70 group-hover:opacity-100"
-                }`}
+                className={`text-xs font-medium transition-all duration-300 ${isActive("/aboutus")
+                  ? "opacity-100 transform translate-y-0"
+                  : "opacity-70 group-hover:opacity-100"
+                  }`}
               >
                 About
               </span>
@@ -588,11 +583,10 @@ const Navbar = ({ user, onLogout }) => {
             {/* Dashboard Button */}
             <Link
               to="/dashboard"
-              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${
-                isActive("/dashboard")
-                  ? "text-[#252A61]"
-                  : "text-gray-400 hover:text-[#252A61]"
-              }`}
+              className={`flex flex-col items-center justify-center w-1/5 h-full relative group transition-all duration-300 ${isActive("/dashboard")
+                ? "text-[#252A61]"
+                : "text-gray-400 hover:text-[#252A61]"
+                }`}
             >
               {isActive("/dashboard") && (
                 <motion.div
@@ -603,20 +597,18 @@ const Navbar = ({ user, onLogout }) => {
               )}
               <div className="relative">
                 <FiLayout
-                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${
-                    isActive("/dashboard") ? "scale-110" : ""
-                  }`}
+                  className={`w-6 h-6 mb-1.5 transition-transform duration-300 group-hover:scale-110 ${isActive("/dashboard") ? "scale-110" : ""
+                    }`}
                 />
                 {isActive("/dashboard") && (
                   <div className="absolute inset-0 bg-[#252A61]/10 rounded-full blur-lg -z-10"></div>
                 )}
               </div>
               <span
-                className={`text-xs font-medium transition-all duration-300 ${
-                  isActive("/dashboard")
-                    ? "opacity-100 transform translate-y-0"
-                    : "opacity-70 group-hover:opacity-100"
-                }`}
+                className={`text-xs font-medium transition-all duration-300 ${isActive("/dashboard")
+                  ? "opacity-100 transform translate-y-0"
+                  : "opacity-70 group-hover:opacity-100"
+                  }`}
               >
                 Dashboard
               </span>

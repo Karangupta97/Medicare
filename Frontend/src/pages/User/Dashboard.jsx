@@ -147,12 +147,8 @@ const Dashboard = () => {
         );
 
         if (!window.hasShownSocketError) {
-          toast.error(
-            "Unable to establish real-time connection. Notifications will update manually.",
-            {
-              duration: 5000,
-              id: "socket-error",
-            }
+          console.warn(
+            "Unable to establish real-time connection. Notifications will update manually."
           );
           window.hasShownSocketError = true;
         }

@@ -82,6 +82,7 @@ import Test1 from "./pages/Test1";
 import Team from "./pages/Team";
 import DetailReview from "./pages/DetailReview";
 import HealthRecords from "./pages/User/HealthRecords";
+import PricingPage from "./pages/User/PricingPage";
 
 //components
 import Loading from "./components/Loading";
@@ -763,6 +764,7 @@ const App = () => {
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/service2" element={<Service2 />} />
           <Route path="/aboutus" element={<About />} />
           <Route path="/aboutus2" element={<About2 />} />
