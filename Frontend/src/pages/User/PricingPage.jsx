@@ -1,7 +1,10 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useAuthStore } from "../../store/Patient/authStore";
 import {
   FiCheck,
   FiX,
@@ -14,9 +17,12 @@ import {
   FiZap,
   FiHeart,
   FiArrowRight,
+  FiLoader,
 } from "react-icons/fi";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 /* ─────────────────────────── data ─────────────────────────── */
 
@@ -32,6 +38,7 @@ const plans = [
     ring: "ring-gray-200",
     cta: "Get Started Free",
     ctaStyle: "bg-gray-900 hover:bg-gray-800 text-white",
+    planKey: "free",
     features: [
       "50 MB cloud storage",
       "Basic health records",
@@ -43,16 +50,17 @@ const plans = [
   {
     name: "Pro",
     tagline: "For individuals who want more",
-    monthlyPrice: 99,
-    annualPrice: 832,
-    savePct: 30,
+    monthlyPrice: 1,
+    annualPrice: 1,
+    savePct: 0,
     icon: FiZap,
     popular: true,
     color: "from-[#252A61] to-[#4318FF]",
     cardBg: "bg-white",
     ring: "ring-[#252A61]/30",
-    cta: "Start Pro Plan",
+    cta: "Buy Pro Plan",
     ctaStyle: "bg-[#252A61] hover:bg-[#3b3b98] text-white",
+    planKey: "pro",
     features: [
       "500 MB cloud storage",
       "Full health records & analytics",
@@ -77,6 +85,7 @@ const plans = [
     cta: "Go Premium",
     ctaStyle:
       "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white",
+    planKey: "premium",
     features: [
       "Everything in Pro + 2 GB storage",
       "Family Vault — up to 7 members (1+6)",
@@ -123,7 +132,7 @@ const faqs = [
   },
   {
     q: "What payment methods do you accept?",
-    a: "We accept all major credit/debit cards, UPI, net banking, and popular digital wallets. All payments are processed securely through our payment gateway.",
+    a: "We accept all major credit/debit cards, UPI, net banking, and popular digital wallets. All payments are processed securely through Razorpay.",
   },
   {
     q: "Can I cancel my subscription?",
@@ -176,10 +185,12 @@ const ToggleSwitch = ({ isAnnual, onToggle }) => (
   </div>
 );
 
-const PricingCard = ({ plan, isAnnual, index }) => {
+const PricingCard = ({ plan, isAnnual, index, onBuyNow, loadingPlan }) => {
   const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
   const period = isAnnual ? "/year" : "/month";
   const Icon = plan.icon;
+  const isLoading = loadingPlan === plan.planKey;
+  const isFree = plan.monthlyPrice === 0;
 
   return (
     <motion.div
@@ -298,13 +309,33 @@ const PricingCard = ({ plan, isAnnual, index }) => {
         </ul>
 
         {/* CTA */}
-        <Link
-          to={plan.monthlyPrice === 0 ? "/signup" : "/signup"}
-          className={`w-full py-3 sm:py-3.5 rounded-xl text-center text-sm sm:text-base font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 block ${plan.ctaStyle}`}
-        >
-          {plan.cta}
-          <FiArrowRight className="inline-block ml-2 w-4 h-4" />
-        </Link>
+        {isFree ? (
+          <Link
+            to="/signup"
+            className={`w-full py-3 sm:py-3.5 rounded-xl text-center text-sm sm:text-base font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 block ${plan.ctaStyle}`}
+          >
+            {plan.cta}
+            <FiArrowRight className="inline-block ml-2 w-4 h-4" />
+          </Link>
+        ) : (
+          <button
+            onClick={() => onBuyNow(plan, isAnnual)}
+            disabled={!!loadingPlan}
+            className={`w-full py-3 sm:py-3.5 rounded-xl text-center text-sm sm:text-base font-semibold transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2 ${plan.ctaStyle}`}
+          >
+            {isLoading ? (
+              <>
+                <FiLoader className="w-4 h-4 animate-spin" />
+                Processing…
+              </>
+            ) : (
+              <>
+                {plan.cta}
+                <FiArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        )}
       </div>
     </motion.div>
   );
@@ -371,6 +402,116 @@ const PricingPage = () => {
   const [isAnnual, setIsAnnual] = useState(true);
   const [openFAQ, setOpenFAQ] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState(null);
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuthStore();
+
+  const handleBuyNow = useCallback(
+    async (plan, annual) => {
+      if (!isAuthenticated) {
+        toast.error("Please log in to purchase a plan.");
+        navigate("/login");
+        return;
+      }
+
+      setLoadingPlan(plan.planKey);
+
+      try {
+        // 1️⃣ Create Razorpay order on backend (axios interceptor auto-adds auth token)
+        const { data } = await axios.post(
+          `${API_URL}/api/payment/create-order`,
+          {
+            planName: plan.planKey,
+            billingCycle: annual ? "annual" : "monthly",
+          }
+        );
+
+        if (!data.success) {
+          throw new Error(data.message || "Failed to create order");
+        }
+
+        // 2️⃣ Open Razorpay checkout
+        const options = {
+          key: data.keyId,
+          amount: data.amount,
+          currency: data.currency,
+          name: "Medicare",
+          description: `${plan.name} Plan — ${annual ? "Annual" : "Monthly"}`,
+          order_id: data.orderId,
+          handler: async function (response) {
+            // 3️⃣ Verify payment on backend
+            try {
+              const verifyRes = await axios.post(
+                `${API_URL}/api/payment/verify`,
+                {
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }
+              );
+
+              if (verifyRes.data.success) {
+                toast.success(
+                  verifyRes.data.message || "Payment successful! Plan upgraded 🎉",
+                  { duration: 5000 }
+                );
+              } else {
+                toast.error("Payment verification failed. Please contact support.");
+              }
+            } catch (verifyErr) {
+              console.error("Verification error:", verifyErr);
+              toast.error(
+                "Payment was received but verification failed. Please contact support."
+              );
+            } finally {
+              setLoadingPlan(null);
+            }
+          },
+          prefill: {
+            name: user?.name || "",
+            email: user?.email || "",
+            contact: user?.phone || "",
+          },
+          theme: {
+            color: "#252A61",
+          },
+          modal: {
+            ondismiss: function () {
+              setLoadingPlan(null);
+              toast("Payment cancelled.", { icon: "ℹ️" });
+            },
+          },
+        };
+
+        const razorpay = new window.Razorpay(options);
+
+        razorpay.on("payment.failed", function (response) {
+          setLoadingPlan(null);
+          console.error("Payment failed:", response.error);
+          toast.error(
+            response.error?.description ||
+              "Payment failed. Please try again."
+          );
+        });
+
+        razorpay.open();
+      } catch (error) {
+        setLoadingPlan(null);
+        console.error("Order creation error:", error);
+
+        if (error.response?.status === 401) {
+          toast.error("Session expired. Please log in again.");
+          navigate("/login");
+        } else {
+          toast.error(
+            error.response?.data?.message ||
+              "Something went wrong. Please try again."
+          );
+        }
+      }
+    },
+    [navigate, isAuthenticated, user]
+  );
 
   return (
     <>
@@ -437,6 +578,8 @@ const PricingPage = () => {
                 plan={plan}
                 isAnnual={isAnnual}
                 index={i}
+                onBuyNow={handleBuyNow}
+                loadingPlan={loadingPlan}
               />
             ))}
           </div>
