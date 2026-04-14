@@ -22,7 +22,12 @@ import {
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Fallback prevents requests like ".../undefined/api/..." when env is missing or mis-set.
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const API_URL =
+  rawApiUrl && rawApiUrl !== "undefined"
+    ? rawApiUrl
+    : "https://api.medicares.in";
 
 /* ─────────────────────────── data ─────────────────────────── */
 
