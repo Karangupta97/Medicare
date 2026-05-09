@@ -9,7 +9,9 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    prerender({
+    // Vercel build environment lacks system dependencies for Puppeteer.
+    // We conditionally disable the prerender plugin when building on Vercel.
+    process.env.VERCEL !== '1' && prerender({
       // Pre-render only public/static pages — skip auth, dashboard, admin, and dynamic routes
       routes: [
         '/',
@@ -27,7 +29,7 @@ export default defineConfig({
         renderAfterTime: 2000,
       },
     }),
-  ],
+  ].filter(Boolean),
   root: '.',  // Ensures Vite looks in the correct folder
   publicDir: 'public',
   build: {

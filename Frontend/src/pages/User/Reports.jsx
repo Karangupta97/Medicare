@@ -1285,7 +1285,7 @@ const Reports = () => {
                        border border-gray-100/50 hover:border-blue-200/80
                        transform transition-all duration-700 hover:scale-[1.02] hover:-translate-y-2
                        animate-fade-in-up hover:shadow-blue-500/20
-                       before:absolute before:inset-0 before:bg-gradient-to-br before:from-transparent before:via-white/5 before:to-transparent before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500
+                       before:absolute before:inset-0 before:bg-gradient-to-br before:from-transparent before:via-white/5 before:to-transparent before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-500
                        ${report.inEmergencyFolder ? "ring-2 ring-red-500/80 border-red-200/80" : ""}`}
             style={{ animationDelay: `${index * 50}ms` }}
           >
@@ -1314,7 +1314,7 @@ const Reports = () => {
                            hover:shadow-inner hover:shadow-blue-500/20
                            before:absolute before:inset-0 before:bg-gradient-to-t 
                            before:from-black/10 before:via-transparent before:to-transparent 
-                           before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-300"
+                           before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-300"
                 onClick={() => handlePreviewClick(report)}
               >
                 {report.contentType?.startsWith("image/") ? (
@@ -1673,7 +1673,7 @@ const Reports = () => {
                        border border-gray-100/50 hover:border-blue-200/80 
                        transform transition-all duration-500 hover:scale-[1.01] hover:-translate-y-1
                        animate-fade-in-up hover:shadow-blue-500/20 relative overflow-hidden
-                       before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:opacity-0 before:group-hover:opacity-100 before:transition-opacity before:duration-500
+                       before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-500
                        ${report.inEmergencyFolder ? "ring-2 ring-red-500/80 border-red-200/80" : ""}`}
             style={{ animationDelay: `${index * 30}ms` }}
           >

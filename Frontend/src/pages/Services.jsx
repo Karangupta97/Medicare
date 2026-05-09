@@ -411,7 +411,7 @@ const Services = () => {
                   }}
                 >
                   {/* Top accent bar */}
-                  <div style={{ height: 4, background: `linear-gradient(90deg, ${service.gradient.replace('from-', '').replace(' to-', ', ')})`, background: `linear-gradient(90deg,var(--tw-gradient-from),var(--tw-gradient-to))` }}
+                  <div style={{ height: 4, background: `linear-gradient(90deg,var(--tw-gradient-from),var(--tw-gradient-to))` }}
                     className={`bg-gradient-to-r ${service.gradient}`}
                   />
 
