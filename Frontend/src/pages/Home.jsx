@@ -19,6 +19,8 @@ import UnderDevelopmentBanner from "../components/UnderDevelopmentBanner";
 import Lenis from "@studio-freight/lenis";
 
 const Home = () => {
+  const baseUrl = "https://www.medicares.in";
+  const ogImage = `${baseUrl}/logo.png`;
   const [user, setUser] = useState(null);
   const { scrollYProgress } = useScroll();
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
@@ -182,8 +184,8 @@ const Home = () => {
           property="og:description"
           content="Access your medical records, find hospitals, and manage your healthcare journey with our secure platform."
         />
-        <meta property="og:image" content={Logo} />
-        <meta property="og:url" content="https://www.medicares.in" />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:url" content={baseUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Medicare" />
 
@@ -199,16 +201,17 @@ const Home = () => {
           name="twitter:description"
           content="Access your medical records, find hospitals, and manage your healthcare journey with our secure platform."
         />
-        <meta name="twitter:image" content={Logo} />
+        <meta name="twitter:image" content={ogImage} />
 
         {/* Additional SEO meta tags */}
         <meta
           name="robots"
-          content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+          content="index, follow, max-image-preview:large"
         />
+        <meta name="googlebot" content="index, follow" />
         <meta name="author" content="Medicare" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="canonical" href="https://medicares.in" />
+        <link rel="canonical" href={baseUrl} />
 
         {/* Additional meta tags for better SEO */}
         <meta name="application-name" content="Medicare" />
@@ -227,8 +230,8 @@ const Home = () => {
             name: "Medicare",
             description:
               "A secure healthcare platform that connects patients, doctors, and hospitals, providing instant access to medical records and expert care.",
-            url: "https://medicares.in",
-            logo: Logo,
+            url: baseUrl,
+            logo: ogImage,
             sameAs: [
               "https://twitter.com/Medicares_india",
               "https://instagram.com/medicaresindia",
@@ -251,11 +254,11 @@ const Home = () => {
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "Medicare",
-            url: "https://medicares.in",
+            url: baseUrl,
             potentialAction: {
               "@type": "SearchAction",
               target:
-                "https://medicares.in/find-hospital?q={search_term_string}",
+                `${baseUrl}/find-hospital?q={search_term_string}`,
               "query-input": "required name=search_term_string",
             },
           })}
@@ -265,8 +268,8 @@ const Home = () => {
             "@context": "https://schema.org",
             "@type": "HealthAndBeautyBusiness",
             name: "Medicare Platform",
-            image: Logo,
-            url: "https://medicares.in",
+            image: ogImage,
+            url: baseUrl,
             description:
               "A comprehensive healthcare management platform providing digital health records and hospital finding services.",
             priceRange: "Free",

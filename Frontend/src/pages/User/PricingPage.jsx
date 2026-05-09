@@ -198,11 +198,12 @@ const PricingCard = ({ plan, isAnnual, index, onBuyNow, loadingPlan }) => {
   const isFree = plan.monthlyPrice === 0;
 
   return (
-    <motion.div
+    <motion.article
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay: index * 0.15 }}
+      aria-label={`${plan.name} plan`}
       className={`relative flex flex-col rounded-2xl sm:rounded-3xl border ${
         plan.popular
           ? "border-[#252A61]/20 shadow-xl shadow-[#252A61]/10"
@@ -342,7 +343,7 @@ const PricingCard = ({ plan, isAnnual, index, onBuyNow, loadingPlan }) => {
           </button>
         )}
       </div>
-    </motion.div>
+    </motion.article>
   );
 };
 
@@ -410,6 +411,27 @@ const PricingPage = () => {
   const [loadingPlan, setLoadingPlan] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated, user, refreshUserData } = useAuthStore();
+  const baseUrl = "https://www.medicares.in";
+  const pricingSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Pricing - Medicare",
+    url: `${baseUrl}/pricing`,
+    description:
+      "Affordable Medicare health plans with transparent pricing. Choose the plan that fits your needs.",
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: plans.map((plan) => ({
+        "@type": "Offer",
+        name: `${plan.name} Plan`,
+        description: plan.tagline,
+        price: String(plan.monthlyPrice),
+        priceCurrency: "INR",
+        availability: "https://schema.org/InStock",
+        url: `${baseUrl}/pricing`,
+      })),
+    },
+  };
 
   const handleBuyNow = useCallback(
     async (plan, annual) => {
@@ -527,11 +549,25 @@ const PricingPage = () => {
   return (
     <>
       <Helmet>
-        <title>Pricing — Medicare | Affordable Healthcare Plans</title>
+        <title>Pricing Plans | Medicare - Affordable Health Coverage India</title>
         <meta
           name="description"
-          content="Choose the right Medicare plan for you and your family. Free, Pro, and Premium plans with features like unlimited report uploads, Family Vault, AI health insights, and more."
+          content="Explore Medicare pricing plans starting at INR 0/month. Transparent pricing for individuals and families."
         />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="googlebot" content="index, follow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Pricing | Medicare" />
+        <meta
+          property="og:description"
+          content="Affordable health plans with clear pricing. Choose the right plan for you."
+        />
+        <meta property="og:url" content={`${baseUrl}/pricing`} />
+        <meta property="og:image" content={`${baseUrl}/logo.png`} />
+        <link rel="canonical" href={`${baseUrl}/pricing`} />
+        <script type="application/ld+json">
+          {JSON.stringify(pricingSchema)}
+        </script>
       </Helmet>
 
       <Navbar />
@@ -580,7 +616,10 @@ const PricingPage = () => {
       </section>
 
       {/* ── Pricing cards ── */}
-      <section className="relative -mt-2 sm:-mt-4 pb-12 sm:pb-16 lg:pb-20">
+      <section
+        className="relative -mt-2 sm:-mt-4 pb-12 sm:pb-16 lg:pb-20"
+        aria-label="Pricing plans"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 max-w-sm md:max-w-none mx-auto">
             {plans.map((plan, i) => (
