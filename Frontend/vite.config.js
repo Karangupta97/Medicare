@@ -1,11 +1,33 @@
 import { defineConfig } from 'vite'
 import tailwindcss from "@tailwindcss/vite";
 import react from '@vitejs/plugin-react'
+import prerender from '@prerenderer/rollup-plugin'
 import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    prerender({
+      // Pre-render only public/static pages — skip auth, dashboard, admin, and dynamic routes
+      routes: [
+        '/',
+        '/pricing',
+        '/services',
+        '/service2',
+        '/aboutus',
+        '/aboutus2',
+        '/team',
+        '/detail-review',
+      ],
+      renderer: '@prerenderer/renderer-puppeteer',
+      rendererOptions: {
+        // Wait 2 seconds for the SPA to fully render before snapshotting
+        renderAfterTime: 2000,
+      },
+    }),
+  ],
   root: '.',  // Ensures Vite looks in the correct folder
   publicDir: 'public',
   build: {
