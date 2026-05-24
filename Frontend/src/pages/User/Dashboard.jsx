@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import QRCodeModal from "../../components/User/QRCodeModal";
 import ProfilePhotoModal from "../../components/User/ProfilePhotoModal";
 import PrescriptionCard from "../../components/User/DigitalPrescriptionCard";
+import StorageUsageWidget from "../../components/StorageUsageWidget";
 import { io } from "socket.io-client";
 import MedicareLogo from "@assets/Logo/logo.png";
 import {
@@ -1627,6 +1628,10 @@ const Dashboard = () => {
       <div className="lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6">
         {/* Notifications Card */}
         <NotificationsPanel />
+
+        <motion.div variants={itemVariants}>
+          <StorageUsageWidget compact />
+        </motion.div>
 
         {/* Health Resources Card */}
         <motion.div

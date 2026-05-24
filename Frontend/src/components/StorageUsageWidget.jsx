@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FiHardDrive, FiBarChart, FiArrowUp, FiInfo } from 'react-icons/fi';
 import storageAPI from '../services/storageAPI';
 
@@ -116,7 +117,8 @@ const StorageUsageWidget = ({ showUpgradeButton = true, compact = false }) => {
         </div>
       </div>
 
-      {/* Usage Details */}      <div className="flex items-center justify-between text-sm text-gray-600">
+      {/* Usage Details */}
+      <div className="flex items-center justify-between text-sm text-gray-600">
         <div className="flex items-center">
           <FiBarChart className="w-4 h-4 mr-1" />
           <span>{storageInfo.fileCount || 0} files</span>
@@ -125,11 +127,15 @@ const StorageUsageWidget = ({ showUpgradeButton = true, compact = false }) => {
       </div>
 
       {/* Upgrade Button */}
-      {showUpgradeButton && usagePercentage >= 80 && storageInfo.planType !== 'pro' && (        <div className="mt-4 pt-4 border-t border-gray-100">
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+      {showUpgradeButton && usagePercentage >= 80 && storageInfo.planType !== 'pro' && (
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <Link
+            to="/pricing"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+          >
             <FiArrowUp className="w-4 h-4 mr-2" />
             Upgrade Plan
-          </button>
+          </Link>
         </div>
       )}
     </div>
