@@ -94,34 +94,48 @@ async function startServer() {
 
   // Middleware
   app.use(status({ path: "/status" }));
-  app.use(
-    cors({
-      origin: function (origin, callback) {
-        const allowedOrigins = [
-          "https://medicares.in",
-          "https://www.medicares.in",
-          "http://localhost:5173", // Vite's default port for development
-          "http://localhost:3000", // Additional development port
-          "http://192.168.0.106:3000", // For Mobile test
-        ];
+  // Dynamic CORS configuration
+  const configuredClients = (process.env.CLIENT_URL || "")
+    .split(",")
+    .map((url) => url.trim().replace(/\/$/, ""))
+    .filter(Boolean);
 
-        // Check if origin is allowed or if it's null (like for same-origin requests)
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          console.log(`CORS: Origin '${origin}' not allowed`);
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    })
-  );
+  const defaultOrigins = [
+    "https://medicares.in",
+    "https://www.medicares.in",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+    "http://192.168.0.106:3000",
+    "http://192.168.0.107:3000",
+  ];
 
-  // Explicit preflight handler — ensures OPTIONS requests always succeed
-  // even if a reverse proxy or load balancer interferes with the cors middleware
-  app.options("*", cors());
+  const allowedOrigins = Array.from(new Set([...defaultOrigins, ...configuredClients]));
+
+  const corsOptions = {
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked request from origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
+    optionsSuccessStatus: 204,
+  };
+
+  app.use(cors(corsOptions));
+  app.options("*", cors(corsOptions));
 
   app.use(express.json());
   app.use(cookieParser()); // Add cookie parser for handling HTTP-only cookies
