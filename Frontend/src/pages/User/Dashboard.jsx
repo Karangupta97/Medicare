@@ -106,7 +106,7 @@ const Dashboard = () => {
       const apiBaseUrl =
         rawApiUrl && rawApiUrl !== "undefined"
           ? rawApiUrl
-          : "https://api.medicares.in";
+          : "https://medicare-backend-vl01.onrender.com";
 
       if (window.socket) {
         console.log("Socket already exists, not creating a new one");

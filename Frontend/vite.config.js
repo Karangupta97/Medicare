@@ -58,7 +58,7 @@ export default defineConfig({
       "/api": {
         // target: "http://localhost:4000",
         // target: ["http://localhost:4000", "http://192.168.0.107:4000/"],
-        target: "https://api.medicares.in",
+        target: "https://medicare-backend-vl01.onrender.com",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,

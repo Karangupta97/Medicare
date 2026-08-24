@@ -180,7 +180,7 @@ const DoctorEmergencyFolder = () => {
   const API_URL =
     rawApiUrl && rawApiUrl !== "undefined"
       ? rawApiUrl
-      : "https://api.medicares.in";
+      : "https://medicare-backend-vl01.onrender.com";
 
   const isValidUMID = (umid) => /^[A-Z]{2}\d{5}[A-Z]{2}$/.test(umid);
 
