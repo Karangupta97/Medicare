@@ -54,6 +54,12 @@ export const sendMailjetEmail = async ({
   fromName,
   customId,
 }) => {
+  if (!mailjet) {
+    throw new Error(
+      "Email service not configured: MAILJET_API_KEY and MAILJET_SECRET_KEY are required in environment variables."
+    );
+  }
+
   if (!subject) {
     throw new Error("subject is required for Mailjet email.");
   }

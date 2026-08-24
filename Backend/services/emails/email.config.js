@@ -7,9 +7,9 @@ const mailjetApiKey = process.env.MAILJET_API_KEY;
 const mailjetSecretKey = process.env.MAILJET_SECRET_KEY;
 
 if (!mailjetApiKey || !mailjetSecretKey) {
-  throw new Error(
-    "Email service misconfigured: MAILJET_API_KEY and MAILJET_SECRET_KEY are required. " +
-      "Set Mailjet credentials in your environment to enable email sending."
+  console.warn(
+    "[Email Service Warning]: MAILJET_API_KEY and/or MAILJET_SECRET_KEY are not set. " +
+      "Email sending will fail until Mailjet credentials are provided in the environment."
   );
 }
 
@@ -64,7 +64,10 @@ const resolveSender = () => {
 
 const resolvedSender = resolveSender();
 
-export const mailjet = Mailjet.apiConnect(mailjetApiKey, mailjetSecretKey);
+export const mailjet =
+  mailjetApiKey && mailjetSecretKey
+    ? Mailjet.apiConnect(mailjetApiKey, mailjetSecretKey)
+    : null;
 export const sender = {
   Email: resolvedSender.email,
   Name: resolvedSender.name,
