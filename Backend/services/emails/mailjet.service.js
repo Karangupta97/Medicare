@@ -80,9 +80,21 @@ export const sendMailjetEmail = async ({
     message.CustomID = customId;
   }
 
-  const response = await mailjet
-    .post("send", { version: "v3.1" })
-    .request({ Messages: [message] });
+  let response;
+  try {
+    response = await mailjet
+      .post("send", { version: "v3.1" })
+      .request({ Messages: [message] });
+  } catch (error) {
+    const providerStatus =
+      error?.statusCode || error?.response?.statusCode || error?.response?.status;
+    const providerError = new Error(
+      error?.message || "Mailjet rejected the email request."
+    );
+    providerError.code = "MAIL_PROVIDER_ERROR";
+    providerError.providerStatus = providerStatus;
+    throw providerError;
+  }
 
   const result = response?.body?.Messages?.[0];
   const recipient = result?.To?.[0];

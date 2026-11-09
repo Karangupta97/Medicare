@@ -26,7 +26,10 @@ export const sendVerificationEmail = async (email, verificationToken) => {
     return data;
   } catch (error) {
     console.error("Mailjet error (verification):", { email, error: error?.message || error });
-    throw new Error(`Error sending verification: ${error.message}`);
+    const verificationError = new Error(`Error sending verification: ${error.message}`);
+    verificationError.code = error.code;
+    verificationError.providerStatus = error.providerStatus;
+    throw verificationError;
   }
 };
 
@@ -110,7 +113,10 @@ export const sendFounderLoginOTP = async (email, otpCode, ipAddress) => {
     console.log("Founder login OTP email sent successfully", data);
   } catch (error) {
     console.error("Mailjet error (founder login OTP):", { email, error: error?.message || error });
-    throw new Error(`Error sending founder login OTP: ${error.message}`);
+    const otpError = new Error(`Error sending founder login OTP: ${error.message}`);
+    otpError.code = error.code;
+    otpError.providerStatus = error.providerStatus;
+    throw otpError;
   }
 };
 

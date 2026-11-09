@@ -50,9 +50,15 @@ export const signup = async (req, res) => {
     });
     await user.save();
 
+    let emailResult;
+    try {
+      emailResult = await sendVerificationEmail(user.email, verificationToken);
+    } catch (emailError) {
+      await UserModel.deleteOne({ _id: user._id });
+      throw emailError;
+    }
+
     const token = await generateTokenAndsendcookie(res, user._id);
-    // send Verification Email with otp
-    const emailResult = await sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
       success: true,
@@ -68,7 +74,14 @@ export const signup = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: error.message });
+    const statusCode = error.code === "MAIL_PROVIDER_ERROR" ? 503 : 500;
+    res.status(statusCode).json({
+      success: false,
+      message:
+        statusCode === 503
+          ? "Verification email service is temporarily unavailable. Please try again later."
+          : error.message,
+    });
   }
 };
 

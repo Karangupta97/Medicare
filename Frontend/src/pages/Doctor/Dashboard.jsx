@@ -235,10 +235,11 @@ const DoctorDashboard = () => {
     return <Navigate to="/doctor/login" />;
   }
 
-  const firstName = doctor?.fullName?.split(' ')[0] || 'Doctor';
+  const firstName = 'Patil';
+  const displayDoctorName = 'Dr. Patil';
   const avatarUrl =
     doctor?.photoURL ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor?.fullName || 'Doctor')}&background=6366f1&color=fff&bold=true&size=128`;
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayDoctorName)}&background=6366f1&color=fff&bold=true&size=128`;
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -277,14 +278,14 @@ const DoctorDashboard = () => {
           className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"
           style={{ border: '2px solid rgba(255,255,255,0.2)' }}
         >
-          <img src={avatarUrl} alt={doctor?.fullName} className="w-full h-full object-cover" />
+          <img src={avatarUrl} alt={displayDoctorName} className="w-full h-full object-cover" />
         </div>
         <div className="flex-1 min-w-0">
           <p
             className="truncate"
             style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem' }}
           >
-            Dr. {firstName}
+            {displayDoctorName}
           </p>
           <p
             className="truncate"
@@ -360,8 +361,8 @@ const DoctorDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Doctor Dashboard | Medicare</title>
-        <meta name="description" content="Medicare Doctor Dashboard — manage patients, appointments, and medical records." />
+        <title>PHC Dashboard | Medicare</title>
+        <meta name="description" content="PHC Dashboard — manage patients, appointments, and medical records." />
       </Helmet>
 
       <link
@@ -428,7 +429,7 @@ const DoctorDashboard = () => {
                 </button>
                 <div>
                   <h1 style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
-                    Dashboard
+                    PHC Dashboard
                   </h1>
                   <p className="hidden sm:block" style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
                     {currentDate}
@@ -447,7 +448,7 @@ const DoctorDashboard = () => {
                   />
                   <div>
                     <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1e293b', lineHeight: 1.2 }}>
-                      Dr. {firstName}
+                      {displayDoctorName}
                     </p>
                     <p style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>
                       {doctor?.specialization || 'Physician'}
@@ -538,7 +539,7 @@ const DoctorDashboard = () => {
                       lineHeight: 1.2,
                     }}
                   >
-                    Dr. {doctor?.fullName || 'Doctor'}
+                    {displayDoctorName}
                   </motion.h2>
                   <motion.p
                     initial={{ opacity: 0, y: 10 }}

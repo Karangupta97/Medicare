@@ -89,9 +89,12 @@ export const founderLogin = async (req, res) => {
     
   } catch (error) {
     console.error("Error in founderLogin:", error);
-    res.status(500).json({
+    const statusCode = error.code === "MAIL_PROVIDER_ERROR" ? 503 : 500;
+    res.status(statusCode).json({
       success: false,
-      message: "Server error"
+      message: statusCode === 503
+        ? "Verification email service is temporarily unavailable. Please try again later."
+        : "Server error"
     });
   }
 };
@@ -233,9 +236,12 @@ export const resendFounderOTP = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in resendFounderOTP:", error);
-    res.status(500).json({
+    const statusCode = error.code === "MAIL_PROVIDER_ERROR" ? 503 : 500;
+    res.status(statusCode).json({
       success: false,
-      message: "Server error"
+      message: statusCode === 503
+        ? "Verification email service is temporarily unavailable. Please try again later."
+        : "Server error"
     });
   }
 };
