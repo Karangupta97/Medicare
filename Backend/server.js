@@ -107,6 +107,7 @@ async function startServer() {
     "http://localhost:3000",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
     "http://192.168.0.106:3000",
     "http://192.168.0.107:3000",
   ];
@@ -228,7 +229,8 @@ async function startServer() {
           "https://medicares.in",
           "https://www.medicares.in",
           "http://localhost:5173", // Vite's default port for development
-          "http://localhost:3000", // Additional development port
+          "http://localhost:3000",
+          "http://localhost:3001", // Additional development port
           "http://192.168.0.106:3000", // For Mobile test
         ];
 
