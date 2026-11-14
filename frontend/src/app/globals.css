@@ -1,0 +1,794 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/aspect-ratio";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Primitive_Tokens (DESIGN.md section 3.2): the only raw color literals in the Target_App */
+  /* White */
+  --prim-white: #ffffff; /* Tailwind v3: white */
+  /* Ink: light neutrals */
+  --prim-ink-50: #f6f7fb;
+  --prim-ink-100: #edeff7;
+  --prim-ink-200: #d5d9e8;
+  --prim-ink-400: #8089ab;
+  --prim-ink-600: #525a7d;
+  --prim-ink-900: #12152e;
+  /* Night: dark neutrals */
+  --prim-night-950: #0a0d22;
+  --prim-night-900: #10143a;
+  --prim-night-800: #171c47;
+  --prim-night-700: #2a3166;
+  --prim-night-500: #6c75aa;
+  --prim-night-300: #a3aad0;
+  --prim-night-50: #edeef8;
+  /* Navy: primary */
+  --prim-navy-900: #1a1e4a;
+  --prim-navy-700: #252a61;
+  /* Periwinkle: primary in dark */
+  --prim-periwinkle-300: #a9b3f5;
+  --prim-periwinkle-200: #c0c8f8;
+  /* Indigo: secondary */
+  --prim-indigo-800: #2f3880;
+  --prim-indigo-600: #4a55b0;
+  --prim-indigo-100: #e6e9f9;
+  --prim-indigo-400: #8f9ae6;
+  --prim-indigo-200: #c3caf6;
+  --prim-indigo-900: #1f2658;
+  /* Teal: accent */
+  --prim-teal-900: #075350;
+  --prim-teal-800: #096360;
+  --prim-teal-700: #0b7c78;
+  --prim-teal-50: #ddf3f1;
+  --prim-teal-200: #8cebe3;
+  --prim-teal-300: #6bddd4;
+  --prim-teal-400: #3fcfc4;
+  --prim-teal-950: #06211f;
+  --prim-teal-surface-dark: #0e2f34;
+  /* Green: success */
+  --prim-green-700: #16763f;
+  --prim-green-50: #ddf3e5;
+  --prim-green-400: #52d48a;
+  --prim-green-950: #0f2d22;
+  /* Amber: warning */
+  --prim-amber-700: #9a5b06;
+  --prim-amber-50: #fbefd3;
+  --prim-amber-400: #f2b84b;
+  --prim-amber-950: #33280f;
+  /* Rose: danger */
+  --prim-rose-600: #c2294b;
+  --prim-rose-50: #fbe3e8;
+  --prim-rose-400: #f4708b;
+  --prim-rose-950: #3a1522;
+  /* Vermilion: emergency */
+  --prim-vermilion-700: #b3260e;
+  --prim-vermilion-50: #fbe1da;
+  --prim-vermilion-400: #ff7a5c;
+  --prim-vermilion-950: #44190f;
+  /* Overlay */
+  --prim-black: #000000; /* Tailwind v3: black */
+  --prim-night-1000: #05061a;
+}
+
+:root,
+.light {
+  /* Light Semantic_Tokens (DESIGN.md section 3.3): each value is a single Primitive_Token reference.
+     `.light` re-applies the light tokens inside a dark page (compare mode); it declares the same names as `:root`. */
+  color-scheme: light;
+
+  /* Neutral */
+  --sem-page: var(--prim-ink-50);
+  --sem-surface: var(--prim-white);
+  --sem-surface-muted: var(--prim-ink-100);
+  --sem-border: var(--prim-ink-200);
+  --sem-border-strong: var(--prim-ink-400);
+  --sem-text: var(--prim-ink-900);
+  --sem-text-muted: var(--prim-ink-600);
+  --sem-overlay: var(--prim-black);
+
+  /* Primary */
+  --sem-brand: var(--prim-navy-700);
+  --sem-brand-hover: var(--prim-navy-900);
+  --sem-on-brand: var(--prim-white);
+
+  /* Secondary */
+  --sem-secondary: var(--prim-indigo-600);
+  --sem-secondary-subtle: var(--prim-indigo-100);
+  --sem-on-secondary-subtle: var(--prim-indigo-800);
+
+  /* Accent */
+  --sem-accent: var(--prim-teal-700);
+  --sem-accent-hover: var(--prim-teal-800);
+  --sem-on-accent: var(--prim-white);
+  --sem-accent-subtle: var(--prim-teal-50);
+  --sem-on-accent-subtle: var(--prim-teal-900);
+
+  /* Status */
+  --sem-success: var(--prim-green-700);
+  --sem-success-subtle: var(--prim-green-50);
+  --sem-warning: var(--prim-amber-700);
+  --sem-warning-subtle: var(--prim-amber-50);
+  --sem-danger: var(--prim-rose-600);
+  --sem-danger-subtle: var(--prim-rose-50);
+  --sem-emergency: var(--prim-vermilion-700);
+  --sem-emergency-subtle: var(--prim-vermilion-50);
+  --sem-on-emergency: var(--prim-white);
+}
+
+.dark {
+  /* Dark Semantic_Tokens: same names as the light :root block */
+  color-scheme: dark;
+
+  /* Neutral */
+  --sem-page: var(--prim-night-950);
+  --sem-surface: var(--prim-night-900);
+  --sem-surface-muted: var(--prim-night-800);
+  --sem-border: var(--prim-night-700);
+  --sem-border-strong: var(--prim-night-500);
+  --sem-text: var(--prim-night-50);
+  --sem-text-muted: var(--prim-night-300);
+  --sem-overlay: var(--prim-night-1000);
+
+  /* Primary */
+  --sem-brand: var(--prim-periwinkle-300);
+  --sem-brand-hover: var(--prim-periwinkle-200);
+  --sem-on-brand: var(--prim-night-950);
+
+  /* Secondary */
+  --sem-secondary: var(--prim-indigo-400);
+  --sem-secondary-subtle: var(--prim-indigo-900);
+  --sem-on-secondary-subtle: var(--prim-indigo-200);
+
+  /* Accent */
+  --sem-accent: var(--prim-teal-400);
+  --sem-accent-hover: var(--prim-teal-300);
+  --sem-on-accent: var(--prim-teal-950);
+  --sem-accent-subtle: var(--prim-teal-surface-dark);
+  --sem-on-accent-subtle: var(--prim-teal-200);
+
+  /* Status */
+  --sem-success: var(--prim-green-400);
+  --sem-success-subtle: var(--prim-green-950);
+  --sem-warning: var(--prim-amber-400);
+  --sem-warning-subtle: var(--prim-amber-950);
+  --sem-danger: var(--prim-rose-400);
+  --sem-danger-subtle: var(--prim-rose-950);
+  --sem-emergency: var(--prim-vermilion-400);
+  --sem-emergency-subtle: var(--prim-vermilion-950);
+  --sem-on-emergency: var(--prim-night-950);
+}
+
+@theme {
+  --breakpoint-xs: 320px;
+  --shadow-custom: 0px 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+@theme inline {
+  --font-sans: var(--font-montserrat-alternates), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-montserrat: var(--font-montserrat-alternates), sans-serif;
+
+  --color-page: var(--sem-page);
+  --color-surface: var(--sem-surface);
+  --color-surface-muted: var(--sem-surface-muted);
+  --color-border: var(--sem-border);
+  --color-border-strong: var(--sem-border-strong);
+  --color-text: var(--sem-text);
+  --color-text-muted: var(--sem-text-muted);
+  --color-overlay: var(--sem-overlay);
+
+  --color-brand: var(--sem-brand);
+  --color-brand-hover: var(--sem-brand-hover);
+  --color-on-brand: var(--sem-on-brand);
+  /* Legacy_Token alias: same name as the Legacy_App, now an alias of brand */
+  --color-primary: var(--sem-brand);
+
+  --color-secondary: var(--sem-secondary);
+  --color-secondary-subtle: var(--sem-secondary-subtle);
+  --color-on-secondary-subtle: var(--sem-on-secondary-subtle);
+
+  --color-accent: var(--sem-accent);
+  --color-accent-hover: var(--sem-accent-hover);
+  --color-on-accent: var(--sem-on-accent);
+  --color-accent-subtle: var(--sem-accent-subtle);
+  --color-on-accent-subtle: var(--sem-on-accent-subtle);
+
+  --color-success: var(--sem-success);
+  --color-success-subtle: var(--sem-success-subtle);
+  --color-warning: var(--sem-warning);
+  --color-warning-subtle: var(--sem-warning-subtle);
+  --color-danger: var(--sem-danger);
+  --color-danger-subtle: var(--sem-danger-subtle);
+  --color-emergency: var(--sem-emergency);
+  --color-emergency-subtle: var(--sem-emergency-subtle);
+  --color-on-emergency: var(--sem-on-emergency);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--sem-border);
+  }
+
+  html,
+  body {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background-color: var(--sem-page);
+    color: var(--sem-text);
+  }
+
+  /* Visible keyboard focus on every interactive element (DESIGN.md section 11) */
+  :focus-visible {
+    outline: 2px solid var(--sem-brand);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+@utility nav-link {
+  /* Navigation Links */
+  @apply inline-flex items-center min-h-11 text-text hover:text-brand transition-all duration-300 hover:scale-110 hover:bg-surface-muted px-4 py-2 rounded-lg;
+}
+
+@utility mobile-nav-link {
+  @apply block w-full min-h-11 px-4 py-3 text-text hover:bg-surface-muted rounded-xl transition-colors text-base font-medium;
+}
+
+@utility menu-item {
+  @apply flex items-center min-h-11 space-x-3 px-4 py-2 text-sm text-text hover:bg-surface-muted transition-colors;
+}
+
+@utility card {
+  /* Common Card Styles */
+  @apply bg-surface rounded-xl shadow-xs p-4 sm:p-6 border border-border;
+}
+
+@utility card-hover {
+  @apply hover:shadow-lg transition-shadow duration-300;
+}
+
+@utility form-input {
+  /* Form Controls */
+  @apply w-full min-h-11 px-4 py-2 text-sm sm:text-base rounded-xl border border-border-strong bg-surface text-text placeholder:text-text-muted focus:ring-2 focus:ring-brand focus:border-brand transition-all;
+}
+
+@utility form-label {
+  @apply block text-sm font-medium text-text mb-1;
+}
+
+@utility btn {
+  @apply min-h-11 px-4 py-2 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 flex items-center justify-center gap-2;
+}
+
+@utility btn-primary {
+  @apply bg-brand text-on-brand hover:bg-brand-hover shadow-xs hover:shadow-md;
+}
+
+@utility btn-secondary {
+  @apply bg-secondary-subtle text-on-secondary-subtle border border-secondary hover:border-brand;
+}
+
+@utility container-custom {
+  /* Common Layout Utilities */
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+@utility section {
+  @apply py-6 sm:py-8 lg:py-12;
+}
+
+@utility heading-1 {
+  /* Typography */
+  @apply text-2xl sm:text-3xl lg:text-4xl font-bold text-text;
+}
+
+@utility heading-2 {
+  @apply text-xl sm:text-2xl lg:text-3xl font-bold text-text;
+}
+
+@utility body-text {
+  @apply text-base text-text;
+}
+
+@utility grid-responsive-2 {
+  /* Responsive Grid Layouts */
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+}
+
+@utility grid-responsive-3 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+}
+
+@utility grid-responsive-4 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6;
+}
+
+@utility status-badge {
+  /* Status Indicators */
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+@utility status-badge-success {
+  @apply bg-success-subtle text-success;
+}
+
+@utility status-badge-warning {
+  @apply bg-warning-subtle text-warning;
+}
+
+@utility status-badge-error {
+  @apply bg-danger-subtle text-danger;
+}
+
+@utility scrollbar-hide {
+  /* Scrollbar Hiding */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom Animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slideIn {
+  animation: slideInFromRight 0.4s ease-out forwards;
+}
+
+/* Glass Morphism Effects */
+.glass {
+  @apply bg-surface/10 backdrop-blur-lg;
+}
+
+.glass-search-dropdown {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sem-surface) 90%, transparent) 0%,
+    color-mix(in srgb, var(--sem-surface) 80%, transparent) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, var(--sem-border) 30%, transparent);
+  box-shadow:
+    0 25px 50px -12px color-mix(in srgb, var(--sem-overlay) 15%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--sem-border) 10%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--sem-border) 20%, transparent);
+}
+
+.glass-search-card {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sem-surface) 70%, transparent) 0%,
+    color-mix(in srgb, var(--sem-surface) 50%, transparent) 100%
+  );
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid color-mix(in srgb, var(--sem-border) 40%, transparent);
+}
+
+.glass-search-card:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sem-surface) 90%, transparent) 0%,
+    color-mix(in srgb, var(--sem-surface) 70%, transparent) 100%
+  );
+  transform: translateY(-2px);
+}
+
+.mobile-search-modal {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sem-surface) 95%, transparent) 0%,
+    color-mix(in srgb, var(--sem-surface) 85%, transparent) 100%
+  );
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid color-mix(in srgb, var(--sem-border) 30%, transparent);
+  box-shadow:
+    0 32px 64px -12px color-mix(in srgb, var(--sem-overlay) 20%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--sem-border) 10%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--sem-border) 30%, transparent);
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(200%);
+  }
+}
+.animate-scroll {
+  animation: scroll 8s linear infinite;
+}
+
+/* Custom CSS for Enhanced Navbar */
+
+/* Custom Scrollbar for Notifications.
+   Merged from the two legacy .custom-scrollbar definitions (Requirement 3.8):
+   scrollbar-width "thin" (later rule) wins over "none"; -ms-overflow-style
+   and ::-webkit-scrollbar display:none are kept from the first rule. */
+.custom-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--sem-secondary) 80%, transparent)
+    color-mix(in srgb, var(--sem-surface-muted) 50%, transparent);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--sem-surface-muted) 50%, transparent);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--sem-secondary) 80%, transparent);
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--sem-border) 30%, transparent);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--sem-brand);
+}
+
+/* Gradient Border Utilities */
+.border-gradient-to-r {
+  border-image: linear-gradient(to right, var(--tw-gradient-stops)) 1;
+}
+
+.border-gradient-to-br {
+  border-image: linear-gradient(to bottom right, var(--tw-gradient-stops)) 1;
+}
+
+/* Ring Gradient Utilities */
+.ring-gradient-to-r {
+  box-shadow: 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color),
+    0 0 0 calc(var(--tw-ring-width) + var(--tw-ring-offset-width)) linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+/* Enhanced Glass Effect */
+.glass-effect {
+  background: color-mix(in srgb, var(--sem-surface) 98%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid color-mix(in srgb, var(--sem-border) 12.5%, transparent);
+}
+
+/* Modern Button Hover Effects */
+.modern-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+}
+
+.modern-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--sem-overlay) 10%, transparent),
+    0 8px 10px -6px color-mix(in srgb, var(--sem-overlay) 10%, transparent);
+}
+
+/* Enhanced Search Bar Animation */
+.search-focus-animation {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-focus-animation:focus {
+  transform: scale(1.02);
+  box-shadow:
+    0 20px 25px -5px color-mix(in srgb, var(--sem-overlay) 10%, transparent),
+    0 8px 10px -6px color-mix(in srgb, var(--sem-overlay) 10%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--sem-brand) 10%, transparent);
+}
+
+/* Notification Badge Pulse */
+@keyframes notification-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+.notification-badge {
+  animation: notification-pulse 2s infinite;
+}
+
+/* Profile Status Indicator */
+@keyframes status-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--sem-success) 70%, transparent);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--sem-success) 0%, transparent);
+  }
+}
+.status-indicator {
+  animation: status-pulse 2s infinite;
+}
+
+/* Modern Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--sem-brand) 0%, var(--sem-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced Dropdown Animation */
+.dropdown-enter {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-exit {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.dropdown-exit-active {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modern Card Hover (plain class; overrides the card-hover @utility as in the legacy cascade) */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 25px 50px -12px color-mix(in srgb, var(--sem-overlay) 15%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--sem-surface) 5%, transparent);
+}
+
+/* Mobile Search Enhancements.
+   Merged from the two legacy .mobile-search-overlay definitions (Requirement 3.8):
+   background from the first rule; blur(20px) saturate(180%) (later rule) wins over blur(10px). */
+.mobile-search-overlay {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sem-overlay) 40%, transparent) 0%,
+    color-mix(in srgb, var(--sem-overlay) 60%, transparent) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.mobile-search-input {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-search-input:focus {
+  transform: scale(1.01);
+  box-shadow:
+    0 20px 25px -5px color-mix(in srgb, var(--sem-overlay) 10%, transparent),
+    0 8px 10px -6px color-mix(in srgb, var(--sem-overlay) 10%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--sem-brand) 10%, transparent);
+}
+
+/* Responsive Search Animations */
+@media (max-width: 1023px) {
+  .search-suggestion-enter {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+
+  .search-suggestion-enter-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: all 300ms ease-out;
+  }
+
+  .search-suggestion-exit {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .search-suggestion-exit-active {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 200ms ease-in;
+  }
+}
+
+/* Mobile Search Button Ripple Effect */
+.mobile-search-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-search-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sem-brand) 10%, transparent);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.mobile-search-btn:hover::before {
+  width: 120%;
+  height: 120%;
+}
+@keyframes medicalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes medicalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes medicalPulseRing {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.35;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+@keyframes medicalDots {
+  0%,
+  20% {
+    content: '.';
+  }
+  40% {
+    content: '..';
+  }
+  60%,
+  100% {
+    content: '...';
+  }
+}
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -240px 0;
+  }
+  100% {
+    background-position: 240px 0;
+  }
+}
+.animate-medical-fade {
+  animation: medicalFadeIn 240ms ease-out;
+}
+.animate-medical-pop {
+  animation: medicalPopIn 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.animate-medical-pulse-ring {
+  animation: medicalPulseRing 2.2s ease-out infinite;
+  border: 2px solid color-mix(in srgb, var(--sem-brand) 35%, transparent);
+}
+.animate-medical-dots {
+  position: relative;
+  min-width: 20px;
+  color: var(--sem-text-muted);
+}
+.animate-medical-dots::after {
+  content: '...';
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: medicalDots 1.4s steps(1, end) infinite;
+}
+.skeleton-medical {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--sem-surface-muted) 70%, transparent) 25%,
+    color-mix(in srgb, var(--sem-border) 90%, transparent) 50%,
+    color-mix(in srgb, var(--sem-surface-muted) 70%, transparent) 75%
+  );
+  background-size: 240px 100%;
+  animation: skeletonShimmer 1.7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-fadeIn,
+  .animate-slideIn,
+  .animate-scroll,
+  .notification-badge,
+  .status-indicator,
+  .animate-medical-fade,
+  .animate-medical-pop,
+  .animate-medical-pulse-ring,
+  .animate-medical-dots::after,
+  .skeleton-medical {
+    animation: none !important;
+  }
+  .animate-medical-pulse-ring {
+    opacity: 0 !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
