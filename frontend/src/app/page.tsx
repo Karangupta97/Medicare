@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/footer/footer";
+import { ClosingCta } from "@/components/landing/closing-cta";
 import { Hero } from "@/components/landing/hero";
+import { MotionRoot, ScrollProgress } from "@/components/motion/primitives";
 import { BASE_URL } from "@/components/landing/landing-data";
 import { ReviewForm } from "@/components/landing/review-form";
 import { Services } from "@/components/landing/services";
@@ -108,7 +110,8 @@ const STRUCTURED_DATA = [
 
 export default function Home() {
   return (
-    <>
+    <MotionRoot>
+      <ScrollProgress />
       {STRUCTURED_DATA.map((data) => (
         <script
           key={data["@type"]}
@@ -116,15 +119,16 @@ export default function Home() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
         />
       ))}
-      <main id="main" className="w-full">
+      <main id="main" className="w-full bg-page">
         <Hero />
         <WhyChoose />
         <Vision />
         <Services />
         <Team />
+        <ClosingCta />
         <ReviewForm />
       </main>
       <Footer />
-    </>
+    </MotionRoot>
   );
 }

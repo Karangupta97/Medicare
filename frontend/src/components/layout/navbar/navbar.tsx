@@ -52,6 +52,8 @@ export function Navbar({ user }: NavbarProps) {
   const [userMenuPath, setUserMenuPath] = useState<string | null>(null);
   const [drawerPath, setDrawerPath] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  // Past 8px of scroll the bar gets a blurred translucent background and a hairline bottom border.
+  const [scrolled, setScrolled] = useState(false);
   const mobileTriggerRef = useRef<HTMLButtonElement>(null);
   const desktopTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -64,6 +66,12 @@ export function Navbar({ user }: NavbarProps) {
   const closeLogoutModal = useCallback(() => setIsLogoutModalOpen(false), []);
   const toggleUserMenu = () => setUserMenuPath(isUserMenuOpen ? null : pathname);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   // Close the avatar menu on outside click; Escape closes the menus and returns focus to the button.
   useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
@@ -177,7 +185,14 @@ export function Navbar({ user }: NavbarProps) {
 
   return (
     <>
-      <div className="flex justify-center w-full bg-surface">
+      <div className="sticky top-0 z-50 flex w-full justify-center">
+        {/* Background layer is a sibling of the content, not its ancestor: backdrop-filter on an ancestor would trap the fixed modals. */}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-0 border-b transition-[background-color,border-color,backdrop-filter] duration-200 ease-out motion-reduce:transition-none ${
+            scrolled ? "border-border bg-surface/80 backdrop-blur-md" : "border-transparent bg-surface"
+          }`}
+        />
         <div className="w-full min-h-(--navbar-h) max-w-[1700px] flex justify-between items-center py-2 sm:py-3 lg:py-4 px-4 sm:px-6 lg:px-8 relative z-40">
           <LogoutModal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} onConfirm={handleLogoutConfirm} />
 
@@ -223,7 +238,7 @@ export function Navbar({ user }: NavbarProps) {
                   <Link href="/login" className="btn btn-primary rounded-full px-3 sm:px-4 hover:shadow-lg">
                     Login
                   </Link>
-                  <Link href="/signup" className="btn btn-secondary rounded-full px-3 sm:px-4">
+                  <Link href="/signup" className="btn btn-secondary rounded-full px-3 max-md:hidden sm:px-4">
                     Sign up
                   </Link>
                 </>

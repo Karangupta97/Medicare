@@ -4,7 +4,8 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
 import { LandingIcon } from "./landing-icons";
 import { ROLE_OPTIONS } from "./landing-data";
-import { Reveal } from "./reveal";
+import { Reveal } from "@/components/motion/primitives";
+import { CONTAINER, Eyebrow } from "./section-heading";
 import { SuccessModal } from "./success-modal";
 
 interface ReviewFormData {
@@ -20,11 +21,11 @@ interface SubmitStatus {
   message: string;
 }
 
-// Old field style: px-4 py-3, rounded-xl, light border, half-transparent white. Text is 16px (old 14px) so iOS does not zoom on focus;
+// Old field style: px-4 py-2, rounded-xl, light border, half-transparent white. Text is 16px (old 14px) so iOS does not zoom on focus;
 // the border uses border-strong so the control boundary meets 3:1.
 const LABEL = "block text-sm font-medium text-text";
 const FIELD =
-  "w-full min-h-11 rounded-xl border border-border-strong bg-surface/50 px-4 py-3 text-base text-text placeholder:text-text-muted backdrop-blur-sm transition-all duration-200 ease-out focus:border-brand focus:ring-2 focus:ring-brand";
+  "w-full min-h-11 rounded-xl border border-border-strong bg-surface/50 px-4 py-2 text-base text-text placeholder:text-text-muted backdrop-blur-sm transition-all duration-200 ease-out focus:border-brand focus:ring-2 focus:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 
 const EMPTY_FORM: ReviewFormData = { name: "", role: "patient", review: "", rating: 0, isAnonymous: false };
 
@@ -82,38 +83,25 @@ export function ReviewForm() {
   };
 
   return (
-    // Old: a card (not a section) with mt-8 sm:mt-10 md:mt-12, max-w-3xl, no side margin, and pb-8 below.
-    <section aria-labelledby="review-title" className="w-full pb-8">
-        <Reveal className="mx-auto mt-8 max-w-3xl rounded-2xl border border-surface-muted bg-linear-to-br from-surface to-page p-6 shadow-lg sm:mt-10 sm:rounded-3xl sm:p-8 md:mt-12 md:p-10">
-          <div className="mb-8 text-center">
-            <h2 id="review-title" className="mb-3 text-xl font-bold text-brand sm:text-2xl">
+    <section aria-labelledby="review-title" className={`w-full bg-page py-[clamp(40px,5vw,72px)]`}>
+      <div className={`${CONTAINER} max-w-xl`}>
+        <Reveal innerClassName="rounded-2xl border border-border bg-surface p-5 shadow-soft sm:p-6">
+          <div className="mb-5">
+            <Eyebrow>Feedback</Eyebrow>
+            <h2 id="review-title" className="text-[clamp(1.5rem,1.1rem+1.2vw,1.875rem)] font-bold leading-[1.1] tracking-[-0.02em] text-text">
               Share Your Experience
             </h2>
-            <p className="text-sm text-text-muted sm:text-base">Help others by sharing your experience with Medicare</p>
+            <p className="mt-2 text-base text-text-muted">Help others by sharing your experience with Medicare</p>
             <Link
               href="/detail-review"
-              className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-brand transition-colors duration-200 ease-out hover:text-brand-hover"
+              className="inline-flex min-h-11 items-center text-sm font-medium text-brand transition-colors duration-200 ease-out hover:text-brand-hover"
             >
               Are you a healthcare provider? Share your detailed experience →
             </Link>
           </div>
-
-          {submitStatus.message !== "" && (
-            <div
-              role={submitStatus.type === "error" ? "alert" : "status"}
-              className={`mb-6 rounded-xl border p-4 text-base ${
-                submitStatus.type === "success"
-                  ? "border-success/30 bg-success-subtle text-success"
-                  : "border-danger/30 bg-danger-subtle text-danger"
-              }`}
-            >
-              {submitStatus.message}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
                 <label htmlFor="name" className={LABEL}>
                   Your Name {!formData.isAnonymous && <span className="text-danger">*</span>}
                 </label>
@@ -129,7 +117,7 @@ export function ReviewForm() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label htmlFor="role" className={LABEL}>
                   Your Role <span className="text-danger">*</span>
                 </label>
@@ -156,8 +144,8 @@ export function ReviewForm() {
               </div>
             </div>
 
-            <fieldset className="space-y-2">
-              <legend className={`${LABEL} mb-2`}>
+            <fieldset className="space-y-1">
+              <legend className={`${LABEL} mb-1`}>
                 Your Rating <span className="text-danger">*</span>
               </legend>
               <div className="flex flex-wrap items-center gap-2">
@@ -168,12 +156,11 @@ export function ReviewForm() {
                     onClick={() => setFormData((prev) => ({ ...prev, rating: star }))}
                     aria-label={`${star} ${star === 1 ? "star" : "stars"}`}
                     aria-pressed={formData.rating >= star}
-                    className={`flex size-11 items-center justify-center rounded-lg transition-[transform,color] duration-200 ease-out ${
+                    className={`flex size-10 items-center justify-center rounded-lg transition-[transform,color] duration-200 ease-out ${
                       formData.rating >= star ? "scale-110 text-star" : "text-border-strong hover:text-star"
                     }`}
                   >
-                    {/* Old: FiStar outline in both states; only the color changes */}
-                    <LandingIcon name="star" className="size-8" />
+                    <LandingIcon name="star" className="size-6" fill={formData.rating >= star ? "currentColor" : "none"} />
                   </button>
                 ))}
               </div>
@@ -184,7 +171,7 @@ export function ReviewForm() {
               )}
             </fieldset>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="review" className={LABEL}>
                 Your Experience <span className="text-danger">*</span>
                 <span className="ml-2 text-xs text-text-muted">({formData.review.length}/1000 characters)</span>
@@ -196,17 +183,17 @@ export function ReviewForm() {
                 onChange={handleInputChange}
                 required
                 maxLength={1000}
-                rows={4}
+                rows={3}
                 aria-describedby="review-hint"
                 className={`${FIELD} resize-none`}
                 placeholder="Share your experience with Medicare... (minimum 10 characters)"
               />
-              <p id="review-hint" className="mt-1 text-xs text-danger empty:hidden">
+              <p id="review-hint" className="min-h-4 text-xs text-danger">
                 {formData.review.length < 10 && formData.review.length > 0 ? "Please write at least 10 characters" : ""}
               </p>
             </div>
 
-            <div className="flex flex-col items-center justify-between gap-4 pt-4 sm:flex-row">
+            <div className="flex flex-col items-center justify-between gap-3 pt-1 sm:flex-row">
               <label htmlFor="isAnonymous" className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-text-muted">
                 <input
                   type="checkbox"
@@ -222,8 +209,8 @@ export function ReviewForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand px-8 py-3 font-medium text-on-brand shadow-md transition-[transform,background-color,box-shadow] duration-200 ease-out hover:shadow-lg sm:w-auto ${
-                  isSubmitting ? "cursor-not-allowed opacity-75" : "hover:scale-[1.02] hover:bg-brand-hover active:scale-[0.98]"
+                className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-2 font-medium text-on-brand shadow-md transition-[transform,background-color,box-shadow] duration-200 ease-out hover:shadow-lg sm:w-auto ${
+                  isSubmitting ? "cursor-not-allowed opacity-75" : "hover:bg-brand-hover"
                 }`}
               >
                 {isSubmitting ? (
@@ -243,7 +230,23 @@ export function ReviewForm() {
               </button>
             </div>
           </form>
+          {/* Reserved height: validation and result messages appear here without moving the form */}
+          <div className="mt-3 min-h-12" aria-live="polite">
+            {submitStatus.message !== "" && (
+              <div
+                role={submitStatus.type === "error" ? "alert" : "status"}
+                className={`rounded-xl border p-3 text-sm ${
+                  submitStatus.type === "success"
+                    ? "border-success/30 bg-success-subtle text-success"
+                    : "border-danger/30 bg-danger-subtle text-danger"
+                }`}
+              >
+                {submitStatus.message}
+              </div>
+            )}
+          </div>
         </Reveal>
+      </div>
 
       <SuccessModal
         isOpen={showSuccessModal}

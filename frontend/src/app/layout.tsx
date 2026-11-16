@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import type { NavbarUser } from "@/components/layout/navbar/navbar-data";
@@ -42,11 +43,13 @@ const SIGNED_OUT = null;
 const NAVBAR_USER: NavbarUser | null = process.env.NEXT_PUBLIC_NAVBAR_PREVIEW === "signed-in" ? SIGNED_IN : SIGNED_OUT;
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${Satoshi.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" className={`${Satoshi.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <Navbar user={NAVBAR_USER} />
-          {children}
+          <SmoothScroll>
+            <Navbar user={NAVBAR_USER} />
+            {children}
+          </SmoothScroll>
         </ThemeProvider>
       </body>
     </html>

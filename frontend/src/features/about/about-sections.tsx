@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { CurveDivider } from "@/components/curve-divider";
 import { FaqAccordion } from "@/features/pricing/faq-accordion";
 import { PricingIcon } from "@/features/pricing/pricing-icons";
@@ -36,10 +36,10 @@ function SectionIntro({ id, eyebrow, start, accent, children }: { id: string; ey
       <h2 id={id} className={DISPLAY}>
         <RevealLines
           lines={[
-            <>
+            <Fragment key="line">
               {start}
               <em className="font-normal italic">{accent}</em>
-            </>,
+            </Fragment>,
           ]}
         />
       </h2>
@@ -114,10 +114,10 @@ export function VisionSection() {
         <h2 id="vision-title" className={DISPLAY}>
           <RevealLines
             lines={[
-              <>
+              <Fragment key="line">
                 {VISION.headingStart}
                 <em className="font-normal italic">{VISION.headingAccent}</em>
-              </>,
+              </Fragment>,
             ]}
           />
         </h2>
@@ -143,10 +143,10 @@ export function ValuesSection() {
               <h2 id="values-title" className={DISPLAY}>
                 <RevealLines
                   lines={[
-                    <>
+                    <Fragment key="line">
                       {VALUES.headingStart}
                       <em className="font-normal italic">{VALUES.headingAccent}</em>
-                    </>,
+                    </Fragment>,
                   ]}
                 />
               </h2>
@@ -281,10 +281,10 @@ export function TeamSection() {
         <h2 id="team-title" className={DISPLAY}>
           <RevealLines
             lines={[
-              <>
+              <Fragment key="line">
                 {TEAM.headingStart}
                 <em className="font-normal italic">{TEAM.headingAccent}</em>
-              </>,
+              </Fragment>,
             ]}
           />
         </h2>

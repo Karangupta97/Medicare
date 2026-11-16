@@ -1,3 +1,4 @@
+import type { StaticImageData } from "next/image";
 import type { LandingIconName } from "./landing-icons";
 
 export interface FeatureItem {
@@ -11,6 +12,9 @@ export interface ServiceItem {
   title: string;
   desc: string;
   comingSoon?: boolean;
+  /** TODO: owner to add a photo (import it and set `image`). The Services card shows an empty image slot until then. */
+  image?: StaticImageData;
+  imageAlt?: string;
 }
 
 export interface SocialLink {

@@ -6,7 +6,7 @@ import type { Transition, Variants } from "framer-motion";
  */
 export const EASE_OUT_EXPO = [0.22, 1, 0.36, 1] as const;
 export const EASE_IN_OUT = [0.65, 0, 0.35, 1] as const;
-export const DURATION = { reveal: 0.8, image: 0.9, hover: 0.25 } as const;
+export const DURATION = { base: 0.8, reveal: 0.8, image: 0.9, hover: 0.25 } as const;
 export const STAGGER = 0.08;
 export const REVEAL_DISTANCE = 24;
 /** In-view trigger: any part of a static wrapper (threshold 0), with a small bottom margin. Fires once. */
@@ -40,4 +40,27 @@ export const imageClip: Variants = {
 export const imageScale: Variants = {
   hidden: { scale: 1.08, transition: { duration: 0 } },
   visible: (delay: number = 0) => ({ scale: 1, transition: enter(delay, DURATION.image) }),
+};
+
+/** Shared primitives: 0.8s expo-out, children staggered 0.08s. */
+export const revealItem: Variants = {
+  hidden: { opacity: 0, y: REVEAL_DISTANCE, transition: { duration: 0 } },
+  visible: (delay: number = 0) => ({ opacity: 1, y: 0, transition: enter(delay, DURATION.base) }),
+};
+
+export const staggerContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: STAGGER } },
+};
+
+/** Image frame reveal from the bottom edge, 0.9s ease-in-out (position-style change). */
+export const clipFromBottom: Variants = {
+  hidden: { clipPath: "inset(100% 0% 0% 0%)", transition: { duration: 0 } },
+  visible: { clipPath: "inset(0% 0% 0% 0%)", transition: { duration: DURATION.image, ease: EASE_IN_OUT } },
+};
+
+/** SVG stroke that draws itself in. */
+export const drawIn: Variants = {
+  hidden: { pathLength: 0, transition: { duration: 0 } },
+  visible: { pathLength: 1, transition: { duration: 0.6, ease: EASE_OUT_EXPO } },
 };

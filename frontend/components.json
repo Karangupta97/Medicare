@@ -18,6 +18,7 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@componentry": "https://componentry.dev/r/{name}.json"
+    "@componentry": "https://componentry.dev/r/{name}.json",
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
   }
 }

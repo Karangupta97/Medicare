@@ -1,8 +1,12 @@
+import { Lilita_One } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import handLogo from "@/assets/logo/medicare-hand-logo.png";
 import { LandingIcon } from "@/components/landing/landing-icons";
+import { CursorDrivenParticleTypography } from "@/components/landing/particle-typography/cursor-driven-particle-typography";
 
+// Lilita One (Google Fonts, SIL Open Font License), self-hosted by next/font at build time. Used for the particle wordmark only.
+const lilita = Lilita_One({ weight: "400", subsets: ["latin"], display: "swap" });
 interface FooterLink {
   name: string;
   path: string;
@@ -29,28 +33,29 @@ const LEGAL_LINKS: readonly FooterLink[] = [
   { name: "Cookie Policy", path: "/cookie-policy" },
 ];
 
-// Old: text-white/70, text-sm (sm: text-base, md: text-sm), py-1, rows 12px apart. Rows are 44px tall here for touch.
+// One scale: links and labels are 14px (rows 44px tall for touch); column headings use the eyebrow style; spacing follows
+// clamp(40px, 5vw, 64px) between blocks.
 const LINK_CLASS =
-  "flex min-h-11 items-center text-sm text-on-hero/70 transition-[color,transform] duration-200 ease-out hover:translate-x-1 hover:text-on-hero focus-visible:translate-x-1 sm:text-base md:text-sm";
-
+  "link-draw flex min-h-11 w-fit items-center text-sm text-on-hero/70 transition-colors duration-200 ease-out hover:text-on-hero focus-visible:text-on-hero";
 const SOCIAL_CLASS =
-  "flex size-11 items-center justify-center rounded-full bg-on-hero/10 transition-[background-color,transform] duration-300 ease-out hover:scale-110 hover:bg-on-hero/20 active:scale-95";
+  "flex size-11 items-center justify-center rounded-full bg-on-hero/10 transition-[background-color,transform] duration-200 ease-out hover:bg-on-hero/20 hover:-translate-y-0.5 focus-visible:-translate-y-0.5 motion-reduce:hover:translate-y-0";
+const HEADING_CLASS = "mb-4 text-xs font-medium uppercase tracking-[0.14em] text-hero-accent-to";
 
-/** Footer on the navy hero surface (hero-via), so it stays dark in both themes like the old one. */
+/** Footer on the navy hero surface (hero-via), dark in both themes. Hairline on top, one 4-column grid. */
 export function Footer() {
   return (
-    <footer data-brand-surface className="w-full bg-hero-via pt-8 text-on-hero sm:pt-10 md:pt-12">
-      <div className="mx-auto max-w-[1700px] px-4 pb-bottom-bar sm:px-6 md:px-8 lg:px-10">
-        <div className="mb-8 grid grid-cols-1 gap-6 sm:mb-10 sm:grid-cols-2 sm:gap-8 md:mb-12 lg:grid-cols-4 lg:gap-10">
-          <div className="sm:col-span-2 lg:col-span-1">
-            <div className="mb-4 flex items-center sm:mb-6">
-              <Image src={handLogo} alt="" width={48} height={48} className="mr-2 size-8 rounded-full object-cover sm:mr-3 sm:size-10 md:size-12" />
-              <p className="text-lg font-bold sm:text-xl md:text-2xl">Medicare</p>
+    <footer data-brand-surface className="surface-texture relative w-full overflow-clip border-t border-on-hero/20 bg-hero-via pt-[clamp(64px,8vw,112px)] text-on-hero">
+      <div className="relative mx-auto max-w-7xl px-4 pb-bottom-bar sm:px-6">
+        <div className="grid grid-cols-1 gap-x-[clamp(32px,5vw,64px)] gap-y-[clamp(32px,5vw,48px)] sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+          <div>
+            <div className="mb-4 flex items-center gap-3">
+              <Image src={handLogo} alt="" width={48} height={48} className="size-10 rounded-full object-cover" />
+              <p className="text-xl font-medium">Medicare</p>
             </div>
-            <p className="max-w-xs text-sm leading-relaxed text-on-hero/70 sm:max-w-md sm:text-base md:text-sm lg:max-w-none">
+            <p className="max-w-xs text-sm leading-relaxed text-on-hero/70">
               Empowering individuals to take control of their health through accessible digital healthcare management.
             </p>
-            <ul className="mt-4 flex gap-3 sm:mt-6 sm:gap-4">
+            <ul className="mt-4 flex gap-3">
               <li>
                 <a href="https://twitter.com/Medicares_india" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className={SOCIAL_CLASS}>
                   <LandingIcon name="twitter" className="size-4" />
@@ -63,9 +68,8 @@ export function Footer() {
               </li>
             </ul>
           </div>
-
-          <nav aria-labelledby="footer-quick-links" className="mt-6 sm:mt-0">
-            <h2 id="footer-quick-links" className="mb-4 text-base font-bold sm:mb-6 sm:text-lg md:text-xl">
+          <nav aria-labelledby="footer-quick-links">
+            <h2 id="footer-quick-links" className={HEADING_CLASS}>
               Quick Links
             </h2>
             <ul>
@@ -78,9 +82,8 @@ export function Footer() {
               ))}
             </ul>
           </nav>
-
-          <nav aria-labelledby="footer-services" className="mt-6 sm:mt-0">
-            <h2 id="footer-services" className="mb-4 text-base font-bold sm:mb-6 sm:text-lg md:text-xl">
+          <nav aria-labelledby="footer-services">
+            <h2 id="footer-services" className={HEADING_CLASS}>
               Our Services
             </h2>
             <ul>
@@ -93,42 +96,48 @@ export function Footer() {
               ))}
             </ul>
           </nav>
-
-          <div className="mt-6 sm:mt-0">
-            <h2 className="mb-4 text-base font-bold sm:mb-6 sm:text-lg md:text-xl">Contact Us</h2>
+          <div>
+            <h2 className={HEADING_CLASS}>Contact Us</h2>
             <ul>
-              <li className="group flex min-h-11 items-center">
-                <LandingIcon name="envelope" className="mr-2 size-4 shrink-0 text-on-hero/70 transition-colors duration-200 group-hover:text-on-hero sm:mr-3 sm:size-5" />
-                <a
-                  href="mailto:support@medicares.in"
-                  className="flex min-h-11 items-center break-all text-sm text-on-hero/70 transition-colors duration-200 hover:text-on-hero sm:break-normal sm:text-base md:text-sm"
-                >
+              <li className="flex min-h-11 items-center gap-3">
+                <LandingIcon name="envelope" className="size-4 shrink-0 text-on-hero/70" />
+                <a href="mailto:support@medicares.in" className={`${LINK_CLASS} break-all sm:break-normal`}>
                   support@medicares.in
                 </a>
               </li>
             </ul>
           </div>
         </div>
-
-        <div className="my-4 h-px bg-on-hero/20 sm:my-6 md:my-8" />
-
-        <div className="flex flex-col items-center justify-between gap-3 pb-6 sm:flex-row sm:gap-4 sm:pb-8 md:gap-6">
+        <div className="mb-4 mt-[clamp(40px,5vw,64px)] h-px bg-on-hero/20" />
+        <div className="flex flex-col items-center justify-between gap-3 pb-6 sm:flex-row sm:gap-4 sm:pb-8">
           <p className="text-center text-xs text-on-hero/70 sm:text-left sm:text-sm">
             &copy; {new Date().getFullYear()} Medicare. All rights reserved.
           </p>
-          <ul className="flex flex-wrap justify-center gap-x-4 sm:justify-end sm:gap-x-6">
+          <ul className="flex flex-wrap justify-center gap-x-6 sm:justify-end">
             {LEGAL_LINKS.map((link) => (
               <li key={link.name}>
-                <Link
-                  href={link.path}
-                  className="flex min-h-11 items-center text-xs text-on-hero/70 transition-[color,transform] duration-200 ease-out hover:-translate-y-0.5 hover:text-on-hero sm:text-sm"
-                >
+                <Link href={link.path} className={LINK_CLASS}>
                   {link.name}
                 </Link>
               </li>
             ))}
           </ul>
         </div>
+      </div>
+      {/* Big "Medicare" in particles. It blends (overlay) over the footer text, ignores the pointer and follows the cursor. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[clamp(200px,30vw,420px)] mix-blend-overlay">
+        <CursorDrivenParticleTypography
+          text="Medicare"
+          className="text-on-hero"
+          fontFamily={lilita.style.fontFamily}
+          fontWeight="normal"
+          fontSize={360}
+          maxFontRatio={0.22}
+          heartForI
+          particleSize={1.4}
+          particleDensity={5}
+          dispersionStrength={14}
+        />
       </div>
     </footer>
   );

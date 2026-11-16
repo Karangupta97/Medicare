@@ -226,6 +226,10 @@
 @theme {
   --breakpoint-xs: 320px;
   --shadow-custom: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  /* Soft layered depth: very low opacity, large blur (tinted with the text ink) */
+  --shadow-soft: 0 1px 2px rgb(18 21 46 / 0.04), 0 12px 32px -12px rgb(18 21 46 / 0.1);
+  --shadow-lift: 0 1px 2px rgb(18 21 46 / 0.05), 0 24px 48px -16px rgb(18 21 46 / 0.18);
+  --shadow-inner-light: inset 0 1px 0 rgb(255 255 255 / 0.06);
 }
 
 @theme inline {
@@ -322,16 +326,79 @@
 }
 
 @layer utilities {
+  /* clip, not hidden: hidden would turn body into a scroll container and break position: sticky */
   html,
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
     width: 100%;
     max-width: 100%;
   }
 }
 @utility nav-link {
-  /* Navigation Links */
-  @apply inline-flex items-center min-h-11 text-text hover:text-brand transition-all duration-300 hover:scale-110 hover:bg-surface-muted px-4 py-2 rounded-lg;
+  /* Navigation Links: the underline draws from the left on hover, focus and for the current page */
+  @apply relative inline-flex items-center min-h-11 text-text hover:text-brand focus-visible:text-brand transition-colors duration-200 px-4 py-2 rounded-lg;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 0.5rem;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  &:hover::after,
+  &:focus-visible::after,
+  &[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      transition: none;
+    }
+  }
+}
+@utility link-draw {
+  /* Text link whose underline draws from the left on hover and focus (footer links) */
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.65rem;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  &:hover::after,
+  &:focus-visible::after {
+    transform: scaleX(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      transition: none;
+    }
+  }
+}
+@utility surface-texture {
+  /* Fine dot texture on dark surfaces, under 4% opacity. Children need their own stacking (relative). */
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(var(--sem-on-hero) 0.6px, transparent 0.9px);
+    background-size: 5px 5px;
+    opacity: 0.035;
+  }
 }
 
 @utility mobile-nav-link {
@@ -386,11 +453,6 @@
 }
 
 /* Fluid type utilities (landing page, DESIGN.md section 6.3): clamp() sizes, no breakpoints. */
-@utility text-fluid-hero {
-  /* Old hero h1: 48px at md, 60px at lg, 72px at xl, leading-tight. Fluid between 768px and 1280px. */
-  font-size: clamp(3rem, 0.75rem + 4.6875vw, 4.5rem);
-  line-height: 1.25;
-}
 @utility text-fluid-display {
   /* Pricing page h1: 28px to 44px (about 41px at 1280px), medium weight set by the caller. */
   font-size: clamp(1.75rem, 0.9rem + 2.1vw, 2.75rem);
@@ -904,26 +966,7 @@
   background-size: 240px 100%;
   animation: skeletonShimmer 1.7s linear infinite;
 }
-/* Landing motion: transform and opacity only, ease-out, 600 ms, content visible by default.
-   Utilities (not plain classes) so they take variants such as md:animate-rise. */
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(1.25rem);
-  }
-}
-@keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-1.875rem);
-  }
-}
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
+/* Pricing price change: opacity fade, 150 ms ease-out */
 @keyframes price-in {
   from {
     opacity: 0;
@@ -935,52 +978,9 @@
     animation: none;
   }
 }
-@utility animate-rise {
-  animation: rise-in 0.6s ease-out backwards;
-  animation-delay: var(--rise-delay, 0ms);
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-@utility animate-slide-in-left {
-  animation: slide-in-left 0.6s ease-out backwards;
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-@utility animate-scale-in {
-  animation: scale-in 0.6s ease-out backwards;
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-/* Scroll reveal: Reveal (client) sets data-reveal="hidden" only on below-the-fold elements after hydration */
-[data-reveal="hidden"] {
-  opacity: 0;
-  transform: translateY(1rem);
-}
-[data-reveal="shown"] {
-  transition:
-    opacity 0.5s ease-out var(--reveal-delay, 0ms),
-    transform 0.5s ease-out var(--reveal-delay, 0ms);
-}
-/* Hero shrinks slightly while the page scrolls (old: scale 1 to 0.8 over the first 20% of the page). Browsers without scroll timelines keep it static. */
-@keyframes hero-shrink {
-  to {
-    transform: scale(0.8);
-  }
-}
-@supports (animation-timeline: scroll()) {
-  .animate-hero-shrink {
-    animation: hero-shrink linear both;
-    animation-timeline: scroll(root);
-    animation-range: 0% 20%;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
   .animate-fadeIn,
-  .animate-hero-shrink,
   .animate-slideIn,
   .animate-scroll,
   .notification-badge,
@@ -994,11 +994,6 @@
   }
   .animate-medical-pulse-ring {
     opacity: 0 !important;
-  }
-  [data-reveal] {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
   }
   *,
   *::before,

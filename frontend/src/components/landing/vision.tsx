@@ -1,73 +1,76 @@
-import Image from "next/image";
+import { Fragment } from "react";
 import hospitalRoom from "@/assets/image/hospitalbad.webp";
-import { LandingIcon } from "./landing-icons";
+import Ribbons from "@/components/Ribbons";
+import { CurveDivider } from "@/components/curve-divider";
+import { DrawCheck, ParallaxImage, PullStatement, Reveal, RevealLines, Stagger, StaggerItem } from "@/components/motion/primitives";
+import { CursorReveal } from "./cursor-reveal";
 import { VISION_POINTS } from "./landing-data";
-import { Reveal } from "./reveal";
+import { BODY_CLASS, CONTAINER, Eyebrow, H2_CLASS } from "./section-heading";
 
+const RIBBON_COLORS = ["#a9b3f5", "#6bddd4", "#8f9ae6"];
 /**
- * Vision section. The old page loaded this photo from images.unsplash.com (800 x 1203 crop);
- * the same 800 x 1203 file is now local (src/assets/image/hospitalbad.webp), so it is optimized and has a fixed ratio.
+ * Vision, on an ink surface with a curved top edge. Text on the left (its words lighten as you scroll through it), a
+ * sticky 4:5 photo on the right with a bottom clip reveal and an 8% inner parallax (md and up). The photo is grayscale with a navy tint
+ * (CursorReveal) that opens a soft circle around the mouse to show the real colors. The checklist reveals one item at a time and each
+ * check draws in.
  */
 export function Vision() {
   return (
-    <section
-      id="vision-section"
-      aria-labelledby="vision-title"
-      // Old: py-14 below md, py-8 from md, my-4. Fluid: 56px at 375px to 32px at 768px.
-      className="mt-4 w-full scroll-mt-4 bg-linear-to-b from-tint to-surface py-[clamp(2rem,4.931rem-6.107vw,3.5rem)]"
-    >
-      <div className="mx-auto max-w-7xl px-4">
-        <Reveal className="grid items-center gap-12 md:grid-cols-2">
-          <div className="md:order-2">
-            <div className="relative">
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 -m-6 rounded-full bg-linear-to-r from-violet/20 to-brand/20 opacity-30 blur-3xl sm:-m-10"
+    <section id="vision-section" aria-labelledby="vision-title" className="w-full scroll-mt-20">
+      <CurveDivider orientation="top" className="-mb-px text-hero-via" />
+      <div data-brand-surface className="surface-texture relative overflow-hidden bg-hero-via py-[clamp(48px,7vw,112px)] text-on-hero">
+        {/* Cursor-trailing ribbons in the Medicare palette (periwinkle, teal, indigo). Reads the pointer from the window. */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60">
+          <Ribbons colors={RIBBON_COLORS} thickness={22} length={1.2} softness={0.6} fade />
+        </div>
+        <div className={`relative ${CONTAINER} grid items-start gap-y-[clamp(40px,5vw,72px)] lg:grid-cols-[7fr_5fr] lg:gap-x-[clamp(32px,6vw,96px)]`}>
+          <div>
+            <Eyebrow dark>Our Vision</Eyebrow>
+            <h2 id="vision-title" className={`${H2_CLASS} text-on-hero`}>
+              <RevealLines
+                lines={[
+                  <Fragment key="line">
+                    Healthcare{" "}
+                    <span className="bg-linear-to-r from-hero-accent-from to-hero-accent-to bg-clip-text italic text-transparent">Reimagined</span>
+                  </Fragment>,
+                  "For The Digital Age",
+                ]}
               />
-              <div className="relative aspect-800/1203 overflow-hidden rounded-2xl shadow-2xl">
-                <Image
-                  src={hospitalRoom}
-                  alt="Modern hospital room with a bed and patient monitor"
-                  fill
-                  sizes="(min-width: 1280px) 600px, (min-width: 768px) calc(50vw - 40px), calc(100vw - 32px)"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 flex items-end bg-linear-to-t from-overlay/70 to-transparent">
-                  <div className="p-6 text-on-hero">
-                    <span className="rounded-full bg-violet px-3 py-1 text-sm font-medium text-on-violet">Our Vision</span>
-                    <p className="mt-2 text-2xl font-bold">Healthcare of Tomorrow</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="md:order-1">
-            <div className="mb-6 inline-block rounded-full bg-violet-subtle px-4 py-1.5">
-              <span className="text-sm font-bold uppercase tracking-wide text-on-violet-subtle">Our Vision</span>
-            </div>
-            {/* Old: text-3xl below md, text-4xl from md; leading 1.11 */}
-            <h2 id="vision-title" className="mb-8 text-[clamp(1.875rem,1.517rem+1.53vw,2.25rem)] font-bold leading-[1.15] text-text">
-              Healthcare <span className="italic text-violet">Reimagined</span> For The Digital Age
             </h2>
-            <p className="mb-8 text-lg leading-relaxed text-text-muted">
-              We envision a future where healthcare information is easily accessible, securely managed, and efficiently
-              shared between patients and healthcare providers, leading to better health outcomes for all. Our platform
-              aims to bridge the gap between patients and healthcare providers, creating a unified ecosystem where health
-              information flows seamlessly.
-            </p>
-            <ul className="space-y-4">
+            <PullStatement
+              floor={0.55}
+              className={`${BODY_CLASS} mt-6 max-w-[62ch] text-on-hero`}
+              text="We envision a future where healthcare information is easily accessible, securely managed, and efficiently shared between patients and healthcare providers, leading to better health outcomes for all. Our platform aims to bridge the gap between patients and healthcare providers, creating a unified ecosystem where health information flows seamlessly."
+            />
+            <Stagger as="ul" className="mt-8 max-w-[62ch]" innerClassName="divide-y divide-on-hero/10 border-y border-on-hero/10">
               {VISION_POINTS.map((point) => (
-                <li key={point} className="flex items-start">
-                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-subtle text-violet">
-                    <LandingIcon name="feather-check" className="size-4" />
+                <StaggerItem key={point} as="li" className="flex min-h-14 items-center gap-4 py-4">
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-hero-accent-to/50 text-hero-accent-to">
+                    <DrawCheck className="size-3.5" />
                   </span>
-                  <span className="ml-3 text-text">{point}</span>
-                </li>
+                  <span className="text-base font-normal leading-normal text-on-hero">{point}</span>
+                </StaggerItem>
               ))}
-            </ul>
+            </Stagger>
           </div>
-        </Reveal>
+          <Reveal className="lg:sticky lg:top-[calc(var(--navbar-h)+2rem)]">
+            <ParallaxImage
+              src={hospitalRoom}
+              alt="Modern hospital room with a bed and patient monitor"
+              className="cursor-reveal-root aspect-[4/5] rounded-3xl bg-hero-from shadow-inner-light ring-1 ring-on-hero/10"
+              sizes="(min-width: 1280px) 440px, (min-width: 1024px) 38vw, calc(100vw - 32px)"
+              parallax={8}
+              clipReveal
+              imageClassName="object-cover object-center"
+            >
+              <CursorReveal src={hospitalRoom.src} />
+              <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-on-hero/15 bg-hero-via/70 p-4 backdrop-blur-md">
+                <span className="text-xs font-medium uppercase tracking-[0.14em] text-hero-accent-to">Our Vision</span>
+                <p className="mt-1 text-xl font-medium text-on-hero">Healthcare of Tomorrow</p>
+              </div>
+            </ParallaxImage>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
