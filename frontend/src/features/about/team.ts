@@ -10,6 +10,8 @@ export interface TeamMember {
   role: string;
   photo: StaticImageData;
   photoAlt: string;
+  /** Existing bio from the landing "Meet Our Team" card. */
+  bio?: string;
   highlighted?: boolean;
 }
 
@@ -17,15 +19,13 @@ export const TEAM = {
   headingStart: "Meet Our ",
   headingAccent: "Team",
   subtitle: "The passionate minds behind Medicare's mission to revolutionize healthcare management",
-  carouselLabel: "Team members",
-  previousLabel: "Previous team member",
-  nextLabel: "Next team member",
   members: [
     {
       name: "Karan Gupta",
       role: "Founder & CEO of Medicare",
       photo: founder,
       photoAlt: "Karan Gupta - Founder & CEO",
+      bio: "Passionate about healthcare technology and committed to creating innovative solutions that improve patient care and medical record management. Specialized in building secure, scalable, and user-friendly healthcare applications.",
       highlighted: true,
     },
   ] satisfies readonly TeamMember[],

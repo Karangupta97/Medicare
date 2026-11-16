@@ -26,7 +26,7 @@ class StageErrorBoundary extends Component<{ fallback: ReactNode; children: Reac
   }
 }
 
-/** Static mark, centered at the same scale the canvas uses (70% of the shorter side). */
+/** Static mark, centered at the same scale the canvas uses (about 70% of the shorter side). */
 function StaticMark({ hidden }: { hidden?: boolean }) {
   return (
     <div
@@ -34,7 +34,7 @@ function StaticMark({ hidden }: { hidden?: boolean }) {
         hidden === true ? "opacity-0" : "opacity-100"
       }`}
     >
-      <MedicareMark className="h-[70%] max-w-[70%] aspect-square" />
+      <MedicareMark className="h-[78%] max-w-[78%] aspect-square" />
     </div>
   );
 }
@@ -42,9 +42,9 @@ function StaticMark({ hidden }: { hidden?: boolean }) {
 /**
  * Decorative stage for the Medicare mark as an interactive dither particle field. The canvas is created only while the
  * stage is near the viewport and the tab is visible, so no animation runs off screen. The static mark shows until the
- * canvas is ready, with reduced motion, and if anything fails. Ratio is fixed (1:1 phones, 4:3 from sm), so nothing shifts.
+ * canvas is ready, with reduced motion, and if anything fails. Ratio is fixed (1:1), so nothing shifts.
  */
-export function DitheredStage() {
+export function DitheredStage({ className }: { className?: string }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   const [tabVisible, setTabVisible] = useState(true);
@@ -83,18 +83,20 @@ export function DitheredStage() {
     <div
       ref={stageRef}
       aria-hidden="true"
-      className="relative mx-auto aspect-square w-full max-w-3xl overflow-hidden rounded-2xl bg-surface-muted text-brand [touch-action:pan-y] sm:aspect-[4/3]"
+      className={`relative mx-auto aspect-square w-full max-w-[520px] overflow-hidden rounded-2xl [touch-action:pan-y] ${className ?? "bg-surface-muted text-brand"}`}
     >
       <StaticMark hidden={showCanvas && ready} />
       {showCanvas && (
         <StageErrorBoundary fallback={null}>
           <DitheredLogo
             imageSrc={MARK_SRC}
-            className="absolute inset-0 h-full w-full text-brand"
-            gridSize={isWide ? 160 : 120}
-            scale={0.7}
-            blur={2}
-            threshold={180}
+            className="absolute inset-0 h-full w-full"
+            gridSize={isWide ? 190 : 130}
+            scale={0.78}
+            dotScale={0.72}
+            blur={1.5}
+            contrast={25}
+            threshold={176}
             invert
             onReady={onReady}
             onError={onError}

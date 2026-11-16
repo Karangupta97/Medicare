@@ -7,14 +7,18 @@ interface CtaBannerProps {
   body: string;
   href: string;
   label: string;
+  /** Top spacing classes. Default is the Pricing page gap. */
+  spacing?: string;
+  /** Reserve space below (the last block before the footer). Default true. */
+  bottomSpace?: boolean;
 }
 
 /** Closing banner: flat brand surface, one pill button. Used by the Pricing and About pages. */
-export function CtaBanner({ id, heading, body, href, label }: CtaBannerProps) {
+export function CtaBanner({ id, heading, body, href, label, spacing = "mt-[clamp(64px,9svh,112px)]", bottomSpace = true }: CtaBannerProps) {
   return (
     <section
       aria-labelledby={id}
-      className="mx-auto mt-[clamp(64px,9svh,112px)] w-full max-w-[960px] px-4 pb-[max(3rem,env(safe-area-inset-bottom))] sm:px-6"
+      className={`mx-auto w-full max-w-[960px] px-4 sm:px-6 ${spacing} ${bottomSpace ? "pb-[max(3rem,env(safe-area-inset-bottom))]" : ""}`}
     >
       <div className="rounded-2xl bg-brand px-6 py-[clamp(40px,6svh,72px)] text-center text-on-brand">
         <h2

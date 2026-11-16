@@ -2,7 +2,6 @@
 export const VISION = {
   headingStart: "Our ",
   headingAccent: "Vision",
-  stageCaption: "Medicare",
   paragraph:
     "We envision a future where healthcare information is easily accessible, securely managed, and efficiently shared between patients and healthcare providers, leading to better health outcomes for all. Our platform aims to bridge the gap between patients and healthcare providers, creating a unified ecosystem where health information flows seamlessly.",
   quote:
