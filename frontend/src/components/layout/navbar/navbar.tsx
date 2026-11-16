@@ -9,7 +9,6 @@ import darkLogo from "@/assets/logo/medicare-logo-tp-full-on-dark.webp";
 import { Icon } from "./icons";
 import { LogoutModal } from "./logout-modal";
 import { ProfilePicture } from "./profile-picture";
-import { ThemeSwitch } from "./theme-switch";
 import {
   BOTTOM_NAV_AFTER_UPLOAD,
   BOTTOM_NAV_BEFORE_UPLOAD,
@@ -179,7 +178,7 @@ export function Navbar({ user }: NavbarProps) {
   return (
     <>
       <div className="flex justify-center w-full bg-surface">
-        <div className="w-full max-w-[1700px] flex justify-between items-center py-2 sm:py-3 lg:py-4 px-4 sm:px-6 lg:px-8 relative z-40">
+        <div className="w-full min-h-(--navbar-h) max-w-[1700px] flex justify-between items-center py-2 sm:py-3 lg:py-4 px-4 sm:px-6 lg:px-8 relative z-40">
           <LogoutModal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} onConfirm={handleLogoutConfirm} />
 
           {/* Mobile Controls */}
@@ -189,7 +188,6 @@ export function Navbar({ user }: NavbarProps) {
             </Link>
 
             <div className="flex items-center space-x-1.5 sm:space-x-3">
-              <ThemeSwitch />
               {user !== null ? (
                 <div className="relative" data-user-menu>
                   <button
@@ -252,7 +250,6 @@ export function Navbar({ user }: NavbarProps) {
 
             {user !== null ? (
               <div className="flex items-center space-x-4">
-                <ThemeSwitch />
                 {/* Notification Bell */}
                 <Link
                   href="/dashboard/notifications"
@@ -303,7 +300,6 @@ export function Navbar({ user }: NavbarProps) {
             ) : (
               // TODO: wire auth later (login and signup routes)
               <div className="flex items-center space-x-2">
-                <ThemeSwitch />
                 <Link href="/login" className="btn btn-primary rounded-full whitespace-nowrap px-5 py-2 text-base hover:shadow-lg">
                   Login
                 </Link>

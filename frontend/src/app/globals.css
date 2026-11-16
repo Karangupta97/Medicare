@@ -3,7 +3,15 @@
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/aspect-ratio";
 @custom-variant dark (&:where(.dark, .dark *));
-
+/* Navbar height, used by full-viewport sections: 64px on phones, 72px from lg. The navbar's inner bar has min-height var(--navbar-h). */
+:root {
+  --navbar-h: 64px;
+}
+@media (width >= 64rem) {
+  :root {
+    --navbar-h: 72px;
+  }
+}
 :root {
   /* Primitive_Tokens (DESIGN.md section 3.2): the only raw color literals in the Target_App */
   /* White */
@@ -382,6 +390,13 @@
   /* Old hero h1: 48px at md, 60px at lg, 72px at xl, leading-tight. Fluid between 768px and 1280px. */
   font-size: clamp(3rem, 0.75rem + 4.6875vw, 4.5rem);
   line-height: 1.25;
+}
+@utility text-fluid-display {
+  /* Pricing page h1: 28px to 44px (about 41px at 1280px), medium weight set by the caller. */
+  font-size: clamp(1.75rem, 0.9rem + 2.1vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  overflow-wrap: break-word;
 }
 @utility text-fluid-h2 {
   /* Old section h2: 24px below md, 36px from md. Fluid between 375px and 768px. */
@@ -907,6 +922,17 @@
   from {
     opacity: 0;
     transform: scale(0.95);
+  }
+}
+@keyframes price-in {
+  from {
+    opacity: 0;
+  }
+}
+@utility animate-price-in {
+  animation: price-in 0.15s ease-out;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
 @utility animate-rise {

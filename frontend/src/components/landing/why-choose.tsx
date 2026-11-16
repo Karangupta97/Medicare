@@ -35,7 +35,7 @@ export function WhyChoose() {
         </ul>
 
         <Reveal className="mt-12 text-center md:mt-16" delay={300}>
-          <CtaLink href="/aboutus" label="Learn More About Us" arrow="arrow" />
+          <CtaLink href="/about" label="Learn More About Us" arrow="arrow" />
         </Reveal>
       </div>
     </section>

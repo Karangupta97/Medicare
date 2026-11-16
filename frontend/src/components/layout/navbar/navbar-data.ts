@@ -29,7 +29,7 @@ export const DESKTOP_LINKS: readonly NavLinkItem[] = [
   { href: "/", label: "Home" },
   { href: "/health-records", label: "Health Records" },
   { href: "/dashboard/upload", label: "Upload Reports" },
-  { href: "/aboutus", label: "About Us" },
+  { href: "/about", label: "About Us" },
   { href: "/pricing", label: "Pricing" },
   { href: "/dashboard", label: "Dashboard" },
 ];
@@ -40,7 +40,7 @@ export const DRAWER_LINKS: readonly NavLinkItem[] = [
   { href: "/services", label: "Services" },
   { href: "/health-records", label: "Health Records" },
   { href: "/dashboard/upload", label: "Upload Reports" },
-  { href: "/aboutus", label: "About Us" },
+  { href: "/about", label: "About Us" },
   { href: "/pricing", label: "Pricing" },
   { href: "/profile", label: "Profile" },
 ];
@@ -72,7 +72,7 @@ export const BOTTOM_NAV_UPLOAD: BottomNavItem = {
   icon: "plus",
 };
 export const BOTTOM_NAV_AFTER_UPLOAD: readonly BottomNavItem[] = [
-  { href: "/aboutus", label: "About", icon: "info" },
+  { href: "/about", label: "About", icon: "info" },
   { href: "/dashboard", label: "Dashboard", icon: "layout" },
 ];
 

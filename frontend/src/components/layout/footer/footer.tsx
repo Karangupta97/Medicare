@@ -10,7 +10,7 @@ interface FooterLink {
 
 const QUICK_LINKS: readonly FooterLink[] = [
   { name: "Home", path: "/" },
-  { name: "About Us", path: "/aboutus" },
+  { name: "About Us", path: "/about" },
   { name: "Profile", path: "/profile" },
   { name: "Dashboard", path: "/dashboard" },
   { name: "Services", path: "/services" },
