@@ -54,9 +54,9 @@ export const PLANS: readonly Plan[] = [
     key: "pro",
     name: "Pro",
     tagline: "For individuals who want more",
-    monthlyPrice: 11,
-    annualPrice: 92,
-    savePct: 30,
+    monthlyPrice: 49,
+    annualPrice: 353, // 49 * 12 - 40%
+    savePct: 40,
     icon: "zap",
     popular: true,
     cta: "Buy Pro Plan",
@@ -76,9 +76,9 @@ export const PLANS: readonly Plan[] = [
     key: "premium",
     name: "Premium",
     tagline: "Complete family healthcare",
-    monthlyPrice: 399,
-    annualPrice: 3112,
-    savePct: 35,
+    monthlyPrice: 99,
+    annualPrice: 713, // 99 * 12 - 40%
+    savePct: 40,
     icon: "star",
     cta: "Go Premium",
     ctaHref: "/login", // TODO: wire auth later

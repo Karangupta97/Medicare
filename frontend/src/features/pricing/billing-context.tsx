@@ -13,9 +13,9 @@ interface BillingContextValue {
 
 const BillingContext = createContext<BillingContextValue | null>(null);
 
-/** Holds the Monthly/Annual choice (annual by default, as on the old page) and the phone plan selection. */
+/** Holds the Monthly/Annual choice (monthly by default) and the phone plan selection. */
 export function BillingProvider({ children }: { children: ReactNode }) {
-  const [billing, setBilling] = useState<BillingPeriod>("annual");
+  const [billing, setBilling] = useState<BillingPeriod>("monthly");
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>("pro");
   const value = useMemo(() => ({ billing, setBilling, selectedPlan, setSelectedPlan }), [billing, selectedPlan]);
   return <BillingContext.Provider value={value}>{children}</BillingContext.Provider>;
