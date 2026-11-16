@@ -11,7 +11,7 @@ This design ports the Medicare design system from `frontend-react/` (Vite, Tailw
 | Goal | How the design meets it | Requirements |
 | :--- | :--- | :--- |
 | Light theme identical to legacy | Every legacy color reaches CSS through a Primitive_Token that holds the exact legacy value: hex for hex literals, the Tailwind v4 `oklch()` literal for palette utilities | 2, 3, 4, 10.6, 20 |
-| One base font | Montserrat Alternates through `next/font/google`, weights 400/500/700/900; Satoshi dropped | 5, 6 |
+| One base font | Satoshi, self-hosted with `next/font/local` from the Fontshare variable files (weights 300 to 900); no `font-montserrat` utility, no alias | 5, 6 |
 | Dark mode without per-component overrides | Three layers: Primitive_Token → Semantic_Token (`:root` and `.dark`) → `@theme inline` mapping to `--color-<role>` | 9, 10, 11 |
 | Accessible in both themes | Contrast pairs computed in this document; light legacy failures listed, not changed | 12, 13 |
 | Reviewable | `/design-check` route, three commits, a Review_Stop after each | 14, 18 |
@@ -35,7 +35,7 @@ All paths are under `frontend/node_modules/next/dist/docs/01-app/`.
 
 | Guide | Used for |
 | :--- | :--- |
-| `01-getting-started/13-fonts.md` and `03-api-reference/02-components/font.md` | `next/font/google` options `weight`, `style`, `subsets`, `display` (default `swap`), `preload` (default `true`), `adjustFontFallback`, `variable`; the "With Tailwind CSS" CSS-variable pattern on `<html>` |
+| `01-getting-started/13-fonts.md` and `03-api-reference/02-components/font.md` | `next/font/local` options `src`, `weight`, `style`, `display` (default `swap`), `preload` (default `true`), `adjustFontFallback` (`'Arial'` is the default for local fonts), `variable`, `declarations`; the "With Tailwind CSS" CSS-variable pattern on `<html>` |
 | `03-api-reference/03-file-conventions/01-metadata/app-icons.md` | `favicon.ico` (top level of `app/` only), `icon.svg` (emits `sizes="any"`, `type="image/svg+xml"`), `apple-icon.tsx` generated with `ImageResponse` and exported `size` / `contentType` |
 | `03-api-reference/04-functions/image-response.md` and `03-api-reference/03-file-conventions/01-metadata/opengraph-image.md` | `ImageResponse` from `next/og`; reading a local asset with `readFile(join(process.cwd(), …), 'base64')` into an `<img>` data URI; 500 KB bundle limit; flexbox-only layout |
 | `03-api-reference/04-functions/generate-metadata.md` | `robots: { index: false, follow: false }`; `themeColor`, `colorScheme` and `viewport` in `metadata` are deprecated, so this design uses none of them (Requirement 1.6) |
@@ -151,7 +151,7 @@ The file is ordered so that cascade and Tailwind processing match the legacy fil
 | 3 | Primitive_Tokens | `:root { --prim-*: … }` light and (C2) dark primitives | 4.2, 10.7, 20.2 |
 | 4 | Light Semantic_Tokens | `:root { color-scheme: light; --sem-*: var(--prim-*); }` (`color-scheme` added in C2) | 10.1, 12.5 |
 | 5 | Dark Semantic_Tokens (C2) | `.dark { color-scheme: dark; --sem-*: var(--prim-*); }` | 10.1, 10.2, 11, 12.5 |
-| 6 | Theme | `@theme { --breakpoint-xs: 320px; --shadow-custom: 0px 10px 20px rgba(0, 0, 0, 0.2); }` and `@theme inline { --font-sans; --font-montserrat; --color-<role>: var(--sem-<role>); … }` | 2.1, 3.1, 4.4, 5.2, 5.5, 10.3 |
+| 6 | Theme | `@theme { --breakpoint-xs: 320px; --shadow-custom: 0px 10px 20px rgba(0, 0, 0, 0.2); }` and `@theme inline { --font-sans; --color-<role>: var(--sem-<role>); … }` | 2.1, 3.1, 4.4, 5.2, 5.5, 10.3 |
 | 7 | Base layer | `@layer base { border-color compat rule; html, body { font-family: var(--font-sans); } body { background-color: var(--sem-page); color: var(--sem-page-fg); } }` | 3.3, 3.11, 5.4 |
 | 8 | Utilities layer | `@layer utilities { html, body { overflow-x: hidden; width: 100%; max-width: 100%; } }` (no `#root`) | 3.7, 3.12 |
 | 9 | `@utility` classes | The 23 classes in legacy order, palette utilities replaced | 3.4, 20 |
@@ -201,8 +201,7 @@ Abbreviated skeleton (the full token lists are in Data Models):
 }
 
 @theme inline {
-  --font-sans: var(--font-montserrat-alternates), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-  --font-montserrat: var(--font-montserrat-alternates), sans-serif;
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --color-primary: var(--sem-primary);
   --color-secondary: var(--sem-secondary);
   --color-accent: var(--sem-accent);
@@ -237,15 +236,19 @@ Commit C1 (no `next-themes`, so it builds on its own, Requirement 18.6):
 
 ```tsx
 import type { Metadata } from "next";
-import { Montserrat_Alternates } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const montserratAlternates = Montserrat_Alternates({
-  subsets: ["latin"],
-  weight: ["400", "500", "700", "900"],
-  style: ["normal"],
+// next/font names the family after this constant, so the capital S matters.
+const Satoshi = localFont({
+  src: [
+    { path: "../assets/fonts/satoshi/Satoshi-Variable.woff2", weight: "300 900", style: "normal" },
+    { path: "../assets/fonts/satoshi/Satoshi-VariableItalic.woff2", weight: "300 900", style: "italic" },
+  ],
   display: "swap",
-  variable: "--font-montserrat-alternates",
+  variable: "--font-satoshi",
+  preload: true,
+  adjustFontFallback: "Arial",
 });
 
 export const metadata: Metadata = {
@@ -254,7 +257,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${montserratAlternates.variable} h-full`}>
+    <html lang="en" className={`${Satoshi.variable} h-full`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
@@ -266,7 +269,7 @@ Commit C2 adds `suppressHydrationWarning` on `<html>` only (Requirement 21.4) an
 ```tsx
 import { ThemeProvider } from "@/components/theme/theme-provider";
 // …
-<html lang="en" className={`${montserratAlternates.variable} h-full`} suppressHydrationWarning>
+<html lang="en" className={`${Satoshi.variable} h-full`} suppressHydrationWarning>
   <body className="min-h-full flex flex-col">
     <ThemeProvider>{children}</ThemeProvider>
   </body>
@@ -746,8 +749,8 @@ No test framework or property-testing library is installed, and Requirement 8.1 
 | :--- | :--- | :--- |
 | `_checks/properties.check.mjs` | Property tests with a seeded PRNG (mulberry32), at least 100 iterations each; prints the seed and the first counterexample on failure | Properties 1, 2, 3, 12, 13, 14, 16 (resolver logic run against a fake style source) |
 | `_checks/stylesheet.check.mjs` | Static checks over `src/app/globals.css`, legacy `../frontend-react/src/index.css` and `_lib/tokens.ts`, iterating every token, pair, class and keyframe | Properties 4–11, 15, 17, 18, 19 |
-| `_checks/repo.check.mjs` | File-system checks | Property 5 (all of `src`), logo and icon sha256 equality (7.2, 7.4), no `/design-check` references outside the route (14.10), no `Geist`, `Inter`, `Satoshi`, `fontshare`, `preload: false` or `adjustFontFallback: false` (5.3, 5.5, 5.6, 5.8, 6.3) |
-| `_checks/build-output.check.mjs` | Run after `npm run build` | Built CSS contains `.bg-primary`, `.xs\:flex`, `.font-montserrat`, `.shadow-custom`, `.prose`, `.aspect-w-16`, each `@utility` class and its variant forms; utilities reference `var(--sem-*)` with no literal color; prerendered `/` HTML has the three icon links (7.7); prerendered `/design-check` HTML has `<meta name="robots" content="noindex, nofollow">` (14.9) |
+| `_checks/repo.check.mjs` | File-system checks | Property 5 (all of `src`), logo and icon sha256 equality (7.2, 7.4), no `/design-check` references outside the route (14.10), no `Geist`, `Inter`, `Montserrat`, remote font URL, `preload: false` or `adjustFontFallback: false`; Satoshi loaded with `next/font/local` from the two variable files with the agreed options, sha256 of both font files and the license pinned to the Fontshare originals (5.1, 5.3, 5.5, 5.8, 6.2) |
+| `_checks/build-output.check.mjs` | Run after `npm run build` | Built CSS contains `.bg-primary`, `.xs\:flex`, `.shadow-custom`, `.prose`, `.aspect-w-16`, each `@utility` class and its variant forms; utilities reference `var(--sem-*)` with no literal color; prerendered `/` HTML has the three icon links (7.7); prerendered `/design-check` HTML has `<meta name="robots" content="noindex, nofollow">` (14.9) |
 
 Each property test names its property in a comment, using the tag format `Feature: design-system-dark-mode, Property N: <title>`.
 
@@ -776,32 +779,37 @@ The Implementer never runs `npm run dev`, `npm run start` or watch commands (15.
 
 | Item | Value | Requirements |
 | :--- | :--- | :--- |
-| Loader | `Montserrat_Alternates` from `next/font/google` (export name confirmed in `next/dist/compiled/@next/font/dist/google/index.d.ts`; font data lists weights 100–900, normal and italic, subset `latin`) | 5.1 |
-| Options | `subsets: ["latin"]`, `weight: ["400", "500", "700", "900"]`, `style: ["normal"]`, `display: "swap"`, `variable: "--font-montserrat-alternates"`; `preload` and `adjustFontFallback` left at their `true` defaults | 5.1, 5.8, 5.11 |
-| Applied on | `<html className={montserratAlternates.variable}>` | 5.1 |
-| Base_Font_Stack | `var(--font-montserrat-alternates), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif` (fallback list "TODO: confirm" in DESIGN.md). The next/font variable already contains the generated `'Montserrat Alternates Fallback'` face, which is a `local()` metric-adjusted face and needs no network request. | 5.4 |
-| `--font-sans` | Base_Font_Stack in `@theme inline`; Tailwind preflight reads it through `--default-font-family`, so `html`, `prose` and forms controls inherit it | 5.5 |
+| Loader | `localFont` from `next/font/local`, constant named `Satoshi` (next/font names the family after the constant, so `getComputedStyle(body).fontFamily` starts with `Satoshi, "Satoshi Fallback"`) | 5.1 |
+| Files | `src/assets/fonts/satoshi/Satoshi-Variable.woff2` (normal) and `Satoshi-VariableItalic.woff2` (italic), copied unchanged from the Fontshare download (`Fonts/WEB/fonts/`). Both have one `wght` axis from 300 to 900, with named instances 300, 400, 500, 700 and 900. | 5.1, 6.2 |
+| Options | `weight: "300 900"` on each file, `display: "swap"`, `variable: "--font-satoshi"`, `preload: true`, `adjustFontFallback: "Arial"` | 5.1, 5.8 |
+| Applied on | `<html className={Satoshi.variable}>` | 5.1 |
+| Base_Font_Stack | `var(--font-satoshi), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif`. The next/font variable already contains the generated `Satoshi Fallback` face, a `local(Arial)` metric-adjusted face that needs no network request. | 5.4 |
+| `--font-sans` | The Base_Font_Stack in `@theme inline`, declared once. Tailwind preflight reads it through `--default-font-family`, so `html`, `prose` and forms controls inherit it. | 5.5 |
 | `--font-mono` | Not redeclared, so the Tailwind default stays | 5.5 |
-| `--font-montserrat` | `var(--font-montserrat-alternates), sans-serif` in `@theme inline` | 2.6, 5.2 |
-| Remote font loading | None: no `@import url(...)`, no `<link>`; next/font self-hosts at build time | 5.3, 5.9, 6.3 |
+| `--font-montserrat` | Removed. There is no `font-montserrat` utility and no alias. | 2.6, 5.2 |
+| Remote font loading | None: no `@import url(...)`, no `<link>`; next/font serves the files from `/_next/static/media/` on the app origin | 5.3, 5.9, 6.3 |
 | Inter | Not loaded; listed as skipped | 5.6 |
-| Satoshi | Not loaded; listed as skipped with reason "dropped by project-owner decision; base font is Montserrat Alternates" | 6.3, 6.4 |
+| Montserrat Alternates | Not loaded; listed as skipped with reason "replaced by project-owner decision; base font is Satoshi" | 6.4 |
+| License | Fontshare ITF Free Font License, file `src/assets/fonts/satoshi/LICENSE.txt`. It allows self-hosting for commercial use and forbids editing, subsetting or converting the files, so `repo.check.mjs` pins their sha256. | 6.1, 6.2 |
 
-Weight mapping (Satoshi resolved the same way, Requirement 5.1):
+Weight mapping. Satoshi is a variable font, so every weight below is a real face; nothing relies on CSS font matching.
 
-| Class / weight | Legacy usage (requirements table) | Face loaded |
+| Class / weight | Face | Used by the design system |
 | :--- | :--- | :--- |
-| `font-normal` 400 | 7 | 400 |
-| `font-medium` 500 | 849 | 500 |
-| `font-semibold` 600, inline 600 | 372 + 46, 63 files | 700 by CSS font matching |
-| `font-bold` 700 | 295 | 700 |
-| `font-extrabold` 800 | 12, 7 files | 900 by CSS font matching |
-| `font-black` 900 | not counted | 900 |
-| `font-thin`/`font-extralight`/`font-light`, 100/200/300 | Implementer counts (Requirement 5.10) | 400 by CSS font matching |
+| `font-normal` 400 | real 400 | yes |
+| `font-medium` 500 | real 500 | yes |
+| `font-bold` 700 | real 700 | yes |
+| `font-black` 900 | real 900 | yes |
+| `font-semibold` 600 | real 600 (not 700 as with the legacy static files) | no, do not use |
+| `font-extrabold` 800 | real 800 (not 900 as with the legacy static files) | no, do not use |
+| `font-light` 300 | real 300 | no, do not use |
+| `font-thin`, `font-extralight` (100, 200) | clamped to 300, the lowest face | no, do not use |
 
-The license is read by the Implementer from the Google Fonts specimen page during implementation (Requirement 6.1). It is expected to be the SIL Open Font License 1.1, but this design records it as "TODO: confirm" until the page is read (Requirement 6.2).
+The legacy app loaded four static Satoshi files (400, 500, 700, 900), so its `font-semibold` rendered as 700 and its `font-extrabold` as 900. In the variable font those classes would render as true 600 and 800, which looks different. The Target_App therefore keeps to the four documented weights. The one `font-semibold` in the starter `page.tsx` became `font-bold`.
 
-Risk: `next build` downloads the font files from Google at build time. If the download fails, Requirement 15.6 applies (build marked failed, owner asked).
+The italic file is loaded but unused; keeping it is an owner decision (D4 below).
+
+Risk: none at build time. The fonts are local files, so `next build` makes no network request for them.
 
 ## Dark Mode Runtime
 
@@ -1085,7 +1093,7 @@ Sections, in page order (Requirement 14.6). Every state is a separate static sam
 | Section | Samples |
 | :--- | :--- |
 | Header | Page title, current Theme_Mode and Resolved_Theme as text, the Theme_Toggle |
-| Typography | `heading-1`, `heading-2`, `body-text`, `font-sans`, `font-montserrat`, `font-mono`; each labeled with computed font family, size, line height and weight |
+| Typography | `heading-1`, `heading-2`, `body-text`, `form-label`, `font-sans`; each labeled with computed font family, size, line height and weight |
 | Primitive swatches | One per `--prim-*` |
 | Semantic swatches | One per `--sem-*`, including `primary`, `secondary`, `accent`, `on-brand`, `on-auth-primary` and the Requirement 20 tokens; pair, ratio and pass/fail where a pair exists |
 | Buttons | `btn btn-primary` and `btn btn-secondary`: default; hover (forced with important utilities, e.g. `bg-brand-hover! shadow-md!`); focus-visible (forced `outline-2 outline-offset-2 outline-focus-ring`); active (legacy has no active style; the label says so); disabled (native `disabled`; legacy has no disabled style; label "TODO: confirm") |
@@ -1096,7 +1104,7 @@ Sections, in page order (Requirement 14.6). Every state is a separate static sam
 | Modal overlay | A bounded `relative overflow-hidden` box containing `bg-overlay/50` and a `card` dialog |
 | Motion | One element per animation class (all 11), labeled, for manual check (e) |
 | Ported plain classes | `.glass`, `.glass-effect`, `.glass-search-dropdown`, `.glass-search-card`, `.mobile-search-modal`, `.custom-scrollbar` (scrolling box), `.gradient-text`, `.skeleton-medical` |
-| Utility coverage | Elements that use `bg-primary`, `text-secondary`, `bg-accent`, `border-accent`, `xs:flex`, `font-montserrat`, `shadow-custom`, `prose`, `aspect-w-16 aspect-h-9`, a native `<input>`/`<select>`/`<textarea>` (forms base styles), and variant forms `sm:card`, `hover:btn-primary`, `sm:heading-1`, so the build output check finds them |
+| Utility coverage | Elements that use `bg-primary`, `text-secondary`, `bg-accent`, `border-accent`, `xs:flex`, `shadow-custom`, `prose`, `aspect-w-16 aspect-h-9`, a native `<input>`/`<select>`/`<textarea>` (forms base styles), and variant forms `sm:card`, `hover:btn-primary`, `sm:heading-1`, so the build output check finds them |
 
 Interactive elements in the route (buttons, links, inputs, toggle) get `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring` (Requirement 12.7). Element ids must not look like hex colors (for example `#add` or `#face` would match the Requirement 10.5 pattern).
 
@@ -1217,7 +1225,7 @@ At each Review_Stop the Implementer reports the commit hash, the committed files
 | D1 | Untracked `frontend/` scaffold. **Deferred by owner (commits skipped for now).** | 1 separate `chore: scaffold frontend` commit (recommended); 2 include in C1; 3 other | 1.1, 1.7, 18.6, 18.7 |
 | D2 | `src/app/page.tsx` contains raw hex `#383838`, `#ccc`, `#1a1a1a` and uses the removed `bg-foreground`/`text-background` utilities. Property 5 fails while it stays. **Resolved: replace raw hex in page.tsx with Semantic_Token utilities (owner-approved under Req 1.7).** | a) approve replacing those classes with semantic utilities; b) approve replacing the page with a minimal placeholder; c) leave it and accept Requirement 10.5 failing until feature porting | 1.7, 3.9, 10.5 |
 | D3 | Files to delete, rename or keep: `favicon1.ico`, `favicon2.ico`, text-only SVGs, `transparent/` files with leading-space names, `… copy.png`, the empty `src/assets/image/` folder | keep / delete / rename (each pending) | 7.5 |
-| D4 | Add Montserrat Alternates 600 for `font-semibold` (418 uses, 63 files) | keep 400/500/700/900; add 600 (and 800) | 5.10, 5.11 |
+| D4 | Keep or remove the Satoshi italic file (about 43 KB, preloaded, unused) | keep it; or remove it until italic text is needed | 5.11 |
 | D5 | Inter | stay skipped; add through `next/font/google` | 5.6, 5.7 |
 | D6 | Near-duplicate merges | merge `#1a1f4d` into `#1a1f4a`, `#fafbfc` into `#f8fafc`, `#111827` into `#0f172a`; or keep separate | 4.6 |
 | D7 | `#ffffff` role split (57% text-on-color, 31% background) | accept mapping to `on-brand`, `on-auth-primary` and `surface`; or treat as ambiguous | 4.3, 4.5 |
@@ -1226,7 +1234,7 @@ At each Review_Stop the Implementer reports the commit hash, the committed files
 | D10 | `scriptProps={{ type }}` switch to avoid React's script warning | keep if manual check (b) is clean; remove and accept the warning; or another documented option | 21.3–21.5 |
 | D11 | Invalid stored mode with OS dark can paint one light frame before the guard runs | accept; or add an owner-approved inline guard script | 9.3, 9.6 |
 | D12 | Plugin specifiers | legacy specifiers `^0.5.10`, `^0.5.16`, `^0.4.2` (recommended); or latest | 8.5, 8.7 |
-| D13 | Montserrat Alternates license | Implementer records it from the Google Fonts page; "TODO: confirm" until then | 6.1, 6.2 |
+| D13 | Satoshi license | Resolved: Fontshare ITF Free Font License, file `src/assets/fonts/satoshi/LICENSE.txt` | 6.1, 6.2 |
 | D14 | Logo clear space and minimum size | "TODO: confirm" in DESIGN.md section 12 | 16.8, 16.12 |
 
 Known facts the owner should see:

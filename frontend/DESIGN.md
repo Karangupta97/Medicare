@@ -40,7 +40,7 @@ Medicare is a digital health-records platform for patients, doctors, hospitals a
 | Styling | Tailwind CSS v4 (`@theme`, `@utility`) | 4.3.3 (`@tailwindcss/turbopack` 4.3.3) |
 | Tailwind plugins | `@tailwindcss/forms`, `@tailwindcss/typography`, `@tailwindcss/aspect-ratio` | `^0.5.10` (installed 0.5.11), `^0.5.16` (installed 0.5.20), `^0.4.2` (installed 0.4.2) |
 | Theming | `next-themes` (class strategy) | `^0.4.6` (installed 0.4.6) |
-| Fonts | `next/font/google` (Montserrat Alternates) | built into Next.js |
+| Fonts | `next/font/local` (Satoshi, variable, self-hosted) | built into Next.js |
 | Language | TypeScript (`strict: true`) | `^5` (installed 5.9.3) |
 
 Versions in this table must match `frontend/package.json` exactly. Update them whenever a dependency changes.
@@ -197,13 +197,15 @@ Every pair meets its minimum. There are no known contrast exceptions (section 11
 
 | Role | Family | CSS variable | Loading | Fallback stack |
 | :--- | :--- | :--- | :--- | :--- |
-| Primary (all UI text) | Montserrat Alternates | `--font-montserrat` (token), next/font variable set in `layout.tsx` | `next/font/google`, `latin` subset, `display: swap` | `ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif` (as written in `globals.css`) |
+| Primary (all UI text) | Satoshi | `--font-satoshi` (set in `layout.tsx`); Tailwind `font-sans` | `next/font/local`, `Satoshi-Variable.woff2` and `Satoshi-VariableItalic.woff2` from `src/assets/fonts/satoshi/`, weight range `300 900`, `display: swap`, `preload: true`, `adjustFontFallback: "Arial"` | `ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif` (as written in `globals.css`) |
 
-- Weights loaded: 400, 500, 700, 900 (`layout.tsx`, `weight` option). Tailwind classes `font-normal` (400), `font-medium` (500), `font-bold` (700) and `font-black` (900) map to a loaded face; `font-semibold` (600) and `font-extrabold` (800) use the nearest loaded face (browser matching).
-- `--font-sans` points to the same stack, so default `font-sans` text and form controls use Montserrat Alternates.
-- No font is loaded from a third-party origin at runtime. All font files are served from the app's own origin.
-- Montserrat Alternates is wider than most UI fonts. Test long labels, buttons and table headers for wrapping.
-- License: TODO: confirm (name and URL as published on the font's Google Fonts page).
+- **One place sets the font.** `--font-sans` in `@theme inline` is `var(--font-satoshi)` followed by the fallback stack. `html`, `body`, headings, buttons, inputs, `prose` and the forms plugin controls all inherit it. No component sets its own `font-family`. There is no `font-montserrat` utility and no alias for it; use `font-sans`.
+- **Weights.** Satoshi is a variable font with a real weight axis from 300 to 900. The design system uses four weights: `font-normal` (400), `font-medium` (500), `font-bold` (700) and `font-black` (900). Each one is a real face of the variable file, not a browser-made bold. `font-semibold` (600), `font-extrabold` (800) and `font-light` (300) would also render as real interpolated weights, but they are not part of the design system, so do not use them. The one `font-semibold` in the starter `page.tsx` was changed to `font-bold`.
+- **Italic.** The italic variable file is loaded and preloaded, but nothing in the app uses italic yet. TODO: confirm whether to keep it (about 43 KB) or remove it until italic text is needed.
+- **Third parties.** No font is loaded from a third-party origin at runtime. Both files are served from the app's own origin under `/_next/static/media/`.
+- **Family name.** `next/font` names the family after the constant in `layout.tsx` (`const Satoshi`), so `getComputedStyle(body).fontFamily` starts with `Satoshi, "Satoshi Fallback"`. Keep the capital S.
+- **Files are used as downloaded.** The license forbids editing, subsetting or converting the font software. `repo.check.mjs` pins the sha256 of both font files and of the license text, so a changed file fails the check.
+- **License:** Fontshare ITF Free Font License, file in `src/assets/fonts/satoshi/LICENSE.txt`. It allows self-hosting for personal and commercial use.
 
 ### 4.2 Type scale
 
@@ -312,6 +314,7 @@ State coverage is required for every component: default, hover, focus-visible, a
 | Status badge | `status-badge-success`, `-warning`, `-error` | subtle background plus matching text token | 3 | Confirmed |
 | Alert | TODO: define class | `success`, `warning`, `danger`, `secondary` (info), `emergency` families | 5 | TODO: confirm |
 | Nav link | `nav-link`, `mobile-nav-link`, `menu-item` | `text-text`, hover `text-brand` with `bg-surface-muted` | default, active | Confirmed |
+| Navbar | `src/components/layout/navbar/` (`Navbar`, `LogoutModal`, `ProfilePicture`) | `bg-surface`, `border-border`, `text-text`, `text-text-muted`, `bg-brand`, `text-brand`, `bg-danger`, `text-danger`, `bg-danger-subtle`, overlay `bg-overlay/50`; logo swaps with `logo-for-light` / `logo-for-dark` | desktop (lg+), mobile top bar with avatar menu, fixed bottom bar, avatar dropdown, logout modal | Ported from the legacy app. Avatar menu button has `aria-expanded` and `aria-controls`; Escape and outside click close it; links use `aria-current="page"`. User data is a placeholder prop (TODO: wire auth later). The slide-in menu has no opening control, as in the legacy app. |
 | Table | native elements | `bg-surface`, header `bg-surface-muted`, `border-border` | default | TODO: confirm |
 | Toast | custom | TODO: define | success, error, info | TODO: confirm |
 | Gradient text | `gradient-text` | gradient from `brand` to `secondary` | default | **Deprecated, remove when unused.** Kept only because it was ported from the legacy app. Do not use in new work. |
@@ -456,6 +459,7 @@ None. Every pair in section 3.5 meets its minimum in both themes. List any pair 
 | :--- | :--- | :--- | :--- |
 | `medicare-logo-full-on-light.svg` | Icon and wordmark | Light | `src/assets/logo/` |
 | `medicare-logo-full-on-dark.svg` | Icon and wordmark | Dark | `src/assets/logo/` |
+| `medicare-logo-tp-full-on-dark.webp` | Icon and wordmark, transparent background | Dark | `src/assets/logo/` (used by the navbar) |
 | `medicare-logo-icon-on-light.svg` | Icon only | Light | `src/assets/logo/` |
 | `medicare-logo-icon-on-dark.svg` | Icon only | Dark | `src/assets/logo/` |
 
@@ -531,4 +535,5 @@ If a role later needs its own surface or accent, add it as a documented semantic
 
 | Date | Change | Author |
 | :--- | :--- | :--- |
-| YYYY-MM-DD | Initial design system: refreshed palette (primary, secondary, accent, neutral, status), light and dark themes, Montserrat Alternates as primary font, ported utilities and keyframes. Date must equal the commit date. | TODO: confirm |
+| YYYY-MM-DD | Initial design system: refreshed palette (primary, secondary, accent, neutral, status), light and dark themes, ported utilities and keyframes. Date must equal the commit date. | TODO: confirm |
+| YYYY-MM-DD | Primary font is Satoshi, self-hosted with `next/font/local` from the variable files in `src/assets/fonts/satoshi/` (weights 300 to 900). The `font-montserrat` utility was removed with no alias. `font-semibold` in the starter page became `font-bold`. Date must equal the commit date. | TODO: confirm |

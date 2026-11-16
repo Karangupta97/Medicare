@@ -53,7 +53,7 @@ export function activeBreakpoint(width: number): string {
 }
 
 // Typography is read from probe elements that carry the class, at the current viewport width.
-export const TYPE_CLASSES = ["heading-1", "heading-2", "body-text", "form-label", "font-sans", "font-montserrat"] as const;
+export const TYPE_CLASSES = ["heading-1", "heading-2", "body-text", "form-label", "font-sans"] as const;
 
 let cachedWidth = -1;
 let cachedMetrics = "";
@@ -81,11 +81,17 @@ export function useTypeMetrics(): ReadonlyMap<string, TypographyStyle> | null {
 
 export type FontFaceInfo = { readonly weight: string; readonly style: string; readonly status: string };
 
+/** True when a face's `weight` descriptor covers `weight`. A variable font reports a range such as "300 900". */
+export function faceCoversWeight(face: FontFaceInfo, weight: number): boolean {
+  const [low, high = low] = face.weight.split(/\s+/).map(Number);
+  return Number.isFinite(low) && Number.isFinite(high) && low <= weight && weight <= high;
+}
+
 function readFonts(): string {
   if (typeof document === "undefined" || !("fonts" in document)) return "";
   const faces: FontFaceInfo[] = [];
   document.fonts.forEach((face) => {
-    if (/montserrat/i.test(face.family)) faces.push({ weight: face.weight, style: face.style, status: face.status });
+    if (/satoshi/i.test(face.family)) faces.push({ weight: face.weight, style: face.style, status: face.status });
   });
   return JSON.stringify(faces);
 }
@@ -95,7 +101,7 @@ function subscribeFonts(onChange: () => void): () => void {
   return () => document.fonts.removeEventListener("loadingdone", onChange);
 }
 
-/** Montserrat Alternates font faces declared on the page and their load status. Null until mounted. */
+/** Satoshi font faces declared on the page and their load status. Null until mounted. */
 export function useFontFaces(): readonly FontFaceInfo[] | null {
   const json = useSyncExternalStore(subscribeFonts, readFonts, () => "");
   if (json === "") return null;

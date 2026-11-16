@@ -310,7 +310,7 @@ function LegacyUtilities() {
       <Sample label="xs:flex" note="Appears from 320px.">
         <div className="hidden items-center gap-2 rounded-lg bg-surface-muted p-3 text-sm text-text xs:flex">xs:flex</div>
       </Sample>
-      <Sample label="font-montserrat"><p className="font-montserrat text-lg text-text">font-montserrat</p></Sample>
+      <Sample label="font-sans (Satoshi)"><p className="font-sans text-lg text-text">font-sans</p></Sample>
       <Sample label="shadow-custom"><div className="shadow-custom rounded-lg bg-surface p-3 text-sm text-text">shadow-custom</div></Sample>
       <Sample label="aspect-w-16 aspect-h-9">
         <div className="aspect-w-16 aspect-h-9">

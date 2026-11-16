@@ -1,69 +1,130 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import { Footer } from "@/components/layout/footer/footer";
+import { Hero } from "@/components/landing/hero";
+import { BASE_URL } from "@/components/landing/landing-data";
+import { ReviewForm } from "@/components/landing/review-form";
+import { Services } from "@/components/landing/services";
+import { Team } from "@/components/landing/team";
+import { Vision } from "@/components/landing/vision";
+import { WhyChoose } from "@/components/landing/why-choose";
+
+const OG_IMAGE = `${BASE_URL}/logo.png`;
+const SHARE_TITLE = "Medicare - Healthcare Management Platform";
+const SHARE_DESCRIPTION =
+  "Access your medical records, find hospitals, and manage your healthcare journey with our secure platform.";
+
+// Replaces react-helmet-async from the old page. The old theme-color meta (a hex value) is left out because
+// raw hex is only allowed in globals.css (DESIGN.md section 3).
+export const metadata: Metadata = {
+  title: "Medicare",
+  description:
+    "Medicare is a secure healthcare platform connecting patients, doctors, and hospitals. Access medical records, find hospitals, and manage your healthcare journey efficiently.",
+  keywords:
+    "healthcare platform, medical records, hospital finder, digital health, patient care, healthcare management, hospital locator, medical reports",
+  authors: [{ name: "Medicare" }],
+  applicationName: "Medicare",
+  metadataBase: new URL(BASE_URL),
+  alternates: { canonical: BASE_URL },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+  formatDetection: { telephone: false },
+  appleWebApp: { capable: true, title: "Medicare", statusBarStyle: "default" },
+  openGraph: {
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
+    images: [OG_IMAGE],
+    url: BASE_URL,
+    type: "website",
+    siteName: "Medicare",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@Medicares_india",
+    creator: "@Medicares_india",
+    title: SHARE_TITLE,
+    description: SHARE_DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  other: { "mobile-web-app-capable": "yes" },
+};
+
+// Copied from the old page. TODO: confirm with the owner that the rating and review below are real before publishing,
+// because search engines treat made-up review markup as spam.
+const STRUCTURED_DATA = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Medicare",
+    description:
+      "A secure healthcare platform that connects patients, doctors, and hospitals, providing instant access to medical records and expert care.",
+    url: BASE_URL,
+    logo: OG_IMAGE,
+    sameAs: ["https://twitter.com/Medicares_india", "https://instagram.com/medicaresindia"],
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "",
+      email: "support@medicares.in",
+      contactType: "customer service",
+      availableLanguage: ["English", "Hindi"],
+    },
+    address: { "@type": "PostalAddress", addressCountry: "IN" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Medicare",
+    url: BASE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${BASE_URL}/find-hospital?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HealthAndBeautyBusiness",
+    name: "Medicare Platform",
+    image: OG_IMAGE,
+    url: BASE_URL,
+    description:
+      "A comprehensive healthcare management platform providing digital health records and hospital finding services.",
+    priceRange: "Free",
+    address: { "@type": "PostalAddress", addressCountry: "IN" },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "2000",
+      bestRating: "5",
+      worstRating: "1",
+    },
+    review: {
+      "@type": "Review",
+      reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+      author: { "@type": "Person", name: "Dr. Rajesh Sharma" },
+      reviewBody:
+        "Being a doctor in one of Delhi's busiest hospitals, Medicare has helped me access patient records efficiently. The platform is reliable and user-friendly even during peak hours.",
+    },
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      {STRUCTURED_DATA.map((data) => (
+        <script
+          key={data["@type"]}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand px-5 text-on-brand transition-colors hover:bg-brand-hover md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-surface-muted md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      ))}
+      <main id="main" className="w-full">
+        <Hero />
+        <WhyChoose />
+        <Vision />
+        <Services />
+        <Team />
+        <ReviewForm />
       </main>
-    </div>
+      <Footer />
+    </>
   );
 }

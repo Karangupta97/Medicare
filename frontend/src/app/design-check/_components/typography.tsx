@@ -1,5 +1,5 @@
 "use client";
-import { activeBreakpoint, useFontFaces, useTypeMetrics, useViewportWidth } from "../_lib/hooks";
+import { activeBreakpoint, faceCoversWeight, useFontFaces, useTypeMetrics, useViewportWidth } from "../_lib/hooks";
 import { Code, Panel, Sample } from "./panel";
 
 const SPECIMENS = [
@@ -27,9 +27,9 @@ export function Typography() {
 
   function faceStatus(weight: number): string {
     if (faces === null) return "…";
-    const matching = faces.filter((face) => face.weight === String(weight));
+    const matching = faces.filter((face) => face.style === "normal" && faceCoversWeight(face, weight));
     if (matching.length === 0) return "not declared";
-    return matching.some((face) => face.status === "loaded") ? "loaded" : "declared, loads on first use";
+    return matching.some((face) => face.status === "loaded") ? "real face, loaded" : "real face, loads on first use";
   }
 
   return (
@@ -61,7 +61,7 @@ export function Typography() {
         </div>
       </Panel>
 
-      <Panel title="Font" description="Montserrat Alternates, loaded with next/font/google (latin subset, display swap).">
+      <Panel title="Font" description="Satoshi, self-hosted with next/font/local as a variable font (weights 300 to 900, display swap). The files are served from this app's own origin.">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="min-w-0 space-y-4">
             <Sample label="Family stack in use">

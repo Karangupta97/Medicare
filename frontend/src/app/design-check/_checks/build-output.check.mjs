@@ -17,7 +17,7 @@
 //
 // Stage 2 (task 15.8) adds:
 //   - the compiled CSS has `.bg-primary`, `.text-secondary`, `.bg-accent`,
-//     `.xs\:flex`, `.font-montserrat`, `.shadow-custom`, `.prose` and
+//     `.xs\:flex`, `.shadow-custom`, `.prose` and
 //     `.aspect-w-16` (Requirements 3.1, 3.2)
 //   - the compiled CSS has a rule for each of the 23 `@utility` classes
 //     and for each variant form of them used under `src`, at least
@@ -380,7 +380,7 @@ const STAGE_1_CHECKS = [
  * utility coverage section uses (Requirements 3.1, 3.2).
  */
 const LEGACY_COVERAGE_CLASSES = [
-  "bg-primary", "text-secondary", "bg-accent", "xs:flex", "font-montserrat", "shadow-custom",
+  "bg-primary", "text-secondary", "bg-accent", "xs:flex", "shadow-custom",
   "prose", "aspect-w-16", "aspect-h-9",
 ];
 
@@ -486,7 +486,7 @@ function checkDesignCheckInternalOnly() {
 }
 
 const STAGE_2_CHECKS = [
-  { name: "compiled CSS has bg-primary, text-secondary, bg-accent, xs:flex, font-montserrat, shadow-custom, prose, aspect-w-16 (3.1, 3.2)", run: checkLegacyCoverageClasses },
+  { name: "compiled CSS has bg-primary, text-secondary, bg-accent, xs:flex, shadow-custom, prose, aspect-w-16 (3.1, 3.2)", run: checkLegacyCoverageClasses },
   { name: "compiled CSS has all 23 @utility classes and their variant forms used in src (3.4)", run: checkUtilityCoverage },
   { name: "compiled CSS has the @tailwindcss/forms base rules for input, select and textarea (3.2)", run: checkFormsBaseRules },
   { name: "/design-check is internal only: 404 in the production build, noindex and nofollow metadata (14.9)", run: checkDesignCheckInternalOnly },

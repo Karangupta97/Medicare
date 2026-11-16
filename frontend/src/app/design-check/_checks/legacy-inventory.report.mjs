@@ -5,7 +5,7 @@
 //   - the hex inventory (Requirement 4.1)
 //   - single-file values (4.5, 17.3 a) and near-duplicate pairs (4.6, 17.3 d)
 //   - font-weight class and numeric weight counts (5.10)
-//   - Legacy_Token usage counts (17.1, 17.2) and `font-montserrat` files (17.5)
+//   - Legacy_Token usage counts (17.1, 17.2)
 //   - the real format of `frontend-react/public/logo.png` (17.4)
 //
 // Report only: the file name ends in `.report.mjs`, so the check runner skips it.
@@ -237,7 +237,6 @@ const TOKENS = [
   { name: "accent", utility: colorTokenRe("accent"), cssVar: /--color-accent(?![\w-])/g },
   // A Tailwind variant has no whitespace or quote after the colon; `@xs:` is a container query.
   { name: "xs", utility: /(?<![\w@-])((?:max-)?xs):(?=[^\s'"`,;)}])/g, cssVar: /--breakpoint-xs(?![\w-])/g },
-  { name: "font-montserrat", utility: /(?<![\w-])(font-montserrat)(?![\w-])/g, cssVar: /--font-montserrat(?![\w-])/g },
   { name: "shadow-custom", utility: /(?<![\w-])(shadow-custom)(?:\/[\w.%[\]-]+)?(?![\w-])/g, cssVar: /--shadow-custom(?![\w-])/g },
 ];
 // Every `xs:` occurrence, for the false-positive check.
@@ -462,12 +461,6 @@ out("| :--- | ---: | ---: |");
 const subs = [...substrings.entries()].sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0]));
 for (const [name, e] of subs) out(`| \`${name}\` | ${e.count} | ${e.files.size} |`);
 if (subs.length === 0) out("| none | | |");
-out();
-
-out("### `font-montserrat` usage files (17.5)");
-out();
-const mont = tokens.get("font-montserrat");
-out(mont.files.size ? [...mont.files.keys()].map((f) => `- \`${f}\``).join("\n") : "None: no file under `frontend-react/src` uses `font-montserrat` or `--font-montserrat` outside the `@theme` block.");
 out();
 
 out("### Favicon type mismatch (17.4)");

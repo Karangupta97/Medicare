@@ -69,6 +69,22 @@
   /* Overlay */
   --prim-black: #000000; /* Tailwind v3: black */
   --prim-night-1000: #05061a;
+  /* Landing (legacy landing page colors, owner decision Step H-fix; DESIGN.md section 3.6) */
+  --prim-navy-500: #2f347c; /* legacy desktop hero gradient end */
+  --prim-navy-400: #3a3f7a; /* legacy compact hero gradient end */
+  --prim-sky-100: #dbeafe; /* Tailwind v4 blue-100 */
+  --prim-sky-200: #bedbff; /* Tailwind v4 blue-200 */
+  --prim-sky-400: #51a2ff; /* Tailwind v4 blue-400 */
+  --prim-sky-500: #2b7fff; /* Tailwind v4 blue-500 */
+  --prim-lilac-100: #f3e8ff; /* Tailwind v4 purple-100 */
+  --prim-lilac-200: #e9d4ff; /* Tailwind v4 purple-200 */
+  --prim-lilac-300: #dab2ff; /* Tailwind v4 purple-300 */
+  --prim-lilac-400: #c27aff; /* Tailwind v4 purple-400 */
+  --prim-lilac-600: #9810fa; /* Tailwind v4 purple-600 */
+  --prim-lilac-700: #8200db; /* Tailwind v4 purple-700 */
+  --prim-lilac-dusk: #7f6aa8; /* desaturated purple glow for dark */
+  --prim-lilac-950: #2a1f47; /* violet-subtle in dark */
+  --prim-green-500: #00c950; /* Tailwind v4 green-500 */
 }
 
 :root,
@@ -81,6 +97,7 @@
   --sem-page: var(--prim-ink-50);
   --sem-surface: var(--prim-white);
   --sem-surface-muted: var(--prim-ink-100);
+  --sem-tint: #eef1ff; /* legacy landing section tint */
   --sem-border: var(--prim-ink-200);
   --sem-border-strong: var(--prim-ink-400);
   --sem-text: var(--prim-ink-900);
@@ -108,12 +125,31 @@
   --sem-success: var(--prim-green-700);
   --sem-success-subtle: var(--prim-green-50);
   --sem-warning: var(--prim-amber-700);
+  --sem-star: #facc15; /* legacy Tailwind yellow-400 */
   --sem-warning-subtle: var(--prim-amber-50);
   --sem-danger: var(--prim-rose-600);
   --sem-danger-subtle: var(--prim-rose-50);
   --sem-emergency: var(--prim-vermilion-700);
   --sem-emergency-subtle: var(--prim-vermilion-50);
   --sem-on-emergency: var(--prim-white);
+  /* Landing: hero card (dark in both themes) and violet accent */
+  --sem-hero-from: var(--prim-navy-900);
+  --sem-hero-via: var(--prim-navy-700);
+  --sem-hero-to: var(--prim-navy-500);
+  --sem-hero-to-compact: var(--prim-navy-400);
+  --sem-on-hero: var(--prim-white);
+  --sem-hero-headline-mid: var(--prim-sky-100);
+  --sem-hero-headline-end: var(--prim-lilac-200);
+  --sem-hero-accent-from: var(--prim-sky-200);
+  --sem-hero-accent-to: var(--prim-lilac-300);
+  --sem-hero-glow-a: var(--prim-sky-400);
+  --sem-hero-glow-b: var(--prim-lilac-400);
+  --sem-hero-check: var(--prim-green-500);
+  --sem-hero-lock: var(--prim-sky-500);
+  --sem-violet: var(--prim-lilac-600);
+  --sem-violet-subtle: var(--prim-lilac-100);
+  --sem-on-violet-subtle: var(--prim-lilac-700);
+  --sem-on-violet: var(--prim-white);
 }
 
 .dark {
@@ -124,6 +160,7 @@
   --sem-page: var(--prim-night-950);
   --sem-surface: var(--prim-night-900);
   --sem-surface-muted: var(--prim-night-800);
+  --sem-tint: var(--prim-night-800);
   --sem-border: var(--prim-night-700);
   --sem-border-strong: var(--prim-night-500);
   --sem-text: var(--prim-night-50);
@@ -151,12 +188,31 @@
   --sem-success: var(--prim-green-400);
   --sem-success-subtle: var(--prim-green-950);
   --sem-warning: var(--prim-amber-400);
+  --sem-star: #facc15;
   --sem-warning-subtle: var(--prim-amber-950);
   --sem-danger: var(--prim-rose-400);
   --sem-danger-subtle: var(--prim-rose-950);
   --sem-emergency: var(--prim-vermilion-400);
   --sem-emergency-subtle: var(--prim-vermilion-950);
   --sem-on-emergency: var(--prim-night-950);
+  /* Landing: hero card (dark in both themes) and violet accent */
+  --sem-hero-from: var(--prim-night-900);
+  --sem-hero-via: var(--prim-navy-900);
+  --sem-hero-to: var(--prim-navy-700);
+  --sem-hero-to-compact: var(--prim-navy-500);
+  --sem-on-hero: var(--prim-night-50);
+  --sem-hero-headline-mid: var(--prim-sky-100);
+  --sem-hero-headline-end: var(--prim-lilac-200);
+  --sem-hero-accent-from: var(--prim-sky-200);
+  --sem-hero-accent-to: var(--prim-lilac-300);
+  --sem-hero-glow-a: var(--prim-night-500);
+  --sem-hero-glow-b: var(--prim-lilac-dusk);
+  --sem-hero-check: var(--prim-green-400);
+  --sem-hero-lock: var(--prim-indigo-400);
+  --sem-violet: var(--prim-lilac-300);
+  --sem-violet-subtle: var(--prim-lilac-950);
+  --sem-on-violet-subtle: var(--prim-lilac-200);
+  --sem-on-violet: var(--prim-night-950);
 }
 
 @theme {
@@ -165,12 +221,12 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-montserrat-alternates), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-  --font-montserrat: var(--font-montserrat-alternates), sans-serif;
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
 
   --color-page: var(--sem-page);
   --color-surface: var(--sem-surface);
   --color-surface-muted: var(--sem-surface-muted);
+  --color-tint: var(--sem-tint);
   --color-border: var(--sem-border);
   --color-border-strong: var(--sem-border-strong);
   --color-text: var(--sem-text);
@@ -196,15 +252,38 @@
   --color-success: var(--sem-success);
   --color-success-subtle: var(--sem-success-subtle);
   --color-warning: var(--sem-warning);
+  --color-star: var(--sem-star);
   --color-warning-subtle: var(--sem-warning-subtle);
   --color-danger: var(--sem-danger);
   --color-danger-subtle: var(--sem-danger-subtle);
   --color-emergency: var(--sem-emergency);
   --color-emergency-subtle: var(--sem-emergency-subtle);
   --color-on-emergency: var(--sem-on-emergency);
+  --color-hero-from: var(--sem-hero-from);
+  --color-hero-via: var(--sem-hero-via);
+  --color-hero-to: var(--sem-hero-to);
+  --color-hero-to-compact: var(--sem-hero-to-compact);
+  --color-on-hero: var(--sem-on-hero);
+  --color-hero-headline-mid: var(--sem-hero-headline-mid);
+  --color-hero-headline-end: var(--sem-hero-headline-end);
+  --color-hero-accent-from: var(--sem-hero-accent-from);
+  --color-hero-accent-to: var(--sem-hero-accent-to);
+  --color-hero-glow-a: var(--sem-hero-glow-a);
+  --color-hero-glow-b: var(--sem-hero-glow-b);
+  --color-hero-check: var(--sem-hero-check);
+  --color-hero-lock: var(--sem-hero-lock);
+  --color-violet: var(--sem-violet);
+  --color-violet-subtle: var(--sem-violet-subtle);
+  --color-on-violet-subtle: var(--sem-on-violet-subtle);
+  --color-on-violet: var(--sem-on-violet);
 }
 
 @layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   *,
   ::after,
   ::before,
@@ -223,6 +302,10 @@
     color: var(--sem-text);
   }
 
+  /* Hero surfaces (landing hero, footer, coming-soon overlay) stay dark in both themes, so the focus outline uses on-hero there */
+  [data-brand-surface] :focus-visible {
+    outline-color: var(--sem-on-hero);
+  }
   /* Visible keyboard focus on every interactive element (DESIGN.md section 11) */
   :focus-visible {
     outline: 2px solid var(--sem-brand);
@@ -247,6 +330,19 @@
   @apply block w-full min-h-11 px-4 py-3 text-text hover:bg-surface-muted rounded-xl transition-colors text-base font-medium;
 }
 
+@utility logo-for-light {
+  /* Theme-swapped logo: shown in light, hidden in dark (pairs with logo-for-dark) */
+  display: block;
+  :where(.dark, .dark *) & {
+    display: none;
+  }
+}
+@utility logo-for-dark {
+  display: none;
+  :where(.dark, .dark *) & {
+    display: block;
+  }
+}
 @utility menu-item {
   @apply flex items-center min-h-11 space-x-3 px-4 py-2 text-sm text-text hover:bg-surface-muted transition-colors;
 }
@@ -281,6 +377,30 @@
   @apply bg-secondary-subtle text-on-secondary-subtle border border-secondary hover:border-brand;
 }
 
+/* Fluid type utilities (landing page, DESIGN.md section 6.3): clamp() sizes, no breakpoints. */
+@utility text-fluid-hero {
+  /* Old hero h1: 48px at md, 60px at lg, 72px at xl, leading-tight. Fluid between 768px and 1280px. */
+  font-size: clamp(3rem, 0.75rem + 4.6875vw, 4.5rem);
+  line-height: 1.25;
+}
+@utility text-fluid-h2 {
+  /* Old section h2: 24px below md, 36px from md. Fluid between 375px and 768px. */
+  font-size: clamp(1.5rem, 0.375rem + 4.2vw, 2.25rem);
+  line-height: 1.15;
+  overflow-wrap: break-word;
+}
+@utility pb-bottom-bar {
+  /* Clears the fixed mobile bottom bar (65px) plus the device safe area; the bar is hidden from lg up */
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  @media (width >= 64rem) {
+    padding-bottom: 0;
+  }
+}
+@utility grid-auto-fit {
+  /* Column count follows the available width. Set the minimum card width with --card-min (default 19rem). */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-min, 19rem)), 1fr));
+}
 @utility container-custom {
   /* Common Layout Utilities */
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
@@ -769,9 +889,72 @@
   background-size: 240px 100%;
   animation: skeletonShimmer 1.7s linear infinite;
 }
+/* Landing motion: transform and opacity only, ease-out, 600 ms, content visible by default.
+   Utilities (not plain classes) so they take variants such as md:animate-rise. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-1.875rem);
+  }
+}
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+@utility animate-rise {
+  animation: rise-in 0.6s ease-out backwards;
+  animation-delay: var(--rise-delay, 0ms);
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+@utility animate-slide-in-left {
+  animation: slide-in-left 0.6s ease-out backwards;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+@utility animate-scale-in {
+  animation: scale-in 0.6s ease-out backwards;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+/* Scroll reveal: Reveal (client) sets data-reveal="hidden" only on below-the-fold elements after hydration */
+[data-reveal="hidden"] {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+[data-reveal="shown"] {
+  transition:
+    opacity 0.5s ease-out var(--reveal-delay, 0ms),
+    transform 0.5s ease-out var(--reveal-delay, 0ms);
+}
+/* Hero shrinks slightly while the page scrolls (old: scale 1 to 0.8 over the first 20% of the page). Browsers without scroll timelines keep it static. */
+@keyframes hero-shrink {
+  to {
+    transform: scale(0.8);
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .animate-hero-shrink {
+    animation: hero-shrink linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0% 20%;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
   .animate-fadeIn,
+  .animate-hero-shrink,
   .animate-slideIn,
   .animate-scroll,
   .notification-badge,
@@ -785,6 +968,11 @@
   }
   .animate-medical-pulse-ring {
     opacity: 0 !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
   *,
   *::before,

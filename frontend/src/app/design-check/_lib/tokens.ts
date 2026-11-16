@@ -59,6 +59,21 @@ export const PRIMITIVE_NAMES = [
   "--prim-vermilion-950",
   "--prim-black",
   "--prim-night-1000",
+  "--prim-navy-500",
+  "--prim-navy-400",
+  "--prim-sky-100",
+  "--prim-sky-200",
+  "--prim-sky-400",
+  "--prim-sky-500",
+  "--prim-lilac-100",
+  "--prim-lilac-200",
+  "--prim-lilac-300",
+  "--prim-lilac-400",
+  "--prim-lilac-600",
+  "--prim-lilac-700",
+  "--prim-lilac-dusk",
+  "--prim-lilac-950",
+  "--prim-green-500",
 ] as const;
 
 /** Every Semantic_Token (DESIGN.md section 3.3). Each is declared in both `:root` and `.dark`. */
@@ -91,6 +106,23 @@ export const SEMANTIC_NAMES = [
   "--sem-emergency",
   "--sem-emergency-subtle",
   "--sem-on-emergency",
+  "--sem-hero-from",
+  "--sem-hero-via",
+  "--sem-hero-to",
+  "--sem-hero-to-compact",
+  "--sem-on-hero",
+  "--sem-hero-headline-mid",
+  "--sem-hero-headline-end",
+  "--sem-hero-accent-from",
+  "--sem-hero-accent-to",
+  "--sem-hero-glow-a",
+  "--sem-hero-glow-b",
+  "--sem-hero-check",
+  "--sem-hero-lock",
+  "--sem-violet",
+  "--sem-violet-subtle",
+  "--sem-on-violet-subtle",
+  "--sem-on-violet",
 ] as const;
 
 export type PrimitiveName = (typeof PRIMITIVE_NAMES)[number];
@@ -150,6 +182,11 @@ export const INTENDED_PAIRS: readonly IntendedPair[] = [
   ...pairs("--sem-emergency", [...STATUS_SURFACES, "--sem-emergency-subtle"], 4.5, "status text"),
   ...pairs("--sem-on-emergency", ["--sem-emergency"], 4.5, "text on solid emergency fill"),
   ...pairs("--sem-border-strong", ["--sem-surface", "--sem-page"], 3, "control border"),
+  ...pairs("--sem-on-hero", ["--sem-hero-from", "--sem-hero-via", "--sem-hero-to", "--sem-hero-to-compact"], 4.5, "landing hero text"),
+  ...pairs("--sem-hero-accent-to", ["--sem-hero-from", "--sem-hero-to"], 4.5, "landing hero headline gradient end"),
+  ...pairs("--sem-violet", ["--sem-surface", "--sem-surface-muted"], 4.5, "landing violet accent text"),
+  ...pairs("--sem-on-violet-subtle", ["--sem-violet-subtle"], 4.5, "text on violet chip"),
+  ...pairs("--sem-on-violet", ["--sem-violet"], 4.5, "text on solid violet tag"),
 ];
 
 /** Intended pairs for one theme. */

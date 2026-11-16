@@ -5,9 +5,13 @@
 //   - logo copies in `src/assets/logo/` and `src/app/icon.svg` match the
 //     sha256 of their sources in `src/assets/Medicare logo/solid/`, and
 //     `src/app/favicon.ico` is unchanged (Requirements 7.2, 7.4)
-//   - `src/app/layout.tsx` and `src/app/globals.css` contain no Geist,
-//     Inter, Satoshi or Fontshare reference and no `preload: false` or
-//     `adjustFontFallback: false` (Requirements 5.5, 5.6, 5.8, 6.3)
+//   - `src/app/layout.tsx` and `src/app/globals.css` contain no Geist, Inter
+//     or Montserrat reference, no Fontshare or Google Fonts URL, and no
+//     `preload: false` or `adjustFontFallback: false`
+//   - Satoshi is self-hosted: `layout.tsx` loads it with `next/font/local` from
+//     the two variable files with the agreed options, the files are
+//     byte-identical to the Fontshare originals (the license forbids altering
+//     them) and the license text is next to them
 //   - no remote font `@import` or `<link>` in those files (Requirement 5.3)
 //   - `next.config.ts` matches its baseline hash (Requirement 1.9)
 //
@@ -58,8 +62,9 @@ const FORBIDDEN_PATTERNS = Object.freeze([
   { label: "Geist_Mono", re: /Geist_Mono/g },
   { label: "--font-geist-", re: /--font-geist-/g },
   { label: "Inter (whole word)", re: /\bInter\b/g },
-  { label: "Satoshi", re: /Satoshi/gi },
-  { label: "fontshare", re: /fontshare/gi },
+  { label: "Montserrat", re: /Montserrat/gi },
+  { label: "next/font/google", re: /next\/font\/google/g },
+  { label: "a Fontshare or Google Fonts URL", re: /https?:\/\/[^\s"')]*(?:fontshare|fonts\.googleapis|fonts\.gstatic)[^\s"')]*/gi },
   { label: "preload: false", re: /\bpreload\s*:\s*false\b/g },
   { label: "adjustFontFallback: false", re: /\badjustFontFallback\s*:\s*false\b/g },
 ]);
@@ -131,6 +136,50 @@ function checkForbiddenFontReferences() {
 }
 
 /** Requirement 5.3: no remote `@import` in globals.css, no remote `<link>` or `@import` in layout.tsx. */
+/**
+ * The sha256 of the Fontshare files as downloaded. The ITF Free Font License forbids editing, subsetting
+ * or converting them, so the copies in the repo must never differ from these.
+ */
+const SATOSHI_DIR = join("src", "assets", "fonts", "satoshi");
+const SATOSHI_FILES = Object.freeze({
+  "Satoshi-Variable.woff2": "e739aff9b4d02c264341d6d4872edcda28e79373aeda936f659566a1cd3eb47f",
+  "Satoshi-VariableItalic.woff2": "e7b4e0ec5fbb156df444371d62c3506fe6256db6ffb55c4982dddbb44e2de351",
+  "LICENSE.txt": "145e7fe2429a3336ba215c070ef722000e01348a3e1baaa127e871bb5012f554",
+});
+
+function checkSatoshiSelfHosting() {
+  const failures = [];
+  for (const [name, expected] of Object.entries(SATOSHI_FILES)) {
+    const rel = join(SATOSHI_DIR, name);
+    if (!existsSync(abs(rel))) {
+      failures.push(`${rel}: missing`);
+      continue;
+    }
+    const actual = createHash("sha256").update(readFileSync(abs(rel))).digest("hex");
+    if (actual !== expected) failures.push(`${rel}: sha256 is ${actual}, expected the Fontshare original ${expected}`);
+  }
+  if (!existsSync(abs(LAYOUT))) return [...failures, `${LAYOUT}: missing`];
+  const layout = readFileSync(abs(LAYOUT), "utf8");
+  const needs = [
+    ["imports next/font/local", /from\s+["']next\/font\/local["']/],
+    ["loads the variable file", /Satoshi-Variable\.woff2/],
+    ["covers weights 300 to 900", /weight:\s*["']300 900["']/],
+    ["sets display swap", /display:\s*["']swap["']/],
+    ["defines --font-satoshi", /variable:\s*["']--font-satoshi["']/],
+    ["names the font Satoshi (the constant name becomes the family name)", /const\s+Satoshi\s*=\s*localFont\(/],
+    ["keeps preload on", /preload:\s*true/],
+    ["uses the Arial fallback adjustment", /adjustFontFallback:\s*["']Arial["']/],
+    ["applies the variable class on <html>", /<html[^>]*Satoshi\.variable/],
+  ];
+  for (const [label, re] of needs) if (!re.test(layout)) failures.push(`${LAYOUT}: does not ${label}`);
+  const css = existsSync(abs(GLOBALS)) ? readFileSync(abs(GLOBALS), "utf8") : "";
+  const fontSans = css.match(/--font-sans:\s*([^;]+);/);
+  if (!fontSans || !/^var\(--font-satoshi\)\s*,/.test(fontSans[1].trim())) failures.push(`${GLOBALS}: --font-sans does not start with var(--font-satoshi)`);
+  if ((css.match(/--font-sans\s*:/g) ?? []).length !== 1) failures.push(`${GLOBALS}: --font-sans must be declared exactly once`);
+  if (/--font-montserrat|font-montserrat/.test(css)) failures.push(`${GLOBALS}: the font-montserrat utility must not exist`);
+  return failures;
+}
+
 function checkRemoteFontLoading() {
   const failures = [];
   if (existsSync(abs(GLOBALS))) {
@@ -167,7 +216,8 @@ function checkNextConfig() {
 const STAGE_1_CHECKS = [
   { name: "logo copies match source sha256 (7.2)", run: checkLogoCopies },
   { name: "icon.svg copy and favicon.ico unchanged (7.4)", run: checkAppIcons },
-  { name: "no Geist, Inter, Satoshi, Fontshare or disabled font defaults (5.5, 5.6, 5.8, 6.3)", run: checkForbiddenFontReferences },
+  { name: "no Geist, Inter, Montserrat, remote font URL or disabled font defaults (5.3, 5.5, 5.8)", run: checkForbiddenFontReferences },
+  { name: "Satoshi is self-hosted with next/font/local from unaltered Fontshare files, --font-sans uses it once", run: checkSatoshiSelfHosting },
   { name: "no remote font @import or <link> (5.3)", run: checkRemoteFontLoading },
   { name: "next.config.ts unchanged (1.9)", run: checkNextConfig },
 ];
